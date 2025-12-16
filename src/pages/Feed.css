@@ -1,0 +1,80 @@
+.feed-page {
+  background: var(--cream);
+}
+
+.feed-header {
+  background: var(--gradient-primary);
+  padding: 20px;
+}
+
+.feed-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.feed-header h1 {
+  color: white;
+  font-size: 22px;
+}
+
+.header-points {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-points .streak-badge {
+  color: var(--sunshine);
+  font-size: 14px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.empty-state h2 {
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  transition: transform 0.2s;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+  text-decoration: none;
+}
+
+.fab span {
+  color: white;
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1;
+}

@@ -1,0 +1,178 @@
+.profile-page {
+  background: var(--cream);
+}
+
+.profile-header {
+  background: var(--gradient-primary);
+  padding: 40px 20px 30px;
+  text-align: center;
+}
+
+.profile-avatar-container {
+  margin-bottom: 16px;
+}
+
+.profile-avatar-container .avatar {
+  border: 4px solid white;
+  box-shadow: var(--shadow-md);
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.profile-name-row h1 {
+  color: white;
+  font-size: 24px;
+}
+
+.edit-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 6px 16px;
+  border-radius: var(--radius-button);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.edit-name {
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.edit-name input {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.edit-actions button {
+  padding: 8px 20px;
+  border-radius: var(--radius-button);
+  font-weight: 600;
+  font-size: 14px;
+  background: white;
+  color: var(--coral);
+}
+
+.edit-actions button.cancel {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Stats */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: var(--radius-card);
+  padding: 16px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-value {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--coral);
+  margin-bottom: 4px;
+}
+
+.streak-fire {
+  font-size: 20px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Sections */
+.profile-section {
+  margin-bottom: 24px;
+}
+
+.profile-section h2 {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+/* Family info */
+.family-info {
+  margin-bottom: 12px;
+}
+
+.family-name {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text-dark);
+}
+
+.invite-code-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--cream);
+  padding: 12px;
+  border-radius: var(--radius-input);
+}
+
+.invite-label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.invite-code {
+  font-weight: 700;
+  font-family: monospace;
+  font-size: 16px;
+  color: var(--text-dark);
+  flex: 1;
+}
+
+.copy-btn {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 8px 16px;
+  border-radius: var(--radius-button);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Logout */
+.logout-btn {
+  width: 100%;
+  padding: 14px;
+  background: none;
+  border: 2px solid #e53935;
+  color: #e53935;
+  border-radius: var(--radius-button);
+  font-weight: 700;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: #ffebee;
+}

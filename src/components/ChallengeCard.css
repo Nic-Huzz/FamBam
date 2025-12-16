@@ -1,0 +1,86 @@
+.challenge-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  transition: all 0.3s;
+}
+
+.challenge-card.completed {
+  opacity: 0.7;
+  background: var(--cream);
+}
+
+.challenge-checkbox {
+  position: relative;
+}
+
+.challenge-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.challenge-checkbox label {
+  display: block;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.challenge-checkbox .checkmark {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border: 3px solid #ddd;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.challenge-checkbox input:checked ~ label .checkmark {
+  background: var(--gradient-primary);
+  border-color: var(--coral);
+}
+
+.challenge-checkbox input:checked ~ label .checkmark::after {
+  content: '✓';
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  height: 100%;
+}
+
+.challenge-icon {
+  font-size: 32px;
+  width: 50px;
+  height: 50px;
+  background: var(--blush);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.challenge-info {
+  flex: 1;
+}
+
+.challenge-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.challenge-description {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.challenge-points {
+  flex-shrink: 0;
+}

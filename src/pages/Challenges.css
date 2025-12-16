@@ -1,0 +1,72 @@
+.challenges-page .page-header {
+  padding-bottom: 24px;
+}
+
+.progress-info {
+  margin-top: 16px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--sunshine);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Completion modal */
+.completion-modal {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.completion-emoji {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 16px;
+  animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.completion-modal h2 {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.completion-points {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--coral);
+  margin-bottom: 8px;
+}
+
+.completion-message {
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.completion-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.completion-actions button {
+  width: 100%;
+}

@@ -1,0 +1,145 @@
+.post-card {
+  margin-bottom: 16px;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.post-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-author {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.post-time {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.post-content {
+  margin-bottom: 12px;
+}
+
+.post-message {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.post-image {
+  width: 100%;
+  border-radius: 12px;
+  max-height: 400px;
+  object-fit: cover;
+}
+
+.post-reactions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.reaction-btn {
+  background: var(--blush);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reaction-btn:hover {
+  background: #ffe8e8;
+}
+
+.reaction-btn.active {
+  background: var(--coral);
+  color: white;
+}
+
+.reaction-count {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.comments-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.comments-toggle:hover {
+  color: var(--coral);
+}
+
+.comments-section {
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+.comment {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.comment-content {
+  flex: 1;
+  background: var(--cream);
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-dark);
+}
+
+.comment-text {
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.comment-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.comment-form input {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.comment-form button {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 10px 20px;
+  border-radius: var(--radius-button);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.comment-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

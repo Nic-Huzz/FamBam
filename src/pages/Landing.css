@@ -1,0 +1,186 @@
+.landing-page {
+  min-height: 100vh;
+}
+
+.landing-hero {
+  background: var(--gradient-primary);
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+@media (min-width: 768px) {
+  .landing-hero {
+    flex-direction: row;
+    justify-content: center;
+    padding: 80px 40px;
+    gap: 80px;
+  }
+}
+
+.landing-content {
+  text-align: center;
+  max-width: 500px;
+}
+
+@media (min-width: 768px) {
+  .landing-content {
+    text-align: left;
+  }
+}
+
+.landing-title {
+  color: white;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+  .landing-title {
+    font-size: 48px;
+  }
+}
+
+.landing-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.landing-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .landing-buttons {
+    justify-content: flex-start;
+  }
+}
+
+.landing-buttons .btn-primary {
+  background: white;
+  color: var(--coral);
+}
+
+.landing-buttons .btn-secondary {
+  background: transparent;
+  color: white;
+  border-color: white;
+}
+
+.landing-buttons .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Phone mockup */
+.phone-frame {
+  width: 280px;
+  background: #1a1a1a;
+  border-radius: 40px;
+  padding: 12px;
+  box-shadow: var(--shadow-lg);
+}
+
+.phone-screen {
+  background: var(--cream);
+  border-radius: 32px;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.mock-header {
+  background: var(--gradient-primary);
+  margin: -16px -16px 16px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  font-weight: 700;
+}
+
+.mock-points {
+  background: var(--sunshine);
+  color: var(--text-dark);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.mock-post {
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.mock-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+}
+
+.mock-content {
+  flex: 1;
+}
+
+.mock-name {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.mock-text {
+  font-size: 13px;
+  color: var(--text-body);
+}
+
+.mock-reactions {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  padding: 0 12px;
+}
+
+/* Features section */
+.landing-features {
+  padding: 60px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 32px 24px;
+  background: white;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.feature-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.feature-card h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.feature-card p {
+  color: var(--text-muted);
+  font-size: 15px;
+}
