@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase, generateInviteCode } from '../lib/supabase'
+import { supabase, supabaseFetch } from '../lib/supabase'
 
 const AuthContext = createContext({})
 
@@ -8,22 +8,22 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [family, setFamily] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id)
-      } else {
-        setLoading(false)
-      }
-    })
+    checkSession()
 
     // Listen to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event)
       setUser(session?.user ?? null)
+
       if (session?.user) {
+        // Small delay to allow profile creation to complete (for signup flow)
+        if (event === 'SIGNED_IN') {
+          await new Promise(resolve => setTimeout(resolve, 500))
+        }
         await fetchProfile(session.user.id)
       } else {
         setProfile(null)
@@ -35,104 +35,81 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  async function fetchProfile(userId) {
+  async function checkSession() {
     try {
-      const { data: profileData, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single()
+      const { data: { session } } = await supabase.auth.getSession()
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        await fetchProfile(session.user.id)
+      } else {
+        setLoading(false)
+      }
+    } catch (e) {
+      console.error('Session check error:', e)
+      setLoading(false)
+    }
+  }
 
-      if (profileError) throw profileError
+  async function fetchProfile(userId) {
+    console.log('Fetching profile for:', userId)
+    setError(null)
+
+    try {
+      // Use raw fetch instead of SDK
+      const { data: profileData, error: profileError } = await supabaseFetch('users', {
+        filters: [{ column: 'id', op: 'eq', value: userId }],
+        single: true
+      })
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError)
+        setError(profileError.message || 'Failed to fetch profile')
+        setLoading(false)
+        return
+      }
+
+      if (!profileData) {
+        console.log('No profile found for user')
+        setProfile(null)
+        setFamily(null)
+        setLoading(false)
+        return
+      }
+
+      console.log('Profile found:', profileData)
       setProfile(profileData)
 
-      if (profileData?.family_id) {
-        const { data: familyData, error: familyError } = await supabase
-          .from('families')
-          .select('*')
-          .eq('id', profileData.family_id)
-          .single()
+      if (profileData.family_id) {
+        const { data: familyData, error: familyError } = await supabaseFetch('families', {
+          filters: [{ column: 'id', op: 'eq', value: profileData.family_id }],
+          single: true
+        })
 
-        if (familyError) throw familyError
-        setFamily(familyData)
+        if (familyError) {
+          console.error('Family fetch error:', familyError)
+        } else {
+          console.log('Family found:', familyData)
+          setFamily(familyData)
+        }
       }
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      console.error('Error in fetchProfile:', error)
+      setError(error.message)
     } finally {
       setLoading(false)
     }
   }
 
-  async function signUp({ email, password, name, familyName, inviteCode }) {
-    // Sign up with Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-
-    if (authError) throw authError
-
-    let familyId = null
-
-    if (inviteCode) {
-      // Join existing family
-      const { data: existingFamily, error: familyError } = await supabase
-        .from('families')
-        .select('id')
-        .eq('invite_code', inviteCode.toUpperCase())
-        .single()
-
-      if (familyError || !existingFamily) {
-        throw new Error('Invalid invite code')
-      }
-      familyId = existingFamily.id
-    } else if (familyName) {
-      // Create new family
-      const newCode = generateInviteCode()
-
-      const { data: newFamily, error: createError } = await supabase
-        .from('families')
-        .insert({ name: familyName, invite_code: newCode })
-        .select()
-        .single()
-
-      if (createError) throw createError
-      familyId = newFamily.id
-    }
-
-    // Create user profile
-    const { error: profileError } = await supabase
-      .from('users')
-      .insert({
-        id: authData.user.id,
-        email,
-        name,
-        family_id: familyId,
-        points_total: 0,
-        streak_days: 0,
-      })
-
-    if (profileError) throw profileError
-
-    return authData
-  }
-
-  async function signIn({ email, password }) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    if (error) throw error
-    return data
-  }
-
   async function signOut() {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
+    setProfile(null)
+    setFamily(null)
   }
 
   async function refreshProfile() {
     if (user) {
+      setLoading(true)
       await fetchProfile(user.id)
     }
   }
@@ -142,8 +119,7 @@ export function AuthProvider({ children }) {
     profile,
     family,
     loading,
-    signUp,
-    signIn,
+    error,
     signOut,
     refreshProfile,
   }

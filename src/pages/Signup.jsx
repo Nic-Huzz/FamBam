@@ -230,17 +230,17 @@ export default function Signup() {
                 type="text"
                 id="otp"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="123456"
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                placeholder="12345678"
                 className="otp-input"
-                maxLength={6}
+                maxLength={8}
                 required
                 autoFocus
               />
-              <p className="form-hint">Check your email for the 6-digit code</p>
+              <p className="form-hint">Check your email for the 8-digit code</p>
             </div>
 
-            <button type="submit" className="btn-primary auth-submit" disabled={loading || otp.length !== 6}>
+            <button type="submit" className="btn-primary auth-submit" disabled={loading || otp.length !== 8}>
               {loading ? 'Creating account...' : 'Verify & Create Account'}
             </button>
 
