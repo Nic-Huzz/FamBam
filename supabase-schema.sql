@@ -46,8 +46,12 @@ CREATE TABLE posts (
   content_type TEXT CHECK (content_type IN ('text', 'photo', 'video', 'audio')) DEFAULT 'text',
   content_url TEXT,
   message TEXT,
+  post_type TEXT, -- Optional tag: good_news, win, surprise, curiosity, learning, grateful, weekend
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Migration for existing databases:
+-- ALTER TABLE posts ADD COLUMN IF NOT EXISTS post_type TEXT;
 
 -- Reactions table
 CREATE TABLE reactions (

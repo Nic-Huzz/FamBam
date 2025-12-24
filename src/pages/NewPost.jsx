@@ -251,6 +251,7 @@ export default function NewPost() {
           content_type: contentType,
           content_url: contentUrl,
           message: message.trim(),
+          post_type: postType || null,
         })
 
       if (postError) throw postError

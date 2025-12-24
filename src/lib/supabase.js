@@ -146,6 +146,12 @@ export async function autoCompleteChallenge(userId, contentTypeOrTitle, userProf
       })
 
     if (insertError) {
+      // If it's a unique constraint violation, the challenge was already completed
+      if (insertError.code === '23505') {
+        console.log('Challenge already completed this time')
+        return null
+      }
+      // For RLS or other errors, log but don't block
       console.error('Error recording completion:', insertError)
       return null
     }

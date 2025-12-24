@@ -7,6 +7,17 @@ import './PostCard.css'
 
 const REACTION_EMOJIS = ['❤️', '😂', '😮', '🙌', '🎉']
 
+// Map post_type values to display labels and icons
+const POST_TYPE_LABELS = {
+  'good_news': { label: 'Good News', icon: '🎉' },
+  'win': { label: 'Celebrating', icon: '🏆' },
+  'surprise': { label: 'Surprise', icon: '😲' },
+  'curiosity': { label: 'Curiosity', icon: '🔍' },
+  'learning': { label: 'Learning', icon: '💡' },
+  'grateful': { label: 'Grateful', icon: '🙏' },
+  'weekend': { label: 'Weekend Plans', icon: '📅' },
+}
+
 export default function PostCard({ post, onUpdate }) {
   const { profile } = useAuth()
   const [showComments, setShowComments] = useState(false)
@@ -122,7 +133,14 @@ export default function PostCard({ post, onUpdate }) {
           className="avatar avatar-md"
         />
         <div className="post-meta">
-          <span className="post-author">{post.author?.name}</span>
+          <div className="post-meta-top">
+            <span className="post-author">{post.author?.name}</span>
+            {post.post_type && POST_TYPE_LABELS[post.post_type] && (
+              <span className="post-type-tag">
+                {POST_TYPE_LABELS[post.post_type].icon} {POST_TYPE_LABELS[post.post_type].label}
+              </span>
+            )}
+          </div>
           <span className="post-time">{timeAgo(post.created_at)}</span>
         </div>
       </div>
