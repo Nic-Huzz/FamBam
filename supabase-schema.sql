@@ -246,7 +246,6 @@ INSERT INTO challenges (title, description, points_value, icon, max_completions_
   ('Share a video highlight', 'Share the best moment of your week', 40, '⭐', 3, true),
   ('Reply to a post', 'Leave a comment on someone''s update', 20, '💬', 1, true),
   ('Share a memory', 'Post a throwback photo or story', 40, '🕰️', 3, true),
-  ('Plan a future visit', 'Discuss dates for getting together', 60, '🗓️', 1, true),
   ('Share good news', 'Post something positive happening in your life', 40, '🎉', 1, true),
   ('Celebrate a win', 'Hype up a family member''s achievement', 35, '🏆', 1, true),
   ('Weekend plans check-in', 'Share or ask about weekend plans', 25, '📅', 1, true),

@@ -26,23 +26,7 @@
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
-/* Dark mode - follows system preference */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --cream: #121212;
-    --blush: #1e1e1e;
-    --white: #1a1a1a;
-    --text-dark: #e5e5e5;
-    --text-body: #c0c0c0;
-    --text-muted: #888888;
-    --border-light: #333333;
-
-    /* Adjusted shadows for dark mode */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  }
-}
+/* Dark mode disabled - keeping light theme only for now */
 
 * {
   margin: 0;

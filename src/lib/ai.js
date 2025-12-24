@@ -32,7 +32,7 @@ async function callClaude(systemPrompt, userMessage, options = {}) {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-20250414',
+        model: 'claude-3-haiku-20240307',
         max_tokens: maxTokens,
         system: systemPrompt,
         messages: [
