@@ -146,8 +146,50 @@
 }
 
 /* Family info */
+.family-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.family-avatar-container {
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.family-avatar {
+  border: 3px solid var(--cream);
+  box-shadow: var(--shadow-sm);
+}
+
+.family-avatar.uploading {
+  opacity: 0.6;
+}
+
+.family-avatar-container:hover .family-avatar {
+  opacity: 0.8;
+}
+
+.family-avatar-edit-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
 .family-info {
-  margin-bottom: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
 .family-name {

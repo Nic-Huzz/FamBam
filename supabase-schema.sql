@@ -10,16 +10,19 @@ CREATE TABLE families (
   name TEXT NOT NULL,
   invite_code TEXT UNIQUE NOT NULL,
   created_by UUID,
+  avatar_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Migration for existing databases:
 -- ALTER TABLE families ADD COLUMN IF NOT EXISTS created_by UUID;
+-- ALTER TABLE families ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
 -- Users table (extends Supabase auth.users)
 CREATE TABLE users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email TEXT UNIQUE NOT NULL,
+  email TEXT,
+  phone TEXT,
   name TEXT NOT NULL,
   avatar_url TEXT,
   family_id UUID REFERENCES families(id) ON DELETE SET NULL,
@@ -32,6 +35,8 @@ CREATE TABLE users (
 
 -- Migration for existing databases:
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS last_challenge_week INTEGER;
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT;
+-- ALTER TABLE users ALTER COLUMN email DROP NOT NULL;
 
 -- Posts table
 CREATE TABLE posts (

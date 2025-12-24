@@ -4,35 +4,57 @@ import { supabase } from '../lib/supabase'
 import './Auth.css'
 
 export default function Login() {
+  const [authMethod, setAuthMethod] = useState('phone') // 'phone' or 'email'
+  const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [otp, setOtp] = useState('')
-  const [step, setStep] = useState('email') // 'email' or 'verify'
+  const [step, setStep] = useState('input') // 'input' or 'verify'
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
+  // Format phone number for display
+  const formatPhoneDisplay = (value) => {
+    const digits = value.replace(/\D/g, '')
+    if (digits.length <= 3) return digits
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`
+  }
+
+  // Get E.164 format for API
+  const getE164Phone = (value) => {
+    const digits = value.replace(/\D/g, '')
+    return `+1${digits}` // Assuming US numbers
+  }
+
   const handleSendCode = async (e) => {
     e.preventDefault()
     setError('')
+
+    const digits = phone.replace(/\D/g, '')
+    if (digits.length !== 10) {
+      setError('Please enter a valid 10-digit phone number')
+      return
+    }
+
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: false, // Don't create new users on login
-        }
+      const { data, error } = await supabase.auth.signInWithOtp({
+        phone: getE164Phone(phone),
       })
 
+      console.log('OTP Response:', { data, error })
+
       if (error) {
-        if (error.message.includes('Signups not allowed')) {
-          throw new Error('No account found with this email. Please sign up first.')
-        }
+        console.error('OTP Error:', error)
         throw error
       }
 
       setStep('verify')
     } catch (err) {
+      console.error('Catch block error:', err)
       setError(err.message || 'Failed to send code')
     } finally {
       setLoading(false)
@@ -45,16 +67,61 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone: getE164Phone(phone),
         token: otp,
-        type: 'email'
+        type: 'sms'
       })
 
       if (error) throw error
-      navigate('/feed')
+
+      // Check if user has a profile
+      const { data: profile } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', data.user.id)
+        .single()
+
+      if (!profile) {
+        // New user - redirect to complete signup
+        navigate('/signup?complete=true&phone=' + encodeURIComponent(getE164Phone(phone)))
+      } else {
+        navigate('/feed')
+      }
     } catch (err) {
       setError(err.message || 'Invalid code')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEmailLogin = async (e) => {
+    e.preventDefault()
+    setError('')
+
+    if (!email || !password) {
+      setError('Please enter email and password')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) throw error
+
+      navigate('/feed')
+    } catch (err) {
+      console.error('Login error:', err)
+      if (err.message.includes('Invalid login credentials')) {
+        setError('Invalid email or password')
+      } else {
+        setError(err.message || 'Failed to sign in')
+      }
     } finally {
       setLoading(false)
     }
@@ -67,35 +134,95 @@ export default function Login() {
           <Link to="/" className="auth-logo">FamBam</Link>
           <h1>Welcome back!</h1>
           <p>
-            {step === 'email'
-              ? 'Enter your email to receive a login code'
-              : `We sent a code to ${email}`
+            {step === 'input'
+              ? 'Sign in to connect with your family'
+              : `We sent a code to ${formatPhoneDisplay(phone)}`
             }
           </p>
         </div>
 
-        {step === 'email' ? (
-          <form onSubmit={handleSendCode} className="auth-form">
-            {error && <div className="auth-error">{error}</div>}
-
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                autoFocus
-              />
+        {step === 'input' && (
+          <>
+            {/* Auth Method Toggle */}
+            <div className="auth-method-toggle">
+              <button
+                type="button"
+                className={`method-btn ${authMethod === 'phone' ? 'active' : ''}`}
+                onClick={() => { setAuthMethod('phone'); setError('') }}
+              >
+                Phone
+              </button>
+              <button
+                type="button"
+                className={`method-btn ${authMethod === 'email' ? 'active' : ''}`}
+                onClick={() => { setAuthMethod('email'); setError('') }}
+              >
+                Email
+              </button>
             </div>
 
-            <button type="submit" className="btn-primary auth-submit" disabled={loading}>
-              {loading ? 'Sending...' : 'Send Login Code'}
-            </button>
-          </form>
-        ) : (
+            {authMethod === 'phone' ? (
+              <form onSubmit={handleSendCode} className="auth-form">
+                {error && <div className="auth-error">{error}</div>}
+
+                <div className="form-group">
+                  <label htmlFor="phone">Phone Number</label>
+                  <div className="phone-input-wrapper">
+                    <span className="phone-prefix">+1</span>
+                    <input
+                      type="tel"
+                      id="phone"
+                      value={formatPhoneDisplay(phone)}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      placeholder="(555) 123-4567"
+                      required
+                      autoFocus
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="btn-primary auth-submit" disabled={loading}>
+                  {loading ? 'Sending...' : 'Send Login Code'}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleEmailLogin} className="auth-form">
+                {error && <div className="auth-error">{error}</div>}
+
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="password">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Your password"
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="btn-primary auth-submit" disabled={loading}>
+                  {loading ? 'Signing in...' : 'Sign In'}
+                </button>
+              </form>
+            )}
+          </>
+        )}
+
+        {step === 'verify' && (
           <form onSubmit={handleVerifyCode} className="auth-form">
             {error && <div className="auth-error">{error}</div>}
 
@@ -105,17 +232,17 @@ export default function Login() {
                 type="text"
                 id="otp"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 8))}
-                placeholder="12345678"
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="123456"
                 className="otp-input"
-                maxLength={8}
+                maxLength={6}
                 required
                 autoFocus
               />
-              <p className="form-hint">Check your email for the 8-digit code</p>
+              <p className="form-hint">Check your texts for the 6-digit code</p>
             </div>
 
-            <button type="submit" className="btn-primary auth-submit" disabled={loading || otp.length !== 8}>
+            <button type="submit" className="btn-primary auth-submit" disabled={loading || otp.length !== 6}>
               {loading ? 'Verifying...' : 'Verify & Login'}
             </button>
 
@@ -123,12 +250,12 @@ export default function Login() {
               type="button"
               className="btn-secondary auth-submit"
               onClick={() => {
-                setStep('email')
+                setStep('input')
                 setOtp('')
                 setError('')
               }}
             >
-              Use different email
+              Use different number
             </button>
           </form>
         )}

@@ -82,6 +82,9 @@ input:focus, textarea:focus {
 
 /* Primary Button */
 .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--gradient-primary);
   color: white;
   padding: 14px 32px;
@@ -90,6 +93,7 @@ input:focus, textarea:focus {
   font-weight: 700;
   box-shadow: var(--shadow-md);
   transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
 }
 
 .btn-primary:hover {

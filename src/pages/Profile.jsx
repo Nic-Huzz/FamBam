@@ -39,6 +39,7 @@ export default function Profile() {
   const [showDeleteAccount, setShowDeleteAccount] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [familyAvatarUploading, setFamilyAvatarUploading] = useState(false)
 
   const isAdmin = family?.created_by === profile?.id
 
@@ -167,6 +168,52 @@ export default function Profile() {
       alert('Failed to upload avatar. Make sure the avatars bucket exists in Supabase.')
     } finally {
       setAvatarUploading(false)
+    }
+  }
+
+  const handleFamilyAvatarChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file || !family?.id) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    const MAX_SIZE = 5 * 1024 * 1024 // 5MB
+    if (file.size > MAX_SIZE) {
+      alert('Image too large. Max size: 5MB')
+      return
+    }
+
+    setFamilyAvatarUploading(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `family-${family.id}-avatar-${Date.now()}.${fileExt}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file)
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName)
+
+      const { error: updateError } = await supabase
+        .from('families')
+        .update({ avatar_url: publicUrl })
+        .eq('id', family.id)
+
+      if (updateError) throw updateError
+
+      await refreshProfile()
+    } catch (error) {
+      console.error('Error uploading family avatar:', error)
+      alert('Failed to upload family avatar. Make sure the avatars bucket exists in Supabase.')
+    } finally {
+      setFamilyAvatarUploading(false)
     }
   }
 
@@ -405,8 +452,26 @@ export default function Profile() {
         <section className="profile-section">
           <h2>Family</h2>
           <div className="card">
-            <div className="family-info">
-              {editingFamily ? (
+            <div className="family-header-row">
+              <label className="family-avatar-container">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFamilyAvatarChange}
+                  hidden
+                  disabled={familyAvatarUploading}
+                />
+                <img
+                  src={family?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(family?.name || 'Family')}&background=6B5CE7&color=fff&size=80`}
+                  alt={family?.name}
+                  className={`avatar avatar-lg family-avatar ${familyAvatarUploading ? 'uploading' : ''}`}
+                />
+                <span className="family-avatar-edit-icon">
+                  {familyAvatarUploading ? '...' : '📷'}
+                </span>
+              </label>
+              <div className="family-info">
+                {editingFamily ? (
                 <div className="edit-family-name">
                   <input
                     type="text"
@@ -437,6 +502,7 @@ export default function Profile() {
                 </div>
               )}
               {isAdmin && <span className="admin-badge">Admin</span>}
+              </div>
             </div>
             {family?.invite_code && (
               <div className="invite-code-row">

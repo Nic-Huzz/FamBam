@@ -1,13 +1,20 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase, generateInviteCode } from '../lib/supabase'
 import './Auth.css'
 
 export default function Signup() {
-  const [step, setStep] = useState('details') // 'details', 'verify'
-  const [name, setName] = useState('')
+  const [searchParams] = useSearchParams()
+  const isCompleting = searchParams.get('complete') === 'true'
+  const phoneFromUrl = searchParams.get('phone') || ''
+
+  const [authMethod, setAuthMethod] = useState('phone') // 'phone' or 'email'
+  const [step, setStep] = useState(isCompleting ? 'details' : 'input') // 'input', 'verify', 'details'
+  const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [otp, setOtp] = useState('')
+  const [name, setName] = useState('')
   const [joinType, setJoinType] = useState('join') // 'join' or 'create'
   const [familyName, setFamilyName] = useState('')
   const [inviteCode, setInviteCode] = useState('')
@@ -15,47 +22,60 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  // Store signup data for after verification
-  const [signupData, setSignupData] = useState(null)
+  // Store verified user data
+  const [verifiedUserId, setVerifiedUserId] = useState(null)
+  const [verifiedPhone, setVerifiedPhone] = useState(phoneFromUrl)
+  const [verifiedEmail, setVerifiedEmail] = useState('')
+
+  // If completing signup from login redirect, get current user
+  useEffect(() => {
+    if (isCompleting) {
+      const checkUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          setVerifiedUserId(user.id)
+          setVerifiedPhone(phoneFromUrl || user.phone || '')
+          setVerifiedEmail(user.email || '')
+        } else {
+          setStep('input')
+        }
+      }
+      checkUser()
+    }
+  }, [isCompleting, phoneFromUrl])
+
+  // Format phone number for display
+  const formatPhoneDisplay = (value) => {
+    const digits = value.replace(/\D/g, '')
+    if (digits.length <= 3) return digits
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`
+  }
+
+  // Get E.164 format for API
+  const getE164Phone = (value) => {
+    const digits = value.replace(/\D/g, '')
+    return `+1${digits}`
+  }
 
   const handleSendCode = async (e) => {
     e.preventDefault()
     setError('')
 
-    if (joinType === 'join' && !inviteCode.trim()) {
-      setError('Please enter your family invite code')
-      return
-    }
-
-    if (joinType === 'create' && !familyName.trim()) {
-      setError('Please enter a name for your family')
+    const digits = phone.replace(/\D/g, '')
+    if (digits.length !== 10) {
+      setError('Please enter a valid 10-digit phone number')
       return
     }
 
     setLoading(true)
 
     try {
-      // Send OTP
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: true,
-          data: {
-            name: name,
-          }
-        }
+      const { data, error } = await supabase.auth.signInWithOtp({
+        phone: getE164Phone(phone),
       })
 
       if (error) throw error
-
-      // Store data for after verification
-      setSignupData({
-        name,
-        email,
-        familyName: joinType === 'create' ? familyName : null,
-        inviteCode: joinType === 'join' ? inviteCode : null,
-      })
-
       setStep('verify')
     } catch (err) {
       setError(err.message || 'Failed to send code')
@@ -70,40 +90,108 @@ export default function Signup() {
     setLoading(true)
 
     try {
-      // Verify OTP
-      const { data: authData, error: verifyError } = await supabase.auth.verifyOtp({
-        email,
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone: getE164Phone(phone),
         token: otp,
-        type: 'email'
+        type: 'sms'
       })
 
-      if (verifyError) throw verifyError
+      if (error) throw error
 
-      // Now create the family and profile
+      setVerifiedUserId(data.user.id)
+      setVerifiedPhone(getE164Phone(phone))
+      setStep('details')
+    } catch (err) {
+      setError(err.message || 'Invalid code')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEmailSignup = async (e) => {
+    e.preventDefault()
+    setError('')
+
+    if (!email || !password) {
+      setError('Please enter email and password')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
+
+      if (error) throw error
+
+      if (data.user) {
+        setVerifiedUserId(data.user.id)
+        setVerifiedEmail(email)
+        setStep('details')
+      }
+    } catch (err) {
+      if (err.message.includes('already registered')) {
+        setError('This email is already registered. Try signing in instead.')
+      } else {
+        setError(err.message || 'Failed to create account')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCreateProfile = async (e) => {
+    e.preventDefault()
+    setError('')
+
+    if (!name.trim()) {
+      setError('Please enter your name')
+      return
+    }
+
+    if (joinType === 'join' && !inviteCode.trim()) {
+      setError('Please enter your family invite code')
+      return
+    }
+
+    if (joinType === 'create' && !familyName.trim()) {
+      setError('Please enter a name for your family')
+      return
+    }
+
+    setLoading(true)
+
+    try {
       let familyId = null
 
-      if (signupData.inviteCode) {
-        // Join existing family
+      if (joinType === 'join') {
         const { data: existingFamily, error: familyError } = await supabase
           .from('families')
           .select('id')
-          .eq('invite_code', signupData.inviteCode.toUpperCase())
+          .eq('invite_code', inviteCode.toUpperCase())
           .single()
 
         if (familyError || !existingFamily) {
           throw new Error('Invalid invite code')
         }
         familyId = existingFamily.id
-      } else if (signupData.familyName) {
-        // Create new family with current user as admin
+      } else {
         const newCode = generateInviteCode()
 
         const { data: newFamily, error: createError } = await supabase
           .from('families')
           .insert({
-            name: signupData.familyName,
+            name: familyName,
             invite_code: newCode,
-            created_by: authData.user.id
+            created_by: verifiedUserId
           })
           .select()
           .single()
@@ -116,9 +204,10 @@ export default function Signup() {
       const { error: profileError } = await supabase
         .from('users')
         .insert({
-          id: authData.user.id,
-          email: signupData.email,
-          name: signupData.name,
+          id: verifiedUserId,
+          email: verifiedEmail || '',
+          phone: verifiedPhone || '',
+          name: name.trim(),
           family_id: familyId,
           points_total: 0,
           streak_days: 0,
@@ -128,7 +217,7 @@ export default function Signup() {
 
       navigate('/feed')
     } catch (err) {
-      setError(err.message || 'Verification failed')
+      setError(err.message || 'Failed to create account')
     } finally {
       setLoading(false)
     }
@@ -139,17 +228,139 @@ export default function Signup() {
       <div className="auth-container">
         <div className="auth-header">
           <Link to="/" className="auth-logo">FamBam</Link>
-          <h1>{step === 'details' ? 'Join the family!' : 'Verify your email'}</h1>
+          <h1>
+            {step === 'input' && 'Join the family!'}
+            {step === 'verify' && 'Verify your number'}
+            {step === 'details' && 'Almost there!'}
+          </h1>
           <p>
-            {step === 'details'
-              ? 'Create an account to start connecting'
-              : `We sent a code to ${email}`
-            }
+            {step === 'input' && 'Create an account to start connecting'}
+            {step === 'verify' && `We sent a code to ${formatPhoneDisplay(phone)}`}
+            {step === 'details' && 'Tell us a bit about yourself'}
           </p>
         </div>
 
-        {step === 'details' ? (
-          <form onSubmit={handleSendCode} className="auth-form">
+        {step === 'input' && (
+          <>
+            {/* Auth Method Toggle */}
+            <div className="auth-method-toggle">
+              <button
+                type="button"
+                className={`method-btn ${authMethod === 'phone' ? 'active' : ''}`}
+                onClick={() => { setAuthMethod('phone'); setError('') }}
+              >
+                Phone
+              </button>
+              <button
+                type="button"
+                className={`method-btn ${authMethod === 'email' ? 'active' : ''}`}
+                onClick={() => { setAuthMethod('email'); setError('') }}
+              >
+                Email
+              </button>
+            </div>
+
+            {authMethod === 'phone' ? (
+              <form onSubmit={handleSendCode} className="auth-form">
+                {error && <div className="auth-error">{error}</div>}
+
+                <div className="form-group">
+                  <label htmlFor="phone">Phone Number</label>
+                  <div className="phone-input-wrapper">
+                    <span className="phone-prefix">+1</span>
+                    <input
+                      type="tel"
+                      id="phone"
+                      value={formatPhoneDisplay(phone)}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      placeholder="(555) 123-4567"
+                      required
+                      autoFocus
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="btn-primary auth-submit" disabled={loading}>
+                  {loading ? 'Sending...' : 'Send Code'}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleEmailSignup} className="auth-form">
+                {error && <div className="auth-error">{error}</div>}
+
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="password">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Create a password (min 6 characters)"
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="btn-primary auth-submit" disabled={loading}>
+                  {loading ? 'Creating...' : 'Continue'}
+                </button>
+              </form>
+            )}
+          </>
+        )}
+
+        {step === 'verify' && (
+          <form onSubmit={handleVerifyCode} className="auth-form">
+            {error && <div className="auth-error">{error}</div>}
+
+            <div className="form-group">
+              <label htmlFor="otp">Verification Code</label>
+              <input
+                type="text"
+                id="otp"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="123456"
+                className="otp-input"
+                maxLength={6}
+                required
+                autoFocus
+              />
+              <p className="form-hint">Check your texts for the 6-digit code</p>
+            </div>
+
+            <button type="submit" className="btn-primary auth-submit" disabled={loading || otp.length !== 6}>
+              {loading ? 'Verifying...' : 'Verify'}
+            </button>
+
+            <button
+              type="button"
+              className="btn-secondary auth-submit"
+              onClick={() => {
+                setStep('input')
+                setOtp('')
+                setError('')
+              }}
+            >
+              Use different number
+            </button>
+          </form>
+        )}
+
+        {step === 'details' && (
+          <form onSubmit={handleCreateProfile} className="auth-form">
             {error && <div className="auth-error">{error}</div>}
 
             <div className="form-group">
@@ -161,18 +372,7 @@ export default function Signup() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="What does your family call you?"
                 required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
+                autoFocus
               />
             </div>
 
@@ -221,43 +421,7 @@ export default function Signup() {
             )}
 
             <button type="submit" className="btn-primary auth-submit" disabled={loading}>
-              {loading ? 'Sending code...' : 'Continue'}
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyCode} className="auth-form">
-            {error && <div className="auth-error">{error}</div>}
-
-            <div className="form-group">
-              <label htmlFor="otp">Verification Code</label>
-              <input
-                type="text"
-                id="otp"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 8))}
-                placeholder="12345678"
-                className="otp-input"
-                maxLength={8}
-                required
-                autoFocus
-              />
-              <p className="form-hint">Check your email for the 8-digit code</p>
-            </div>
-
-            <button type="submit" className="btn-primary auth-submit" disabled={loading || otp.length !== 8}>
-              {loading ? 'Creating account...' : 'Verify & Create Account'}
-            </button>
-
-            <button
-              type="button"
-              className="btn-secondary auth-submit"
-              onClick={() => {
-                setStep('details')
-                setOtp('')
-                setError('')
-              }}
-            >
-              Go back
+              {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
         )}
