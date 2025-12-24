@@ -218,8 +218,8 @@
   color: var(--text-muted);
 }
 
-/* Toggle button */
-.toggle-btn {
+/* Toggle switch (for notifications) */
+.setting-row .toggle-btn {
   width: 52px;
   height: 28px;
   background: var(--border-light);
@@ -228,13 +228,14 @@
   position: relative;
   cursor: pointer;
   transition: background 0.2s;
+  flex-shrink: 0;
 }
 
-.toggle-btn.active {
+.setting-row .toggle-btn.active {
   background: var(--coral);
 }
 
-.toggle-btn:disabled {
+.setting-row .toggle-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -251,7 +252,7 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.toggle-btn.active .toggle-slider {
+.setting-row .toggle-btn.active .toggle-slider {
   transform: translateX(24px);
 }
 
