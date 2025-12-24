@@ -66,9 +66,13 @@ export default function Profile() {
       const supported = isPushSupported()
       setPushSupported(supported)
 
+      // Check if notifications are enabled (either via push subscription or permission)
       if (supported) {
         const subscribed = await isSubscribedToPush()
         setNotificationsEnabled(subscribed)
+      } else if ('Notification' in window) {
+        // Fallback: just check permission
+        setNotificationsEnabled(Notification.permission === 'granted')
       }
     }
 
@@ -95,20 +99,28 @@ export default function Profile() {
   }, [family?.id])
 
   const handleNotificationToggle = async () => {
-    if (!pushSupported || !profile?.id) return
+    if (!profile?.id) return
 
     setNotificationLoading(true)
     try {
       if (notificationsEnabled) {
-        await unsubscribeFromPush(profile.id)
+        // Disable notifications
+        if (pushSupported) {
+          await unsubscribeFromPush(profile.id)
+        }
         setNotificationsEnabled(false)
       } else {
-        if (!VAPID_PUBLIC_KEY) {
-          console.warn('VAPID public key not configured')
-          alert('Push notifications are not configured yet')
+        // Request permission first
+        const permission = await Notification.requestPermission()
+        if (permission !== 'granted') {
+          alert('Notification permission was denied. Please enable it in your browser settings.')
           return
         }
-        await subscribeToPush(profile.id, VAPID_PUBLIC_KEY)
+
+        // If push is supported and VAPID key is set, do full push subscription
+        if (pushSupported && VAPID_PUBLIC_KEY) {
+          await subscribeToPush(profile.id, VAPID_PUBLIC_KEY)
+        }
         setNotificationsEnabled(true)
       }
     } catch (error) {
@@ -639,12 +651,18 @@ export default function Profile() {
         <section className="profile-section">
           <h2>Settings</h2>
           <div className="card settings-card">
-            {pushSupported && (
-              <div className="setting-row">
-                <div className="setting-info">
-                  <span className="setting-label">Push Notifications</span>
-                  <span className="setting-desc">Get notified about new posts and activity</span>
-                </div>
+            <div className="setting-row">
+              <div className="setting-info">
+                <span className="setting-label">Push Notifications</span>
+                <span className="setting-desc">
+                  {!('Notification' in window)
+                    ? 'Not supported in this browser'
+                    : notificationsEnabled
+                    ? 'Enabled - you\'ll receive updates'
+                    : 'Get notified about new posts and activity'}
+                </span>
+              </div>
+              {'Notification' in window && (
                 <button
                   className={`toggle-btn ${notificationsEnabled ? 'active' : ''}`}
                   onClick={handleNotificationToggle}
@@ -652,8 +670,8 @@ export default function Profile() {
                 >
                   <span className="toggle-slider"></span>
                 </button>
-              </div>
-            )}
+              )}
+            </div>
             <button className="logout-btn" onClick={handleSignOut}>
               Log Out
             </button>
