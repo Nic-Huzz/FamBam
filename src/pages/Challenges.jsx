@@ -144,7 +144,7 @@ export default function Challenges() {
     if (title.includes('good news') || title.includes('win') || title.includes('grateful') || title.includes('learning')) {
       return 'celebrate'
     }
-    // Reflect: surprise, curiosity, weekend
+    // Reflect: surprise, curiosity, weekend, struggle
     return 'reflect'
   }
 

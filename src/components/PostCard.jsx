@@ -16,6 +16,7 @@ const POST_TYPE_LABELS = {
   'learning': { label: 'Learning', icon: '💡' },
   'grateful': { label: 'Grateful', icon: '🙏' },
   'weekend': { label: 'Weekend Plans', icon: '📅' },
+  'struggle': { label: 'Struggled With', icon: '💪' },
 }
 
 export default function PostCard({ post, onUpdate }) {

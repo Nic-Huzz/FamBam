@@ -247,18 +247,24 @@ CREATE POLICY "Users can update their own push subscription" ON push_subscriptio
 CREATE POLICY "Users can delete their own push subscription" ON push_subscriptions
   FOR DELETE USING (user_id = auth.uid());
 
--- Seed data: Challenges
+-- Seed data: Challenges (points divided by 10, rounded up)
 INSERT INTO challenges (title, description, points_value, icon, max_completions_per_week, is_active) VALUES
-  ('Call a family member', 'Have a voice or video call with someone', 50, '📞', 6, true),
-  ('Visit a family member', 'Spend time with a relative you don''t live with', 60, '🏠', 3, true),
-  ('Share a photo update', 'Post a photo of what you''re up to', 40, '📸', 3, true),
-  ('Share a vlog update', 'Post a video update about your day', 50, '🎬', 3, true),
-  ('Share a video highlight', 'Share the best moment of your week', 40, '⭐', 3, true),
-  ('Reply to a post', 'Leave a comment on someone''s update', 20, '💬', 1, true),
-  ('Share good news', 'Post something positive happening in your life', 40, '🎉', 1, true),
-  ('Celebrate a win', 'Hype up a family member''s achievement', 35, '🏆', 1, true),
-  ('Weekend plans check-in', 'Share or ask about weekend plans', 25, '📅', 1, true),
-  ('Share what you''re grateful for', 'Post something you''re thankful for', 30, '🙏', 1, true),
-  ('Surprise of the week', 'Share something unexpected that happened', 35, '😲', 1, true),
-  ('Curiosity of the week', 'Share something interesting you discovered', 35, '🔍', 1, true),
-  ('Learning of the week', 'Share something new you learned', 35, '💡', 1, true);
+  ('Call a family member', 'Have a voice or video call with someone', 5, '📞', 6, true),
+  ('Visit a family member', 'Spend time with a relative you don''t live with', 6, '🏠', 3, true),
+  ('Share a photo update', 'Post a photo of what you''re up to', 4, '📸', 3, true),
+  ('Share a vlog update', 'Post a video update about your day', 5, '🎬', 3, true),
+  ('Share a video highlight', 'Share the best moment of your week', 4, '⭐', 3, true),
+  ('Reply to a post', 'Leave a comment on someone''s update', 2, '💬', 1, true),
+  ('Share good news', 'Post something positive happening in your life', 4, '🎉', 1, true),
+  ('Celebrate a win', 'Hype up a family member''s achievement', 4, '🏆', 1, true),
+  ('Weekend plans check-in', 'Share or ask about weekend plans', 3, '📅', 1, true),
+  ('Share what you''re grateful for', 'Post something you''re thankful for', 3, '🙏', 1, true),
+  ('Surprise of the week', 'Share something unexpected that happened', 4, '😲', 1, true),
+  ('Curiosity of the week', 'Share something interesting you discovered', 4, '🔍', 1, true),
+  ('Learning of the week', 'Share something new you learned', 4, '💡', 1, true),
+  ('Share a struggle', 'Share something you found challenging this week', 4, '💪', 1, true);
+
+-- Migration: Update existing challenge points (divide by 10, round up)
+-- UPDATE challenges SET points_value = CEIL(points_value / 10.0);
+-- INSERT INTO challenges (title, description, points_value, icon, max_completions_per_week, is_active)
+-- VALUES ('Share a struggle', 'Share something you found challenging this week', 4, '💪', 1, true);

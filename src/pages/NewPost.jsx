@@ -16,6 +16,7 @@ const POST_TYPE_OPTIONS = [
   { value: 'learning', label: 'Learning of the week', challenge: 'Learning of the week' },
   { value: 'grateful', label: 'Grateful for...', challenge: "Share what you're grateful for" },
   { value: 'weekend', label: 'Weekend plans', challenge: 'Weekend plans check-in' },
+  { value: 'struggle', label: 'Something I struggled with', challenge: 'Share a struggle' },
 ]
 
 export default function NewPost() {
