@@ -1,9 +1,19 @@
 .challenge-card {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 0;
   margin-bottom: 12px;
   transition: all 0.3s;
+}
+
+.challenge-card.expanded {
+  background: var(--blush);
+}
+
+.challenge-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .challenge-card.completed {
@@ -123,4 +133,78 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--text-muted);
+}
+
+/* Topics toggle button */
+.topics-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #fff5f0 0%, #fff0f5 100%);
+  border: 1px solid var(--blush);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--coral);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.topics-toggle:hover {
+  background: var(--blush);
+}
+
+.topics-icon {
+  font-size: 14px;
+}
+
+.topics-arrow {
+  margin-left: auto;
+  font-size: 10px;
+  transition: transform 0.2s;
+}
+
+.topics-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* Topics section */
+.topics-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-light);
+}
+
+.topics-loading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.topic-chip {
+  background: white;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text-dark);
+  line-height: 1.4;
 }

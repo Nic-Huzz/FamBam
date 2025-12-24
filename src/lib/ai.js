@@ -308,6 +308,57 @@ export async function summarizeVoiceNote(transcription) {
   })
 }
 
+// ============================================
+// CALL CONVERSATION STARTERS
+// Help with topics to discuss on family calls
+// ============================================
+
+const CALL_TOPICS_SYSTEM = `You are helping a family member prepare for a call with a relative. Generate warm, engaging conversation starters and topics to discuss.
+
+Guidelines:
+- Mix of light topics and deeper connection questions
+- Include some that prompt storytelling or memories
+- Keep each suggestion concise (under 12 words)
+- Be warm and family-appropriate
+- Consider different generations (can talk to grandparents, parents, siblings, etc.)
+- Avoid generic small talk - make it meaningful
+
+Return exactly 5 conversation topics, one per line, no numbering.`
+
+export async function getCallConversationTopics(context = {}) {
+  const { familyMemberName = '', relationship = '', recentEvents = [] } = context
+
+  let userMessage = 'Generate 5 conversation topics for a family phone/video call.'
+
+  if (familyMemberName) {
+    userMessage += ` Calling ${familyMemberName}.`
+  }
+  if (relationship) {
+    userMessage += ` They are my ${relationship}.`
+  }
+  if (recentEvents.length > 0) {
+    userMessage += ` Recent family happenings: ${recentEvents.join(', ')}.`
+  }
+
+  const result = await callClaude(CALL_TOPICS_SYSTEM, userMessage, {
+    maxTokens: 250,
+    temperature: 0.8
+  })
+
+  if (!result) {
+    // Fallback topics if API fails
+    return [
+      "What's been the highlight of your week?",
+      "Any fun plans coming up?",
+      "Tell me about something that made you laugh recently",
+      "What have you been watching or reading?",
+      "Is there anything I can help you with?"
+    ]
+  }
+
+  return result.split('\n').filter(line => line.trim()).slice(0, 5)
+}
+
 // Check if AI features are available
 export function isAIEnabled() {
   return !!getApiKey()
