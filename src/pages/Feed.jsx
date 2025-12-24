@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { supabaseFetch } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import BottomNav from '../components/BottomNav'
 import PostCard from '../components/PostCard'
+import { FeedSkeleton } from '../components/Skeleton'
 import './Feed.css'
 
 export default function Feed() {
@@ -11,6 +12,11 @@ export default function Feed() {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [refreshing, setRefreshing] = useState(false)
+  const [pullDistance, setPullDistance] = useState(0)
+  const contentRef = useRef(null)
+  const startY = useRef(0)
+  const isPulling = useRef(false)
 
   useEffect(() => {
     // If no family, stop loading and show appropriate state
@@ -106,8 +112,38 @@ export default function Feed() {
       setError(err.message)
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }
+
+  // Pull-to-refresh handlers
+  const handleTouchStart = useCallback((e) => {
+    const content = contentRef.current
+    if (content && content.scrollTop === 0) {
+      startY.current = e.touches[0].clientY
+      isPulling.current = true
+    }
+  }, [])
+
+  const handleTouchMove = useCallback((e) => {
+    if (!isPulling.current || refreshing) return
+
+    const currentY = e.touches[0].clientY
+    const diff = currentY - startY.current
+
+    if (diff > 0 && diff < 150) {
+      setPullDistance(diff)
+    }
+  }, [refreshing])
+
+  const handleTouchEnd = useCallback(() => {
+    if (pullDistance > 80 && !refreshing) {
+      setRefreshing(true)
+      fetchPosts()
+    }
+    setPullDistance(0)
+    isPulling.current = false
+  }, [pullDistance, refreshing])
 
   // Show setup prompt if user has no profile or no family
   if (!profile) {
@@ -192,11 +228,27 @@ export default function Feed() {
         </div>
       </header>
 
-      <main className="page-content">
-        {loading ? (
-          <div className="loading-container">
-            <div className="spinner"></div>
+      <main
+        className="page-content"
+        ref={contentRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Pull-to-refresh indicator */}
+        {(pullDistance > 0 || refreshing) && (
+          <div
+            className="pull-refresh-indicator"
+            style={{ height: refreshing ? 50 : pullDistance * 0.5 }}
+          >
+            <div className={`refresh-spinner ${refreshing ? 'spinning' : ''}`}>
+              {refreshing ? '↻' : pullDistance > 80 ? '↓ Release' : '↓ Pull'}
+            </div>
           </div>
+        )}
+
+        {loading && !refreshing ? (
+          <FeedSkeleton />
         ) : posts.length === 0 ? (
           <div className="empty-state">
             <span className="empty-icon">📸</span>

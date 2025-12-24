@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { getPostPrompts, getCaptionSuggestions, isAIEnabled } from '../lib/ai'
+import { compressImage } from '../lib/imageCompression'
 import './NewPost.css'
 
 export default function NewPost() {
@@ -80,7 +81,7 @@ export default function NewPost() {
   const MAX_AUDIO_SIZE = 10 * 1024 * 1024 // 10MB
   const MAX_RECORDING_TIME = 120 // 2 minutes
 
-  const handleMediaChange = (e) => {
+  const handleMediaChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -92,15 +93,27 @@ export default function NewPost() {
       return
     }
 
-    setMedia(file)
-    setMediaType(isVideo ? 'video' : 'photo')
     setError('')
+
+    // Compress images before setting
+    let processedFile = file
+    if (!isVideo && file.type.startsWith('image/')) {
+      try {
+        processedFile = await compressImage(file)
+      } catch (err) {
+        console.error('Compression failed, using original:', err)
+        processedFile = file
+      }
+    }
+
+    setMedia(processedFile)
+    setMediaType(isVideo ? 'video' : 'photo')
 
     const reader = new FileReader()
     reader.onloadend = () => {
       setMediaPreview(reader.result)
     }
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(processedFile)
   }
 
   const removeMedia = () => {

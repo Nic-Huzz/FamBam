@@ -1,0 +1,152 @@
+/* Skeleton base styles */
+.skeleton {
+  background: linear-gradient(90deg, var(--border-light) 25%, #f0f0f0 50%, var(--border-light) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Skeleton Post */
+.skeleton-post {
+  background: var(--white);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.skeleton-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton-name {
+  width: 120px;
+  height: 14px;
+}
+
+.skeleton-time {
+  width: 80px;
+  height: 12px;
+}
+
+.skeleton-text {
+  height: 14px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.skeleton-text.short {
+  width: 70%;
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-input);
+  margin: 12px 0;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.skeleton-action {
+  width: 60px;
+  height: 24px;
+  border-radius: 12px;
+}
+
+/* Skeleton Challenge */
+.skeleton-challenge {
+  background: var(--white);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.skeleton-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton-title {
+  width: 150px;
+  height: 16px;
+}
+
+.skeleton-desc {
+  width: 100px;
+  height: 12px;
+}
+
+.skeleton-points {
+  width: 50px;
+  height: 24px;
+  border-radius: 12px;
+}
+
+/* Skeleton Stat */
+.skeleton-stat {
+  background: var(--white);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.skeleton-stat-value {
+  width: 40px;
+  height: 28px;
+}
+
+.skeleton-stat-label {
+  width: 60px;
+  height: 12px;
+}
+
+/* Feed skeleton container */
+.feed-skeleton,
+.challenge-skeleton {
+  padding: 0;
+}

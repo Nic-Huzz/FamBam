@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase, getCurrentWeekNumber } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import BottomNav from '../components/BottomNav'
@@ -7,6 +7,7 @@ import './History.css'
 
 export default function History() {
   const { profile } = useAuth()
+  const navigate = useNavigate()
   const [weeklyData, setWeeklyData] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedWeek, setSelectedWeek] = useState(null)
@@ -110,9 +111,15 @@ export default function History() {
           </div>
         ) : weeklyData.length === 0 ? (
           <div className="empty-state">
-            <span className="empty-icon">📊</span>
+            <span className="empty-icon">🎯</span>
             <h2>No history yet</h2>
-            <p>Complete some challenges to see your progress!</p>
+            <p>Complete your first challenge to start building your streak!</p>
+            <button
+              className="btn-primary"
+              onClick={() => navigate('/challenges')}
+            >
+              Start a Challenge
+            </button>
           </div>
         ) : (
           <>

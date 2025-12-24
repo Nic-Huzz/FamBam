@@ -314,7 +314,7 @@ export default function WeeklyRecap() {
                 <h3>Quiet week!</h3>
                 <p>No posts were shared this week.</p>
                 {selectedWeek === currentWeek && (
-                  <Link to="/new-post" className="btn-primary">
+                  <Link to="/post/new" className="btn-primary">
                     Share Something
                   </Link>
                 )}
