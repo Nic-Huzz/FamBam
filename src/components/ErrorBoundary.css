@@ -1,0 +1,40 @@
+.error-boundary {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
+  padding: 20px;
+}
+
+.error-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.error-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.error-content h1 {
+  font-size: 24px;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.error-content p {
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.error-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.error-actions button {
+  width: 100%;
+}

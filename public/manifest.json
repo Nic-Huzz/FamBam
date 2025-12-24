@@ -1,12 +1,14 @@
 {
-  "name": "FamBam",
+  "name": "FamBam - Family Connection",
   "short_name": "FamBam",
   "description": "Stay connected with the people who matter most. Gamify family connection with weekly challenges and leaderboards.",
-  "start_url": "/",
+  "start_url": "/feed",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#FF6B6B",
+  "background_color": "#FFF9F5",
   "theme_color": "#FF6B6B",
   "orientation": "portrait",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/favicon.svg",

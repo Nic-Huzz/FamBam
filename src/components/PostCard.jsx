@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { getCommentSuggestions, isAIEnabled } from '../lib/ai'
+import LazyImage from './LazyImage'
 import './PostCard.css'
 
 const REACTION_EMOJIS = ['❤️', '😂', '😮', '🙌', '🎉']
@@ -129,7 +130,7 @@ export default function PostCard({ post, onUpdate }) {
       <div className="post-content">
         {post.message && <p className="post-message">{post.message}</p>}
         {post.content_url && post.content_type === 'photo' && (
-          <img src={post.content_url} alt="Post" className="post-image" />
+          <LazyImage src={post.content_url} alt="Post" className="post-image" />
         )}
         {post.content_url && post.content_type === 'video' && (
           <video src={post.content_url} controls className="post-video" />

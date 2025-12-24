@@ -13,6 +13,8 @@ import WeeklyRecap from './pages/WeeklyRecap'
 import Leaderboard from './pages/Leaderboard'
 import Profile from './pages/Profile'
 import Debug from './pages/Debug'
+import Terms from './pages/Terms'
+import Privacy from './pages/Privacy'
 
 // Protected route wrapper
 function ProtectedRoute({ children }) {
@@ -111,6 +113,10 @@ export default function App() {
 
       {/* Debug route */}
       <Route path="/debug" element={<Debug />} />
+
+      {/* Legal pages (public) */}
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
 
       {/* Catch all - redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase, getCurrentWeekNumber } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -36,6 +36,9 @@ export default function Profile() {
   const [showTransferModal, setShowTransferModal] = useState(false)
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(null)
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   const isAdmin = family?.created_by === profile?.id
 
@@ -282,6 +285,49 @@ export default function Profile() {
       navigate('/login')
     } catch (error) {
       console.error('Error leaving family:', error)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') return
+    if (isAdmin && familyMembers.length > 1) {
+      alert('Please transfer family ownership before deleting your account.')
+      return
+    }
+
+    setDeleting(true)
+    try {
+      // Delete user's posts
+      await supabase.from('posts').delete().eq('user_id', profile.id)
+
+      // Delete user's completed challenges
+      await supabase.from('completed_challenges').delete().eq('user_id', profile.id)
+
+      // Delete user's comments
+      await supabase.from('comments').delete().eq('user_id', profile.id)
+
+      // Delete user's reactions
+      await supabase.from('reactions').delete().eq('user_id', profile.id)
+
+      // Delete push subscription
+      await supabase.from('push_subscriptions').delete().eq('user_id', profile.id)
+
+      // If admin of a single-person family, delete the family
+      if (isAdmin && familyMembers.length === 1) {
+        await supabase.from('families').delete().eq('id', family.id)
+      }
+
+      // Delete user profile
+      await supabase.from('users').delete().eq('id', profile.id)
+
+      // Sign out and delete auth user
+      await signOut()
+      navigate('/')
+    } catch (error) {
+      console.error('Error deleting account:', error)
+      alert('Failed to delete account. Please try again.')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -547,6 +593,67 @@ export default function Profile() {
             </button>
           </div>
         </section>
+
+        {/* Legal & Account */}
+        <section className="profile-section">
+          <h2>Legal & Account</h2>
+          <div className="card settings-card">
+            <Link to="/terms" className="setting-link">
+              <span>Terms of Service</span>
+              <span className="link-arrow">→</span>
+            </Link>
+            <Link to="/privacy" className="setting-link">
+              <span>Privacy Policy</span>
+              <span className="link-arrow">→</span>
+            </Link>
+            <button
+              className="delete-account-btn"
+              onClick={() => setShowDeleteAccount(true)}
+            >
+              Delete Account
+            </button>
+          </div>
+        </section>
+
+        {/* Delete Account Modal */}
+        {showDeleteAccount && (
+          <div className="modal-overlay" onClick={() => setShowDeleteAccount(false)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <h3>Delete Account?</h3>
+              <p>
+                This will permanently delete your account and all your data including
+                posts, comments, and challenge history. This action cannot be undone.
+              </p>
+              <div className="form-group">
+                <label>Type DELETE to confirm:</label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
+                  placeholder="DELETE"
+                />
+              </div>
+              <div className="modal-actions">
+                <button
+                  className="modal-danger"
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirmText !== 'DELETE' || deleting}
+                >
+                  {deleting ? 'Deleting...' : 'Delete My Account'}
+                </button>
+                <button
+                  className="modal-cancel"
+                  onClick={() => {
+                    setShowDeleteAccount(false)
+                    setDeleteConfirmText('')
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       <BottomNav />

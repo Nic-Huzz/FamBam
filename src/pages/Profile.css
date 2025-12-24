@@ -506,3 +506,62 @@
   border-radius: var(--radius-button);
   font-weight: 600;
 }
+
+/* Legal Links */
+.setting-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-dark);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.setting-link:last-of-type {
+  border-bottom: none;
+}
+
+.link-arrow {
+  color: var(--text-muted);
+}
+
+/* Delete Account */
+.delete-account-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  background: none;
+  border: 1px solid #e53935;
+  color: #e53935;
+  border-radius: var(--radius-button);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.delete-account-btn:hover {
+  background: #ffebee;
+}
+
+/* Delete Modal Form */
+.modal .form-group {
+  margin: 16px 0;
+}
+
+.modal .form-group label {
+  display: block;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.modal .form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-input);
+  font-size: 16px;
+  text-align: center;
+  letter-spacing: 2px;
+}

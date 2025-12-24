@@ -1,0 +1,91 @@
+.onboarding {
+  min-height: 100vh;
+  background: var(--gradient-primary);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  position: relative;
+}
+
+.skip-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: var(--radius-button);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.onboarding-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.onboarding-icon {
+  font-size: 80px;
+  margin-bottom: 24px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.onboarding-content h1 {
+  color: white;
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.onboarding-content p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 300px;
+}
+
+.onboarding-footer {
+  padding: 20px 0 40px;
+}
+
+.step-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s;
+}
+
+.dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: white;
+}
+
+.onboarding-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 18px;
+  background: white;
+  color: var(--coral);
+}
+
+.onboarding-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
