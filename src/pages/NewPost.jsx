@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabase, autoCompleteChallenge } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { getPostPrompts, getCaptionSuggestions, isAIEnabled } from '../lib/ai'
 import { compressImage } from '../lib/imageCompression'
 import './NewPost.css'
 
 export default function NewPost() {
-  const { profile, family } = useAuth()
+  const { profile, family, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [message, setMessage] = useState('')
   const [media, setMedia] = useState(null)
@@ -15,6 +15,7 @@ export default function NewPost() {
   const [mediaType, setMediaType] = useState(null) // 'photo', 'video', or 'audio'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [challengeCompleted, setChallengeCompleted] = useState(null)
 
   // Audio recording state
   const [isRecording, setIsRecording] = useState(false)
@@ -241,6 +242,18 @@ export default function NewPost() {
 
       if (postError) throw postError
 
+      // Auto-complete challenge if posting media
+      if (contentType !== 'text') {
+        const result = await autoCompleteChallenge(profile.id, contentType, profile)
+        if (result) {
+          setChallengeCompleted(result)
+          await refreshProfile()
+          // Show success briefly then navigate
+          setTimeout(() => navigate('/feed'), 1500)
+          return
+        }
+      }
+
       navigate('/feed')
     } catch (err) {
       console.error('Error creating post:', err)
@@ -391,6 +404,17 @@ export default function NewPost() {
             </button>
           )}
         </div>
+
+        {/* Challenge completion toast */}
+        {challengeCompleted && (
+          <div className="challenge-toast">
+            <span className="toast-icon">🎉</span>
+            <div className="toast-content">
+              <strong>+{challengeCompleted.pointsEarned} points!</strong>
+              <span>Challenge completed: {challengeCompleted.challengeTitle}</span>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )

@@ -84,3 +84,105 @@ export function generateInviteCode() {
   }
   return code
 }
+
+// Map post content type to challenge title
+const POST_TYPE_TO_CHALLENGE = {
+  'photo': 'Share a photo update',
+  'video': 'Share a vlog update',
+  'audio': 'Share a vlog update', // Voice notes count as vlog updates
+}
+
+// Auto-complete a challenge when posting content
+export async function autoCompleteChallenge(userId, contentType, userProfile) {
+  const challengeTitle = POST_TYPE_TO_CHALLENGE[contentType]
+  if (!challengeTitle) return null // text posts don't auto-complete
+
+  try {
+    const weekNumber = getCurrentWeekNumber()
+
+    // Find the challenge by title
+    const { data: challenge, error: challengeError } = await supabase
+      .from('challenges')
+      .select('id, points_value, max_completions_per_week')
+      .eq('title', challengeTitle)
+      .eq('is_active', true)
+      .single()
+
+    if (challengeError || !challenge) {
+      console.log('Challenge not found:', challengeTitle)
+      return null
+    }
+
+    // Check how many times already completed this week
+    const { data: completions, error: countError } = await supabase
+      .from('completed_challenges')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('challenge_id', challenge.id)
+      .eq('week_number', weekNumber)
+
+    if (countError) {
+      console.error('Error checking completions:', countError)
+      return null
+    }
+
+    const currentCount = completions?.length || 0
+
+    // Check if already at max completions for the week
+    if (currentCount >= challenge.max_completions_per_week) {
+      console.log('Challenge already maxed out this week')
+      return null
+    }
+
+    // Record the completion
+    const { error: insertError } = await supabase
+      .from('completed_challenges')
+      .insert({
+        user_id: userId,
+        challenge_id: challenge.id,
+        week_number: weekNumber,
+        completion_number: currentCount + 1,
+      })
+
+    if (insertError) {
+      console.error('Error recording completion:', insertError)
+      return null
+    }
+
+    // Calculate streak update
+    const lastWeek = userProfile?.last_challenge_week
+    let newStreakDays = userProfile?.streak_days || 0
+
+    if (lastWeek === null || lastWeek === undefined) {
+      newStreakDays = 1
+    } else if (lastWeek === weekNumber) {
+      // Already completed a challenge this week, no streak change
+    } else if (lastWeek === weekNumber - 1) {
+      newStreakDays += 1
+    } else {
+      newStreakDays = 1
+    }
+
+    // Update user points and streak
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        points_total: (userProfile?.points_total || 0) + challenge.points_value,
+        streak_days: newStreakDays,
+        last_challenge_week: weekNumber
+      })
+      .eq('id', userId)
+
+    if (updateError) {
+      console.error('Error updating user points:', updateError)
+    }
+
+    return {
+      challengeTitle,
+      pointsEarned: challenge.points_value,
+    }
+  } catch (err) {
+    console.error('Error auto-completing challenge:', err)
+    return null
+  }
+}
