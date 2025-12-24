@@ -241,6 +241,7 @@ CREATE POLICY "Users can delete their own push subscription" ON push_subscriptio
 -- Seed data: Challenges
 INSERT INTO challenges (title, description, points_value, icon, max_completions_per_week, is_active) VALUES
   ('Call a family member', 'Have a voice or video call with someone', 50, '📞', 6, true),
+  ('Visit a family member', 'Spend time with a relative you don''t live with', 60, '🏠', 3, true),
   ('Share a photo update', 'Post a photo of what you''re up to', 40, '📸', 3, true),
   ('Share a vlog update', 'Post a video update about your day', 50, '🎬', 3, true),
   ('Share a video highlight', 'Share the best moment of your week', 40, '⭐', 3, true),
