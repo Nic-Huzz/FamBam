@@ -157,11 +157,24 @@ export default function WeeklyRecap() {
     return `${formatDate(startDate)} - ${formatDate(endDate)}`
   }
 
-  // Generate available weeks (last 8 weeks)
+  // Calculate the week number when the family was created
+  const getFamilyCreatedWeek = () => {
+    if (!family?.created_at) return 1
+    const createdDate = new Date(family.created_at)
+    const year = createdDate.getFullYear()
+    const jan1 = new Date(year, 0, 1)
+    const diff = createdDate - jan1
+    const oneWeek = 1000 * 60 * 60 * 24 * 7
+    return Math.ceil(diff / oneWeek)
+  }
+
+  const familyCreatedWeek = getFamilyCreatedWeek()
+
+  // Generate available weeks (only since family was created, max 8)
   const availableWeeks = []
   for (let i = 0; i < 8; i++) {
     const week = currentWeek - i
-    if (week > 0) {
+    if (week >= familyCreatedWeek && week > 0) {
       availableWeeks.push({
         number: week,
         label: week === currentWeek ? 'This Week' : `Week ${week}`,
