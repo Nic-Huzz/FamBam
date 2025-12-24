@@ -6,10 +6,23 @@ import { getPostPrompts, getCaptionSuggestions, isAIEnabled } from '../lib/ai'
 import { compressImage } from '../lib/imageCompression'
 import './NewPost.css'
 
+// Post type options that map to challenges
+const POST_TYPE_OPTIONS = [
+  { value: '', label: 'Just sharing...', challenge: null },
+  { value: 'good_news', label: 'Good news', challenge: 'Share good news' },
+  { value: 'win', label: 'Celebrating a win', challenge: 'Celebrate a win' },
+  { value: 'surprise', label: 'Surprise of the week', challenge: 'Surprise of the week' },
+  { value: 'curiosity', label: 'Curiosity of the week', challenge: 'Curiosity of the week' },
+  { value: 'learning', label: 'Learning of the week', challenge: 'Learning of the week' },
+  { value: 'grateful', label: 'Grateful for...', challenge: "Share what you're grateful for" },
+  { value: 'weekend', label: 'Weekend plans', challenge: 'Weekend plans check-in' },
+]
+
 export default function NewPost() {
   const { profile, family, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [message, setMessage] = useState('')
+  const [postType, setPostType] = useState('')
   const [media, setMedia] = useState(null)
   const [mediaPreview, setMediaPreview] = useState(null)
   const [mediaType, setMediaType] = useState(null) // 'photo', 'video', or 'audio'
@@ -242,16 +255,28 @@ export default function NewPost() {
 
       if (postError) throw postError
 
-      // Auto-complete challenge if posting media
+      // Auto-complete challenge based on media type or post type
+      let result = null
+
+      // First check media type challenges (photo, video, audio)
       if (contentType !== 'text') {
-        const result = await autoCompleteChallenge(profile.id, contentType, profile)
-        if (result) {
-          setChallengeCompleted(result)
-          await refreshProfile()
-          // Show success briefly then navigate
-          setTimeout(() => navigate('/feed'), 1500)
-          return
+        result = await autoCompleteChallenge(profile.id, contentType, profile)
+      }
+
+      // Then check post type challenges (if selected and no media challenge completed)
+      if (!result && postType) {
+        const selectedOption = POST_TYPE_OPTIONS.find(opt => opt.value === postType)
+        if (selectedOption?.challenge) {
+          result = await autoCompleteChallenge(profile.id, selectedOption.challenge, profile, true)
         }
+      }
+
+      if (result) {
+        setChallengeCompleted(result)
+        await refreshProfile()
+        // Show success briefly then navigate
+        setTimeout(() => navigate('/feed'), 1500)
+        return
       }
 
       navigate('/feed')
@@ -289,6 +314,23 @@ export default function NewPost() {
             className="avatar avatar-md"
           />
           <span className="author-name">{profile?.name}</span>
+        </div>
+
+        {/* Post Type Selector */}
+        <div className="post-type-selector">
+          <label htmlFor="postType">What are you sharing?</label>
+          <select
+            id="postType"
+            value={postType}
+            onChange={(e) => setPostType(e.target.value)}
+            className="post-type-dropdown"
+          >
+            {POST_TYPE_OPTIONS.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* AI Post Prompts */}

@@ -93,8 +93,9 @@ const POST_TYPE_TO_CHALLENGE = {
 }
 
 // Auto-complete a challenge when posting content
-export async function autoCompleteChallenge(userId, contentType, userProfile) {
-  const challengeTitle = POST_TYPE_TO_CHALLENGE[contentType]
+// If isChallengeTitle is true, contentTypeOrTitle is treated as the challenge title directly
+export async function autoCompleteChallenge(userId, contentTypeOrTitle, userProfile, isChallengeTitle = false) {
+  const challengeTitle = isChallengeTitle ? contentTypeOrTitle : POST_TYPE_TO_CHALLENGE[contentTypeOrTitle]
   if (!challengeTitle) return null // text posts don't auto-complete
 
   try {

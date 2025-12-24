@@ -132,15 +132,19 @@ export default function Challenges() {
   // Group challenges into categories
   const categorizeChallenge = (challenge) => {
     const title = challenge.title.toLowerCase()
-    if (title.includes('call') || title.includes('reply')) {
+    // Connect: call, reply, visit
+    if (title.includes('call') || title.includes('reply') || title.includes('visit')) {
       return 'connect'
     }
+    // Share: photo, vlog, video
     if (title.includes('photo') || title.includes('vlog') || title.includes('video') || title.includes('memory')) {
       return 'share'
     }
-    if (title.includes('good news') || title.includes('win')) {
+    // Celebrate: good news, win, grateful, learning
+    if (title.includes('good news') || title.includes('win') || title.includes('grateful') || title.includes('learning')) {
       return 'celebrate'
     }
+    // Reflect: surprise, curiosity, weekend
     return 'reflect'
   }
 
