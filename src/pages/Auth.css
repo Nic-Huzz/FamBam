@@ -103,7 +103,7 @@
   margin-bottom: 16px;
 }
 
-.toggle-btn {
+.join-type-toggle .toggle-btn {
   flex: 1;
   padding: 10px 16px;
   background: none;
@@ -115,7 +115,7 @@
   transition: all 0.2s;
 }
 
-.toggle-btn.active {
+.join-type-toggle .toggle-btn.active {
   background: white;
   color: var(--coral);
   box-shadow: var(--shadow-sm);
