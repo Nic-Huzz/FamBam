@@ -44,18 +44,22 @@ export default function Signup() {
     }
   }, [isCompleting, phoneFromUrl])
 
-  // Format phone number for display
+  // Format phone number for display (Australian format)
   const formatPhoneDisplay = (value) => {
     const digits = value.replace(/\D/g, '')
-    if (digits.length <= 3) return digits
-    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`
+    if (digits.length <= 4) return digits
+    if (digits.length <= 7) return `${digits.slice(0, 4)} ${digits.slice(4)}`
+    return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7, 10)}`
   }
 
-  // Get E.164 format for API
+  // Get E.164 format for API (Australian +61)
   const getE164Phone = (value) => {
-    const digits = value.replace(/\D/g, '')
-    return `+1${digits}`
+    let digits = value.replace(/\D/g, '')
+    // Remove leading 0 if present
+    if (digits.startsWith('0')) {
+      digits = digits.slice(1)
+    }
+    return `+61${digits}`
   }
 
   const handleSendCode = async (e) => {
@@ -267,13 +271,13 @@ export default function Signup() {
                 <div className="form-group">
                   <label htmlFor="phone">Phone Number</label>
                   <div className="phone-input-wrapper">
-                    <span className="phone-prefix">+1</span>
+                    <span className="phone-prefix">+61</span>
                     <input
                       type="tel"
                       id="phone"
                       value={formatPhoneDisplay(phone)}
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      placeholder="(555) 123-4567"
+                      placeholder="0412 345 678"
                       required
                       autoFocus
                     />
