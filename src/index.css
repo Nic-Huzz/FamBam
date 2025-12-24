@@ -9,6 +9,7 @@
   --text-body: #555555;
   --text-muted: #999999;
   --white: #FFFFFF;
+  --border-light: #eeeeee;
 
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
@@ -23,6 +24,24 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Dark mode - follows system preference */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cream: #121212;
+    --blush: #1e1e1e;
+    --white: #1a1a1a;
+    --text-dark: #e5e5e5;
+    --text-body: #c0c0c0;
+    --text-muted: #888888;
+    --border-light: #333333;
+
+    /* Adjusted shadows for dark mode */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
 }
 
 * {
@@ -62,12 +81,14 @@ button {
 
 input, textarea {
   font-family: 'Nunito', sans-serif;
-  border: 2px solid #eee;
+  border: 2px solid var(--border-light);
   border-radius: var(--radius-input);
   padding: 14px 18px;
   font-size: 16px;
   width: 100%;
   transition: border-color 0.2s;
+  background: var(--white);
+  color: var(--text-dark);
 }
 
 input:focus, textarea:focus {

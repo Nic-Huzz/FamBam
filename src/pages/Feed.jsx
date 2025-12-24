@@ -46,26 +46,58 @@ export default function Feed() {
 
       // Fetch authors for posts
       if (postsData && postsData.length > 0) {
-        const userIds = [...new Set(postsData.map(p => p.user_id))]
-        const { data: users } = await supabaseFetch('users', {
-          select: 'id,name,avatar_url'
+        const postIds = postsData.map(p => p.id)
+
+        // Fetch users, comments, and reactions in parallel
+        const [usersRes, commentsRes, reactionsRes] = await Promise.all([
+          supabaseFetch('users', { select: 'id,name,avatar_url' }),
+          supabaseFetch('comments', {
+            select: '*',
+            filters: [{ column: 'post_id', op: 'in', value: `(${postIds.join(',')})` }]
+          }),
+          supabaseFetch('reactions', {
+            select: '*',
+            filters: [{ column: 'post_id', op: 'in', value: `(${postIds.join(',')})` }]
+          })
+        ])
+
+        // Build user map for authors
+        const userMap = {}
+        usersRes.data?.forEach(u => userMap[u.id] = u)
+
+        // Group comments by post_id and add author info
+        const commentsByPost = {}
+        commentsRes.data?.forEach(comment => {
+          if (!commentsByPost[comment.post_id]) {
+            commentsByPost[comment.post_id] = []
+          }
+          commentsByPost[comment.post_id].push({
+            ...comment,
+            author: userMap[comment.user_id] || { name: 'Unknown' }
+          })
         })
 
-        const userMap = {}
-        users?.forEach(u => userMap[u.id] = u)
+        // Group reactions by post_id
+        const reactionsByPost = {}
+        reactionsRes.data?.forEach(reaction => {
+          if (!reactionsByPost[reaction.post_id]) {
+            reactionsByPost[reaction.post_id] = []
+          }
+          reactionsByPost[reaction.post_id].push(reaction)
+        })
 
-        // Add author info to posts
-        const postsWithAuthors = postsData.map(post => ({
+        // Add author, comments, and reactions to posts
+        const postsWithData = postsData.map(post => ({
           ...post,
           author: userMap[post.user_id] || { name: 'Unknown' },
-          reactions: [],
-          comments: []
+          reactions: reactionsByPost[post.id] || [],
+          comments: commentsByPost[post.id] || []
         }))
 
         // Sort by created_at descending
-        postsWithAuthors.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        postsWithData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
-        setPosts(postsWithAuthors)
+        setPosts(postsWithData)
       } else {
         setPosts([])
       }

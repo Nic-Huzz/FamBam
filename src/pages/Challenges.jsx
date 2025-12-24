@@ -12,7 +12,7 @@ export default function Challenges() {
   const { profile, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [challenges, setChallenges] = useState([])
-  const [completedIds, setCompletedIds] = useState(new Set())
+  const [completionCounts, setCompletionCounts] = useState({}) // { challengeId: count }
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [completedChallenge, setCompletedChallenge] = useState(null)
@@ -40,8 +40,14 @@ export default function Challenges() {
 
       if (completedError) throw completedError
 
+      // Count completions per challenge
+      const counts = {}
+      completedData?.forEach(c => {
+        counts[c.challenge_id] = (counts[c.challenge_id] || 0) + 1
+      })
+
       setChallenges(challengeData || [])
-      setCompletedIds(new Set(completedData?.map(c => c.challenge_id) || []))
+      setCompletionCounts(counts)
     } catch (error) {
       console.error('Error fetching challenges:', error)
     } finally {
@@ -57,41 +63,71 @@ export default function Challenges() {
 
   const handleComplete = async (challenge) => {
     try {
-      // Record completion
+      // Calculate the next completion number
+      const currentCount = completionCounts[challenge.id] || 0
+      const nextCompletionNumber = currentCount + 1
+
+      // Record completion with completion_number
       const { error: completeError } = await supabase
         .from('completed_challenges')
         .insert({
           user_id: profile.id,
           challenge_id: challenge.id,
           week_number: weekNumber,
+          completion_number: nextCompletionNumber,
         })
 
       if (completeError) throw completeError
 
-      // Update user points
-      const { error: pointsError } = await supabase
+      // Calculate streak update
+      const lastWeek = profile.last_challenge_week
+      let newStreakDays = profile.streak_days || 0
+
+      if (lastWeek === null || lastWeek === undefined) {
+        // First time completing a challenge
+        newStreakDays = 1
+      } else if (lastWeek === weekNumber) {
+        // Already completed a challenge this week, no streak change
+      } else if (lastWeek === weekNumber - 1) {
+        // Consecutive week - increment streak
+        newStreakDays += 1
+      } else {
+        // Missed a week - reset streak to 1
+        newStreakDays = 1
+      }
+
+      // Update user points, streak, and last_challenge_week
+      const { error: updateError } = await supabase
         .from('users')
-        .update({ points_total: (profile.points_total || 0) + challenge.points_value })
+        .update({
+          points_total: (profile.points_total || 0) + challenge.points_value,
+          streak_days: newStreakDays,
+          last_challenge_week: weekNumber
+        })
         .eq('id', profile.id)
 
-      if (pointsError) throw pointsError
+      if (updateError) throw updateError
 
       // Update local state
-      setCompletedIds(prev => new Set([...prev, challenge.id]))
+      setCompletionCounts(prev => ({
+        ...prev,
+        [challenge.id]: nextCompletionNumber
+      }))
       setCompletedChallenge(challenge)
       setShowModal(true)
       setShowConfetti(true)
 
-      // Refresh profile to get updated points
+      // Refresh profile to get updated points and streak
       await refreshProfile()
     } catch (error) {
       console.error('Error completing challenge:', error)
     }
   }
 
-  const completedCount = completedIds.size
-  const totalCount = challenges.length
-  const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
+  // Calculate total completions and max possible
+  const totalCompletions = Object.values(completionCounts).reduce((sum, count) => sum + count, 0)
+  const maxPossibleCompletions = challenges.reduce((sum, c) => sum + (c.max_completions_per_week || 1), 0)
+  const progressPercent = maxPossibleCompletions > 0 ? (totalCompletions / maxPossibleCompletions) * 100 : 0
 
   return (
     <div className="page challenges-page">
@@ -107,7 +143,7 @@ export default function Challenges() {
             />
           </div>
           <span className="progress-text">
-            {completedCount} of {totalCount} complete
+            {totalCompletions} of {maxPossibleCompletions} complete
           </span>
         </div>
       </header>
@@ -128,7 +164,8 @@ export default function Challenges() {
             <ChallengeCard
               key={challenge.id}
               challenge={challenge}
-              completed={completedIds.has(challenge.id)}
+              completedCount={completionCounts[challenge.id] || 0}
+              maxCompletions={challenge.max_completions_per_week || 1}
               onComplete={handleComplete}
             />
           ))

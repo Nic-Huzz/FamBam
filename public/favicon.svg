@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B6B"/>
+      <stop offset="50%" style="stop-color:#FF8E53"/>
+      <stop offset="100%" style="stop-color:#FFE66D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" ry="6" fill="url(#bgGrad)"/>
+
+  <!-- House icon (simplified for small size) -->
+  <g fill="white">
+    <!-- Roof -->
+    <path d="M16 6 L27 14 L25 14 L25 26 L7 26 L7 14 L5 14 Z"/>
+    <!-- Door -->
+    <rect x="13" y="18" width="6" height="8" rx="1" fill="#FF8E53"/>
+    <!-- Window -->
+    <rect x="9" y="16" width="4" height="4" rx="1" fill="#FFE66D"/>
+    <rect x="19" y="16" width="4" height="4" rx="1" fill="#FFE66D"/>
+  </g>
+</svg>

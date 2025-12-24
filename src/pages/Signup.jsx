@@ -95,12 +95,16 @@ export default function Signup() {
         }
         familyId = existingFamily.id
       } else if (signupData.familyName) {
-        // Create new family
+        // Create new family with current user as admin
         const newCode = generateInviteCode()
 
         const { data: newFamily, error: createError } = await supabase
           .from('families')
-          .insert({ name: signupData.familyName, invite_code: newCode })
+          .insert({
+            name: signupData.familyName,
+            invite_code: newCode,
+            created_by: authData.user.id
+          })
           .select()
           .single()
 

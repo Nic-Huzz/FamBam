@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B6B"/>
+      <stop offset="50%" style="stop-color:#FF8E53"/>
+      <stop offset="100%" style="stop-color:#FFE66D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background - iOS adds its own rounded corners -->
+  <rect width="180" height="180" fill="url(#bgGrad)"/>
+
+  <!-- House icon -->
+  <g fill="white">
+    <!-- Roof -->
+    <path d="M90 35 L150 78 L142 78 L142 145 L38 145 L38 78 L30 78 Z"/>
+    <!-- Door -->
+    <rect x="75" y="100" width="30" height="45" rx="4" fill="#FF8E53"/>
+    <!-- Window left -->
+    <rect x="48" y="92" width="20" height="20" rx="3" fill="#FFE66D"/>
+    <!-- Window right -->
+    <rect x="112" y="92" width="20" height="20" rx="3" fill="#FFE66D"/>
+    <!-- Heart on door -->
+    <path d="M90 115 C90 110, 83 105, 78 110 C73 115, 90 130, 90 130 C90 130, 107 115, 102 110 C97 105, 90 110, 90 115" fill="#FF6B6B"/>
+  </g>
+</svg>

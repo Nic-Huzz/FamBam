@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { getCommentSuggestions, isAIEnabled } from '../lib/ai'
 import './PostCard.css'
 
 const REACTION_EMOJIS = ['❤️', '😂', '😮', '🙌', '🎉']
@@ -10,6 +11,8 @@ export default function PostCard({ post, onUpdate }) {
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [commentSuggestions, setCommentSuggestions] = useState([])
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
 
   const timeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000)
@@ -81,6 +84,32 @@ export default function PostCard({ post, onUpdate }) {
     return post.reactions?.some(r => r.user_id === profile?.id && r.emoji === emoji)
   }
 
+  const handleToggleComments = async () => {
+    const willShow = !showComments
+    setShowComments(willShow)
+
+    // Fetch AI suggestions when opening comments (only if no comments yet from user)
+    if (willShow && isAIEnabled() && commentSuggestions.length === 0) {
+      setLoadingSuggestions(true)
+      try {
+        const suggestions = await getCommentSuggestions(
+          post.message || `a ${post.content_type} post`,
+          post.author?.name || 'a family member'
+        )
+        setCommentSuggestions(suggestions)
+      } catch (err) {
+        console.error('Error fetching comment suggestions:', err)
+      } finally {
+        setLoadingSuggestions(false)
+      }
+    }
+  }
+
+  const useSuggestion = (suggestion) => {
+    setNewComment(suggestion)
+    setCommentSuggestions([]) // Hide after use
+  }
+
   const reactionCounts = getReactionCounts()
 
   return (
@@ -102,6 +131,15 @@ export default function PostCard({ post, onUpdate }) {
         {post.content_url && post.content_type === 'photo' && (
           <img src={post.content_url} alt="Post" className="post-image" />
         )}
+        {post.content_url && post.content_type === 'video' && (
+          <video src={post.content_url} controls className="post-video" />
+        )}
+        {post.content_url && post.content_type === 'audio' && (
+          <div className="post-audio">
+            <span className="audio-icon">🎤</span>
+            <audio src={post.content_url} controls />
+          </div>
+        )}
       </div>
 
       <div className="post-reactions">
@@ -121,7 +159,7 @@ export default function PostCard({ post, onUpdate }) {
 
       <button
         className="comments-toggle"
-        onClick={() => setShowComments(!showComments)}
+        onClick={handleToggleComments}
       >
         💬 {post.comments?.length || 0} comments
       </button>
@@ -141,6 +179,30 @@ export default function PostCard({ post, onUpdate }) {
               </div>
             </div>
           ))}
+
+          {/* AI Comment Suggestions */}
+          {loadingSuggestions && (
+            <div className="ai-suggestions-loading">
+              <span>✨</span> Getting suggestions...
+            </div>
+          )}
+
+          {commentSuggestions.length > 0 && !newComment && (
+            <div className="ai-comment-suggestions">
+              <span className="suggestions-label">✨ Quick replies:</span>
+              <div className="suggestions-list">
+                {commentSuggestions.map((suggestion, i) => (
+                  <button
+                    key={i}
+                    className="suggestion-chip"
+                    onClick={() => useSuggestion(suggestion)}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleComment} className="comment-form">
             <input

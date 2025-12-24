@@ -2,8 +2,18 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase, getCurrentWeekNumber } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import {
+  isPushSupported,
+  getNotificationPermission,
+  subscribeToPush,
+  unsubscribeFromPush,
+  isSubscribedToPush
+} from '../lib/notifications'
 import BottomNav from '../components/BottomNav'
 import './Profile.css'
+
+// VAPID public key - in production, move to environment variable
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || ''
 
 export default function Profile() {
   const { profile, family, signOut, refreshProfile } = useAuth()
@@ -13,6 +23,21 @@ export default function Profile() {
   const [editing, setEditing] = useState(false)
   const [newName, setNewName] = useState(profile?.name || '')
   const [saving, setSaving] = useState(false)
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+  const [notificationLoading, setNotificationLoading] = useState(false)
+  const [pushSupported, setPushSupported] = useState(false)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+
+  // Family management state
+  const [familyMembers, setFamilyMembers] = useState([])
+  const [editingFamily, setEditingFamily] = useState(false)
+  const [newFamilyName, setNewFamilyName] = useState(family?.name || '')
+  const [savingFamily, setSavingFamily] = useState(false)
+  const [showTransferModal, setShowTransferModal] = useState(false)
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(null)
+
+  const isAdmin = family?.created_by === profile?.id
 
   useEffect(() => {
     const fetchWeeklyStats = async () => {
@@ -30,6 +55,117 @@ export default function Profile() {
 
     fetchWeeklyStats()
   }, [profile?.id])
+
+  // Check push notification status
+  useEffect(() => {
+    const checkNotificationStatus = async () => {
+      const supported = isPushSupported()
+      setPushSupported(supported)
+
+      if (supported) {
+        const subscribed = await isSubscribedToPush()
+        setNotificationsEnabled(subscribed)
+      }
+    }
+
+    checkNotificationStatus()
+  }, [])
+
+  // Fetch family members
+  useEffect(() => {
+    const fetchFamilyMembers = async () => {
+      if (!family?.id) return
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, name, avatar_url, points_total')
+        .eq('family_id', family.id)
+        .order('name')
+
+      if (!error && data) {
+        setFamilyMembers(data)
+      }
+    }
+
+    fetchFamilyMembers()
+  }, [family?.id])
+
+  const handleNotificationToggle = async () => {
+    if (!pushSupported || !profile?.id) return
+
+    setNotificationLoading(true)
+    try {
+      if (notificationsEnabled) {
+        await unsubscribeFromPush(profile.id)
+        setNotificationsEnabled(false)
+      } else {
+        if (!VAPID_PUBLIC_KEY) {
+          console.warn('VAPID public key not configured')
+          alert('Push notifications are not configured yet')
+          return
+        }
+        await subscribeToPush(profile.id, VAPID_PUBLIC_KEY)
+        setNotificationsEnabled(true)
+      }
+    } catch (error) {
+      console.error('Error toggling notifications:', error)
+      if (error.message?.includes('denied')) {
+        alert('Notification permission was denied. Please enable it in your browser settings.')
+      }
+    } finally {
+      setNotificationLoading(false)
+    }
+  }
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file || !profile?.id) return
+
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    const MAX_SIZE = 5 * 1024 * 1024 // 5MB
+    if (file.size > MAX_SIZE) {
+      alert('Image too large. Max size: 5MB')
+      return
+    }
+
+    setAvatarUploading(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${profile.id}-avatar-${Date.now()}.${fileExt}`
+
+      // Upload to avatars bucket
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file)
+
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName)
+
+      // Update user profile
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ avatar_url: publicUrl })
+        .eq('id', profile.id)
+
+      if (updateError) throw updateError
+
+      await refreshProfile()
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+      alert('Failed to upload avatar. Make sure the avatars bucket exists in Supabase.')
+    } finally {
+      setAvatarUploading(false)
+    }
+  }
 
   const handleCopyCode = () => {
     if (family?.invite_code) {
@@ -71,16 +207,104 @@ export default function Profile() {
     }
   }
 
+  // Family management handlers
+  const handleSaveFamilyName = async () => {
+    if (!newFamilyName.trim() || newFamilyName === family?.name || !isAdmin) {
+      setEditingFamily(false)
+      return
+    }
+
+    setSavingFamily(true)
+    try {
+      const { error } = await supabase
+        .from('families')
+        .update({ name: newFamilyName.trim() })
+        .eq('id', family.id)
+
+      if (error) throw error
+      await refreshProfile()
+      setEditingFamily(false)
+    } catch (error) {
+      console.error('Error updating family name:', error)
+    } finally {
+      setSavingFamily(false)
+    }
+  }
+
+  const handleRemoveMember = async (memberId) => {
+    if (!isAdmin || memberId === profile?.id) return
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ family_id: null })
+        .eq('id', memberId)
+
+      if (error) throw error
+      setFamilyMembers(prev => prev.filter(m => m.id !== memberId))
+      setShowRemoveConfirm(null)
+    } catch (error) {
+      console.error('Error removing member:', error)
+    }
+  }
+
+  const handleTransferOwnership = async (newOwnerId) => {
+    if (!isAdmin || newOwnerId === profile?.id) return
+
+    try {
+      const { error } = await supabase
+        .from('families')
+        .update({ created_by: newOwnerId })
+        .eq('id', family.id)
+
+      if (error) throw error
+      await refreshProfile()
+      setShowTransferModal(false)
+    } catch (error) {
+      console.error('Error transferring ownership:', error)
+    }
+  }
+
+  const handleLeaveFamily = async () => {
+    if (isAdmin) {
+      alert('Please transfer ownership before leaving the family.')
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ family_id: null })
+        .eq('id', profile.id)
+
+      if (error) throw error
+      await refreshProfile()
+      navigate('/login')
+    } catch (error) {
+      console.error('Error leaving family:', error)
+    }
+  }
+
   return (
     <div className="page profile-page">
       <header className="profile-header">
-        <div className="profile-avatar-container">
+        <label className="profile-avatar-container">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            hidden
+            disabled={avatarUploading}
+          />
           <img
             src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || 'User')}&background=FF6B6B&color=fff&size=120`}
             alt={profile?.name}
-            className="avatar avatar-xl"
+            className={`avatar avatar-xl ${avatarUploading ? 'uploading' : ''}`}
           />
-        </div>
+          <span className="avatar-edit-icon">
+            {avatarUploading ? '...' : '📷'}
+          </span>
+        </label>
 
         {editing ? (
           <div className="edit-name">
@@ -136,7 +360,37 @@ export default function Profile() {
           <h2>Family</h2>
           <div className="card">
             <div className="family-info">
-              <span className="family-name">{family?.name || 'No family'}</span>
+              {editingFamily ? (
+                <div className="edit-family-name">
+                  <input
+                    type="text"
+                    value={newFamilyName}
+                    onChange={(e) => setNewFamilyName(e.target.value)}
+                    autoFocus
+                  />
+                  <div className="edit-actions">
+                    <button onClick={handleSaveFamilyName} disabled={savingFamily}>
+                      {savingFamily ? 'Saving...' : 'Save'}
+                    </button>
+                    <button onClick={() => setEditingFamily(false)} className="cancel">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="family-name-row">
+                  <span className="family-name">{family?.name || 'No family'}</span>
+                  {isAdmin && (
+                    <button className="edit-btn-small" onClick={() => {
+                      setNewFamilyName(family?.name || '')
+                      setEditingFamily(true)
+                    }}>
+                      Edit
+                    </button>
+                  )}
+                </div>
+              )}
+              {isAdmin && <span className="admin-badge">Admin</span>}
             </div>
             {family?.invite_code && (
               <div className="invite-code-row">
@@ -147,13 +401,147 @@ export default function Profile() {
                 </button>
               </div>
             )}
+
+            {/* Family Members List */}
+            {familyMembers.length > 0 && (
+              <div className="family-members">
+                <h3>Members ({familyMembers.length})</h3>
+                <div className="members-list">
+                  {familyMembers.map(member => (
+                    <div key={member.id} className="member-row">
+                      <img
+                        src={member.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=FF6B6B&color=fff`}
+                        alt={member.name}
+                        className="avatar avatar-sm"
+                      />
+                      <div className="member-info">
+                        <span className="member-name">
+                          {member.name}
+                          {member.id === family?.created_by && <span className="admin-tag">Admin</span>}
+                          {member.id === profile?.id && <span className="you-tag">(You)</span>}
+                        </span>
+                        <span className="member-points">{member.points_total} pts</span>
+                      </div>
+                      {isAdmin && member.id !== profile?.id && (
+                        <button
+                          className="remove-member-btn"
+                          onClick={() => setShowRemoveConfirm(member)}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Admin Actions */}
+            {isAdmin && familyMembers.length > 1 && (
+              <button
+                className="transfer-btn"
+                onClick={() => setShowTransferModal(true)}
+              >
+                Transfer Ownership
+              </button>
+            )}
+
+            {/* Leave Family (non-admin only) */}
+            {!isAdmin && family && (
+              <button
+                className="leave-btn"
+                onClick={() => setShowLeaveConfirm(true)}
+              >
+                Leave Family
+              </button>
+            )}
           </div>
         </section>
+
+        {/* Transfer Ownership Modal */}
+        {showTransferModal && (
+          <div className="modal-overlay" onClick={() => setShowTransferModal(false)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <h3>Transfer Ownership</h3>
+              <p>Select a new admin for the family:</p>
+              <div className="modal-members">
+                {familyMembers.filter(m => m.id !== profile?.id).map(member => (
+                  <button
+                    key={member.id}
+                    className="member-select-btn"
+                    onClick={() => handleTransferOwnership(member.id)}
+                  >
+                    <img
+                      src={member.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=FF6B6B&color=fff`}
+                      alt={member.name}
+                      className="avatar avatar-sm"
+                    />
+                    {member.name}
+                  </button>
+                ))}
+              </div>
+              <button className="modal-cancel" onClick={() => setShowTransferModal(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Remove Member Confirmation */}
+        {showRemoveConfirm && (
+          <div className="modal-overlay" onClick={() => setShowRemoveConfirm(null)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <h3>Remove Member?</h3>
+              <p>Are you sure you want to remove <strong>{showRemoveConfirm.name}</strong> from the family?</p>
+              <div className="modal-actions">
+                <button className="modal-danger" onClick={() => handleRemoveMember(showRemoveConfirm.id)}>
+                  Remove
+                </button>
+                <button className="modal-cancel" onClick={() => setShowRemoveConfirm(null)}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Leave Family Confirmation */}
+        {showLeaveConfirm && (
+          <div className="modal-overlay" onClick={() => setShowLeaveConfirm(false)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <h3>Leave Family?</h3>
+              <p>Are you sure you want to leave <strong>{family?.name}</strong>? You'll need an invite code to rejoin.</p>
+              <div className="modal-actions">
+                <button className="modal-danger" onClick={handleLeaveFamily}>
+                  Leave
+                </button>
+                <button className="modal-cancel" onClick={() => setShowLeaveConfirm(false)}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Settings */}
         <section className="profile-section">
           <h2>Settings</h2>
-          <div className="card">
+          <div className="card settings-card">
+            {pushSupported && (
+              <div className="setting-row">
+                <div className="setting-info">
+                  <span className="setting-label">Push Notifications</span>
+                  <span className="setting-desc">Get notified about new posts and activity</span>
+                </div>
+                <button
+                  className={`toggle-btn ${notificationsEnabled ? 'active' : ''}`}
+                  onClick={handleNotificationToggle}
+                  disabled={notificationLoading}
+                >
+                  <span className="toggle-slider"></span>
+                </button>
+              </div>
+            )}
             <button className="logout-btn" onClick={handleSignOut}>
               Log Out
             </button>
