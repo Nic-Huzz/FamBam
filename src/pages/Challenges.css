@@ -70,3 +70,29 @@
 .completion-actions button {
   width: 100%;
 }
+
+/* Challenge Sections */
+.challenge-section {
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+
+.section-icon {
+  font-size: 20px;
+}
+
+.section-challenges {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

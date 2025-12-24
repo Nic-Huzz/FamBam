@@ -129,6 +129,35 @@ export default function Challenges() {
   const maxPossibleCompletions = challenges.reduce((sum, c) => sum + (c.max_completions_per_week || 1), 0)
   const progressPercent = maxPossibleCompletions > 0 ? (totalCompletions / maxPossibleCompletions) * 100 : 0
 
+  // Group challenges into categories
+  const categorizeChallenge = (challenge) => {
+    const title = challenge.title.toLowerCase()
+    if (title.includes('call') || title.includes('reply')) {
+      return 'connect'
+    }
+    if (title.includes('photo') || title.includes('vlog') || title.includes('video') || title.includes('memory')) {
+      return 'share'
+    }
+    if (title.includes('good news') || title.includes('win')) {
+      return 'celebrate'
+    }
+    return 'reflect'
+  }
+
+  const categories = {
+    connect: { title: 'Connect', icon: '💬', challenges: [] },
+    share: { title: 'Share Updates', icon: '📸', challenges: [] },
+    celebrate: { title: 'Celebrate', icon: '🎉', challenges: [] },
+    reflect: { title: 'Reflect & Discover', icon: '💭', challenges: [] },
+  }
+
+  challenges.forEach(challenge => {
+    const category = categorizeChallenge(challenge)
+    categories[category].challenges.push(challenge)
+  })
+
+  const categoryOrder = ['connect', 'share', 'celebrate', 'reflect']
+
   return (
     <div className="page challenges-page">
       {showConfetti && <Confetti />}
@@ -160,15 +189,29 @@ export default function Challenges() {
             <p>Check back soon for new challenges!</p>
           </div>
         ) : (
-          challenges.map(challenge => (
-            <ChallengeCard
-              key={challenge.id}
-              challenge={challenge}
-              completedCount={completionCounts[challenge.id] || 0}
-              maxCompletions={challenge.max_completions_per_week || 1}
-              onComplete={handleComplete}
-            />
-          ))
+          categoryOrder.map(categoryKey => {
+            const category = categories[categoryKey]
+            if (category.challenges.length === 0) return null
+            return (
+              <section key={categoryKey} className="challenge-section">
+                <h2 className="section-header">
+                  <span className="section-icon">{category.icon}</span>
+                  {category.title}
+                </h2>
+                <div className="section-challenges">
+                  {category.challenges.map(challenge => (
+                    <ChallengeCard
+                      key={challenge.id}
+                      challenge={challenge}
+                      completedCount={completionCounts[challenge.id] || 0}
+                      maxCompletions={challenge.max_completions_per_week || 1}
+                      onComplete={handleComplete}
+                    />
+                  ))}
+                </div>
+              </section>
+            )
+          })
         )}
       </main>
 
