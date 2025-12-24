@@ -8,6 +8,8 @@ import Signup from './pages/Signup'
 import Feed from './pages/Feed'
 import NewPost from './pages/NewPost'
 import Challenges from './pages/Challenges'
+import History from './pages/History'
+import WeeklyRecap from './pages/WeeklyRecap'
 import Leaderboard from './pages/Leaderboard'
 import Profile from './pages/Profile'
 import Debug from './pages/Debug'
@@ -84,6 +86,16 @@ export default function App() {
       <Route path="/challenges" element={
         <ProtectedRoute>
           <Challenges />
+        </ProtectedRoute>
+      } />
+      <Route path="/history" element={
+        <ProtectedRoute>
+          <History />
+        </ProtectedRoute>
+      } />
+      <Route path="/recap" element={
+        <ProtectedRoute>
+          <WeeklyRecap />
         </ProtectedRoute>
       } />
       <Route path="/leaderboard" element={

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase, getCurrentWeekNumber } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import BottomNav from '../components/BottomNav'
@@ -163,7 +163,7 @@ export default function Challenges() {
       {showConfetti && <Confetti />}
 
       <header className="page-header">
-        <h1>This Week's Challenges</h1>
+        <h1>Challenges</h1>
         <div className="progress-info">
           <div className="progress-bar">
             <div
@@ -176,6 +176,13 @@ export default function Challenges() {
           </span>
         </div>
       </header>
+
+      {/* Navigation Tabs */}
+      <div className="challenges-nav">
+        <Link to="/challenges" className="nav-tab active">This Week</Link>
+        <Link to="/history" className="nav-tab">History</Link>
+        <Link to="/recap" className="nav-tab">Recap</Link>
+      </div>
 
       <main className="page-content">
         {loading ? (
