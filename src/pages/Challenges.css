@@ -7,7 +7,7 @@
   display: flex;
   background: var(--white);
   padding: 4px;
-  margin: 0 20px 16px;
+  margin: 16px 20px;
   border-radius: var(--radius-button);
   box-shadow: var(--shadow-sm);
 }
