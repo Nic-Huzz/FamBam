@@ -19,15 +19,25 @@ export default function ChallengeCard({ challenge, completedCount, maxCompletion
 
     setShowTopics(true)
     if (topics.length === 0 && isAIEnabled()) {
-      setLoadingTopics(true)
-      try {
-        const suggestions = await getCallConversationTopics()
-        setTopics(suggestions)
-      } catch (err) {
-        console.error('Error fetching topics:', err)
-      } finally {
-        setLoadingTopics(false)
-      }
+      await fetchTopics()
+    }
+  }
+
+  const fetchTopics = async () => {
+    setLoadingTopics(true)
+    try {
+      const suggestions = await getCallConversationTopics()
+      setTopics(suggestions)
+    } catch (err) {
+      console.error('Error fetching topics:', err)
+    } finally {
+      setLoadingTopics(false)
+    }
+  }
+
+  const handleRegenerate = async () => {
+    if (!loadingTopics) {
+      await fetchTopics()
     }
   }
 
@@ -101,13 +111,22 @@ export default function ChallengeCard({ challenge, completedCount, maxCompletion
               <span>✨</span> Getting ideas...
             </div>
           ) : (
-            <div className="topics-list">
-              {topics.map((topic, i) => (
-                <div key={i} className="topic-chip">
-                  💬 {topic}
-                </div>
-              ))}
-            </div>
+            <>
+              <div className="topics-list">
+                {topics.map((topic, i) => (
+                  <div key={i} className="topic-chip">
+                    💬 {topic}
+                  </div>
+                ))}
+              </div>
+              <button
+                className="regenerate-btn"
+                onClick={handleRegenerate}
+                disabled={loadingTopics}
+              >
+                🔄 Get new ideas
+              </button>
+            </>
           )}
         </div>
       )}
