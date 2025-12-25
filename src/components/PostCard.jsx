@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { getCommentSuggestions, isAIEnabled } from '../lib/ai'
 import LazyImage from './LazyImage'
+import PhotoCarousel from './PhotoCarousel'
 import './PostCard.css'
 
 const REACTION_EMOJIS = ['❤️', '😂', '😮', '🙌', '🎉']
@@ -19,13 +20,14 @@ const POST_TYPE_LABELS = {
   'struggle': { label: 'Struggled With', icon: '💪' },
 }
 
-export default function PostCard({ post, onUpdate }) {
+export default function PostCard({ post, onUpdate, hideShare = false }) {
   const { profile } = useAuth()
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [commentSuggestions, setCommentSuggestions] = useState([])
   const [loadingSuggestions, setLoadingSuggestions] = useState(false)
+  const [shareMessage, setShareMessage] = useState('')
 
   const timeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000)
@@ -123,6 +125,39 @@ export default function PostCard({ post, onUpdate }) {
     setCommentSuggestions([]) // Hide after use
   }
 
+  const handleShare = async () => {
+    const postUrl = `${window.location.origin}/post/${post.id}`
+    const shareText = post.message
+      ? `${post.author?.name} shared: "${post.message.slice(0, 100)}${post.message.length > 100 ? '...' : ''}"`
+      : `${post.author?.name} shared a post on FamBam`
+
+    // Try Web Share API first (mobile)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'FamBam Post',
+          text: shareText,
+          url: postUrl
+        })
+        return
+      } catch (err) {
+        // User cancelled or error, fall through to clipboard
+        if (err.name === 'AbortError') return
+      }
+    }
+
+    // Fallback to clipboard
+    try {
+      await navigator.clipboard.writeText(postUrl)
+      setShareMessage('Link copied!')
+      setTimeout(() => setShareMessage(''), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+      setShareMessage('Failed to copy')
+      setTimeout(() => setShareMessage(''), 2000)
+    }
+  }
+
   const reactionCounts = getReactionCounts()
 
   return (
@@ -148,12 +183,23 @@ export default function PostCard({ post, onUpdate }) {
 
       <div className="post-content">
         {post.message && <p className="post-message">{post.message}</p>}
-        {post.content_url && post.content_type === 'photo' && (
-          <LazyImage src={post.content_url} alt="Post" className="post-image" />
+
+        {/* Multiple photos/videos from post_media */}
+        {post.media && post.media.length > 0 ? (
+          <PhotoCarousel media={post.media} />
+        ) : (
+          <>
+            {/* Fallback to legacy single content_url */}
+            {post.content_url && post.content_type === 'photo' && (
+              <LazyImage src={post.content_url} alt="Post" className="post-image" />
+            )}
+            {post.content_url && post.content_type === 'video' && (
+              <video src={post.content_url} controls className="post-video" />
+            )}
+          </>
         )}
-        {post.content_url && post.content_type === 'video' && (
-          <video src={post.content_url} controls className="post-video" />
-        )}
+
+        {/* Audio posts (always use content_url) */}
         {post.content_url && post.content_type === 'audio' && (
           <div className="post-audio">
             <span className="audio-icon">🎤</span>
@@ -177,12 +223,20 @@ export default function PostCard({ post, onUpdate }) {
         ))}
       </div>
 
-      <button
-        className="comments-toggle"
-        onClick={handleToggleComments}
-      >
-        💬 {post.comments?.length || 0} comments
-      </button>
+      <div className="post-actions-row">
+        <button
+          className="comments-toggle"
+          onClick={handleToggleComments}
+        >
+          💬 {post.comments?.length || 0} comments
+        </button>
+
+        {!hideShare && (
+          <button className="share-btn" onClick={handleShare}>
+            {shareMessage || '↗ Share'}
+          </button>
+        )}
+      </div>
 
       {showComments && (
         <div className="comments-section">

@@ -114,6 +114,12 @@
   font-weight: 600;
 }
 
+.post-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .comments-toggle {
   background: none;
   border: none;
@@ -124,6 +130,22 @@
 }
 
 .comments-toggle:hover {
+  color: var(--coral);
+}
+
+.share-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 16px;
+  transition: all 0.2s;
+}
+
+.share-btn:hover {
+  background: var(--cream);
   color: var(--coral);
 }
 

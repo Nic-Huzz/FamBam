@@ -53,6 +53,30 @@ CREATE TABLE posts (
 -- Migration for existing databases:
 -- ALTER TABLE posts ADD COLUMN IF NOT EXISTS post_type TEXT;
 
+-- Post media table (for multiple photos per post)
+CREATE TABLE post_media (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  media_url TEXT NOT NULL,
+  media_type TEXT CHECK (media_type IN ('photo', 'video')) DEFAULT 'photo',
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index for efficient fetching of media by post
+CREATE INDEX idx_post_media_post ON post_media(post_id, display_order);
+
+-- Migration for existing databases:
+-- CREATE TABLE post_media (
+--   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+--   post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+--   media_url TEXT NOT NULL,
+--   media_type TEXT CHECK (media_type IN ('photo', 'video')) DEFAULT 'photo',
+--   display_order INTEGER DEFAULT 0,
+--   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+-- );
+-- CREATE INDEX idx_post_media_post ON post_media(post_id, display_order);
+
 -- Reactions table
 CREATE TABLE reactions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -123,6 +147,7 @@ ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE challenges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE completed_challenges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE post_media ENABLE ROW LEVEL SECURITY;
 
 -- Families policies
 CREATE POLICY "Users can view their own family" ON families
@@ -176,6 +201,30 @@ CREATE POLICY "Users can create posts in their family" ON posts
 
 CREATE POLICY "Users can delete their own posts" ON posts
   FOR DELETE USING (user_id = auth.uid());
+
+-- Post media policies
+CREATE POLICY "Users can view post media in their family" ON post_media
+  FOR SELECT USING (
+    post_id IN (
+      SELECT id FROM posts WHERE family_id IN (
+        SELECT family_id FROM users WHERE id = auth.uid()
+      )
+    )
+  );
+
+CREATE POLICY "Users can add media to their own posts" ON post_media
+  FOR INSERT WITH CHECK (
+    post_id IN (
+      SELECT id FROM posts WHERE user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can delete media from their own posts" ON post_media
+  FOR DELETE USING (
+    post_id IN (
+      SELECT id FROM posts WHERE user_id = auth.uid()
+    )
+  );
 
 -- Reactions policies
 CREATE POLICY "Users can view reactions on visible posts" ON reactions
@@ -247,24 +296,37 @@ CREATE POLICY "Users can update their own push subscription" ON push_subscriptio
 CREATE POLICY "Users can delete their own push subscription" ON push_subscriptions
   FOR DELETE USING (user_id = auth.uid());
 
--- Seed data: Challenges (points divided by 10, rounded up)
+-- Seed data: Challenges
 INSERT INTO challenges (title, description, points_value, icon, max_completions_per_week, is_active) VALUES
-  ('Call a family member', 'Have a voice or video call with someone', 5, '📞', 6, true),
-  ('Visit a family member', 'Spend time with a relative you don''t live with', 6, '🏠', 3, true),
+  ('Visit a family member', 'Spend time with a relative you don''t live with', 10, '🏠', 3, true),
+  ('Call a family member', 'Have a voice or video call with someone', 8, '📞', 6, true),
+  ('Share a vlog update', 'Post a video update about your day', 7, '🎬', 3, true),
+  ('Share a video highlight', 'Share the best moment of your week', 7, '⭐', 3, true),
+  ('Share a struggle', 'Share something you found challenging this week', 7, '💪', 1, true),
+  ('Share good news', 'Post something positive happening in your life', 5, '🎉', 1, true),
+  ('Celebrate a win', 'Hype up a family member''s achievement', 5, '🏆', 1, true),
   ('Share a photo update', 'Post a photo of what you''re up to', 4, '📸', 3, true),
-  ('Share a vlog update', 'Post a video update about your day', 5, '🎬', 3, true),
-  ('Share a video highlight', 'Share the best moment of your week', 4, '⭐', 3, true),
-  ('Reply to a post', 'Leave a comment on someone''s update', 2, '💬', 1, true),
-  ('Share good news', 'Post something positive happening in your life', 4, '🎉', 1, true),
-  ('Celebrate a win', 'Hype up a family member''s achievement', 4, '🏆', 1, true),
-  ('Weekend plans check-in', 'Share or ask about weekend plans', 3, '📅', 1, true),
-  ('Share what you''re grateful for', 'Post something you''re thankful for', 3, '🙏', 1, true),
   ('Surprise of the week', 'Share something unexpected that happened', 4, '😲', 1, true),
   ('Curiosity of the week', 'Share something interesting you discovered', 4, '🔍', 1, true),
   ('Learning of the week', 'Share something new you learned', 4, '💡', 1, true),
-  ('Share a struggle', 'Share something you found challenging this week', 4, '💪', 1, true);
+  ('Share what you''re grateful for', 'Post something you''re thankful for', 3, '🙏', 1, true),
+  ('Weekend plans check-in', 'Share or ask about weekend plans', 3, '📅', 1, true),
+  ('Reply to a post', 'Leave a comment on someone''s update', 2, '💬', 1, true);
 
--- Migration: Update existing challenge points (divide by 10, round up)
--- UPDATE challenges SET points_value = CEIL(points_value / 10.0);
+-- Migration: Update existing challenge points
+-- UPDATE challenges SET points_value = 10 WHERE title = 'Visit a family member';
+-- UPDATE challenges SET points_value = 8 WHERE title = 'Call a family member';
+-- UPDATE challenges SET points_value = 7 WHERE title = 'Share a vlog update';
+-- UPDATE challenges SET points_value = 7 WHERE title = 'Share a video highlight';
+-- UPDATE challenges SET points_value = 7 WHERE title = 'Share a struggle';
+-- UPDATE challenges SET points_value = 5 WHERE title = 'Share good news';
+-- UPDATE challenges SET points_value = 5 WHERE title = 'Celebrate a win';
+-- UPDATE challenges SET points_value = 4 WHERE title = 'Share a photo update';
+-- UPDATE challenges SET points_value = 4 WHERE title = 'Surprise of the week';
+-- UPDATE challenges SET points_value = 4 WHERE title = 'Curiosity of the week';
+-- UPDATE challenges SET points_value = 4 WHERE title = 'Learning of the week';
+-- UPDATE challenges SET points_value = 3 WHERE title = 'Share what you''re grateful for';
+-- UPDATE challenges SET points_value = 3 WHERE title = 'Weekend plans check-in';
+-- UPDATE challenges SET points_value = 2 WHERE title = 'Reply to a post';
 -- INSERT INTO challenges (title, description, points_value, icon, max_completions_per_week, is_active)
--- VALUES ('Share a struggle', 'Share something you found challenging this week', 4, '💪', 1, true);
+-- VALUES ('Share a struggle', 'Share something you found challenging this week', 7, '💪', 1, true);

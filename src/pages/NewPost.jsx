@@ -24,9 +24,9 @@ export default function NewPost() {
   const navigate = useNavigate()
   const [message, setMessage] = useState('')
   const [postType, setPostType] = useState('')
-  const [media, setMedia] = useState(null)
-  const [mediaPreview, setMediaPreview] = useState(null)
-  const [mediaType, setMediaType] = useState(null) // 'photo', 'video', or 'audio'
+  const [mediaFiles, setMediaFiles] = useState([]) // Array of { file, preview, type }
+  const [audioFile, setAudioFile] = useState(null) // Separate audio state
+  const [audioPreview, setAudioPreview] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [challengeCompleted, setChallengeCompleted] = useState(null)
@@ -53,10 +53,12 @@ export default function NewPost() {
 
   // Fetch caption suggestions when media is added
   useEffect(() => {
-    if (media && (mediaType === 'photo' || mediaType === 'video') && isAIEnabled()) {
-      fetchCaptionSuggestions()
+    if (mediaFiles.length > 0 && isAIEnabled()) {
+      const hasPhoto = mediaFiles.some(m => m.type === 'photo')
+      const hasVideo = mediaFiles.some(m => m.type === 'video')
+      fetchCaptionSuggestions(hasPhoto, hasVideo)
     }
-  }, [media, mediaType])
+  }, [mediaFiles.length])
 
   const fetchAiPrompts = async () => {
     setAiLoading(true)
@@ -74,11 +76,14 @@ export default function NewPost() {
     }
   }
 
-  const fetchCaptionSuggestions = async () => {
+  const fetchCaptionSuggestions = async (hasPhoto, hasVideo) => {
     try {
-      const captions = await getCaptionSuggestions(
-        mediaType === 'photo' ? 'a photo' : 'a video'
-      )
+      let mediaDescription = 'a photo'
+      if (hasPhoto && hasVideo) mediaDescription = 'photos and videos'
+      else if (hasVideo) mediaDescription = 'a video'
+      else if (mediaFiles.length > 1) mediaDescription = 'photos'
+
+      const captions = await getCaptionSuggestions(mediaDescription)
       setCaptionSuggestions(captions)
       setShowCaptions(true)
     } catch (err) {
@@ -96,45 +101,67 @@ export default function NewPost() {
   const MAX_AUDIO_SIZE = 10 * 1024 * 1024 // 10MB
   const MAX_RECORDING_TIME = 120 // 2 minutes
 
+  const MAX_PHOTOS = 10 // Maximum photos per post
+
   const handleMediaChange = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
 
-    const isVideo = file.type.startsWith('video/')
-    const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE
-
-    if (file.size > maxSize) {
-      setError(`File too large. Max size: ${isVideo ? '50MB' : '10MB'}`)
+    // Check if adding these would exceed the limit
+    if (mediaFiles.length + files.length > MAX_PHOTOS) {
+      setError(`You can only add up to ${MAX_PHOTOS} photos/videos per post`)
       return
     }
 
     setError('')
 
-    // Compress images before setting
-    let processedFile = file
-    if (!isVideo && file.type.startsWith('image/')) {
-      try {
-        processedFile = await compressImage(file)
-      } catch (err) {
-        console.error('Compression failed, using original:', err)
-        processedFile = file
+    // Process each file
+    const newMediaItems = []
+    for (const file of files) {
+      const isVideo = file.type.startsWith('video/')
+      const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE
+
+      if (file.size > maxSize) {
+        setError(`File too large. Max size: ${isVideo ? '50MB' : '10MB'}`)
+        continue
       }
+
+      // Compress images before setting
+      let processedFile = file
+      if (!isVideo && file.type.startsWith('image/')) {
+        try {
+          processedFile = await compressImage(file)
+        } catch (err) {
+          console.error('Compression failed, using original:', err)
+          processedFile = file
+        }
+      }
+
+      // Create preview
+      const preview = await new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result)
+        reader.readAsDataURL(processedFile)
+      })
+
+      newMediaItems.push({
+        file: processedFile,
+        preview,
+        type: isVideo ? 'video' : 'photo',
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      })
     }
 
-    setMedia(processedFile)
-    setMediaType(isVideo ? 'video' : 'photo')
-
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setMediaPreview(reader.result)
-    }
-    reader.readAsDataURL(processedFile)
+    setMediaFiles(prev => [...prev, ...newMediaItems])
   }
 
-  const removeMedia = () => {
-    setMedia(null)
-    setMediaPreview(null)
-    setMediaType(null)
+  const removeMediaItem = (id) => {
+    setMediaFiles(prev => prev.filter(m => m.id !== id))
+  }
+
+  const removeAudio = () => {
+    setAudioFile(null)
+    setAudioPreview(null)
     setRecordingTime(0)
   }
 
@@ -159,13 +186,12 @@ export default function NewPost() {
           return
         }
 
-        const audioFile = new File([audioBlob], `voice-note-${Date.now()}.webm`, {
+        const newAudioFile = new File([audioBlob], `voice-note-${Date.now()}.webm`, {
           type: 'audio/webm'
         })
 
-        setMedia(audioFile)
-        setMediaType('audio')
-        setMediaPreview(URL.createObjectURL(audioBlob))
+        setAudioFile(newAudioFile)
+        setAudioPreview(URL.createObjectURL(audioBlob))
 
         // Stop all tracks
         stream.getTracks().forEach(track => track.stop())
@@ -212,7 +238,7 @@ export default function NewPost() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!message.trim() && !media) {
+    if (!message.trim() && mediaFiles.length === 0 && !audioFile) {
       setError('Please add a message, photo, video, or voice note')
       return
     }
@@ -224,14 +250,23 @@ export default function NewPost() {
       let contentUrl = null
       let contentType = 'text'
 
-      // Upload media if present
-      if (media) {
-        const fileExt = media.name.split('.').pop()
+      // Determine content type based on what's attached
+      if (audioFile) {
+        contentType = 'audio'
+      } else if (mediaFiles.length > 0) {
+        // Use 'photo' as content_type for multi-photo posts (for backwards compat)
+        const hasVideo = mediaFiles.some(m => m.type === 'video')
+        contentType = hasVideo ? 'video' : 'photo'
+      }
+
+      // Upload audio if present (uses the old single-file approach for audio)
+      if (audioFile) {
+        const fileExt = audioFile.name.split('.').pop()
         const fileName = `${profile.id}-${Date.now()}.${fileExt}`
 
         const { error: uploadError } = await supabase.storage
           .from('posts')
-          .upload(fileName, media)
+          .upload(fileName, audioFile)
 
         if (uploadError) throw uploadError
 
@@ -240,22 +275,58 @@ export default function NewPost() {
           .getPublicUrl(fileName)
 
         contentUrl = publicUrl
-        contentType = mediaType // 'photo', 'video', or 'audio'
       }
 
       // Create post
-      const { error: postError } = await supabase
+      const { data: postData, error: postError } = await supabase
         .from('posts')
         .insert({
           user_id: profile.id,
           family_id: family.id,
           content_type: contentType,
-          content_url: contentUrl,
+          content_url: contentUrl, // Will be null for multi-photo posts
           message: message.trim(),
           post_type: postType || null,
         })
+        .select('id')
+        .single()
 
       if (postError) throw postError
+
+      // Upload photos/videos to post_media table
+      if (mediaFiles.length > 0) {
+        const mediaUploads = []
+
+        for (let i = 0; i < mediaFiles.length; i++) {
+          const mediaItem = mediaFiles[i]
+          const fileExt = mediaItem.file.name.split('.').pop()
+          const fileName = `${profile.id}-${Date.now()}-${i}.${fileExt}`
+
+          const { error: uploadError } = await supabase.storage
+            .from('posts')
+            .upload(fileName, mediaItem.file)
+
+          if (uploadError) throw uploadError
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('posts')
+            .getPublicUrl(fileName)
+
+          mediaUploads.push({
+            post_id: postData.id,
+            media_url: publicUrl,
+            media_type: mediaItem.type,
+            display_order: i
+          })
+        }
+
+        // Insert all media records
+        const { error: mediaError } = await supabase
+          .from('post_media')
+          .insert(mediaUploads)
+
+        if (mediaError) throw mediaError
+      }
 
       // Auto-complete challenge based on media type or post type
       let result = null
@@ -290,7 +361,7 @@ export default function NewPost() {
     }
   }
 
-  const canPost = message.trim() || media
+  const canPost = message.trim() || mediaFiles.length > 0 || audioFile
 
   return (
     <div className="new-post-page">
@@ -371,20 +442,43 @@ export default function NewPost() {
           autoFocus
         />
 
-        {mediaPreview && (
-          <div className="media-preview">
-            {mediaType === 'video' ? (
-              <video src={mediaPreview} controls />
-            ) : mediaType === 'audio' ? (
-              <div className="audio-preview">
-                <span className="audio-icon">🎤</span>
-                <audio src={mediaPreview} controls />
-                <span className="audio-duration">{formatTime(recordingTime)}</span>
+        {/* Multi-photo previews */}
+        {mediaFiles.length > 0 && (
+          <div className="media-previews">
+            {mediaFiles.map((item) => (
+              <div key={item.id} className="media-preview-item">
+                {item.type === 'video' ? (
+                  <video src={item.preview} />
+                ) : (
+                  <img src={item.preview} alt="Preview" />
+                )}
+                <button className="remove-media" onClick={() => removeMediaItem(item.id)}>×</button>
               </div>
-            ) : (
-              <img src={mediaPreview} alt="Preview" />
+            ))}
+            {mediaFiles.length < MAX_PHOTOS && (
+              <label className="add-more-media">
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={handleMediaChange}
+                  multiple
+                  hidden
+                />
+                <span>+</span>
+              </label>
             )}
-            <button className="remove-media" onClick={removeMedia}>×</button>
+          </div>
+        )}
+
+        {/* Audio preview */}
+        {audioPreview && (
+          <div className="media-preview">
+            <div className="audio-preview">
+              <span className="audio-icon">🎤</span>
+              <audio src={audioPreview} controls />
+              <span className="audio-duration">{formatTime(recordingTime)}</span>
+            </div>
+            <button className="remove-media" onClick={removeAudio}>×</button>
           </div>
         )}
 
@@ -434,14 +528,15 @@ export default function NewPost() {
               type="file"
               accept="image/*,video/*"
               onChange={handleMediaChange}
+              multiple
               hidden
-              disabled={isRecording}
+              disabled={isRecording || audioFile}
             />
             <span className="action-icon">📷</span>
             <span>Photo/Video</span>
           </label>
 
-          {!media && !isRecording && (
+          {mediaFiles.length === 0 && !audioFile && !isRecording && (
             <button className="media-btn" onClick={startRecording}>
               <span className="action-icon">🎤</span>
               <span>Voice Note</span>

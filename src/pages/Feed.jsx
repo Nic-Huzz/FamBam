@@ -54,14 +54,18 @@ export default function Feed() {
       if (postsData && postsData.length > 0) {
         const postIds = postsData.map(p => p.id)
 
-        // Fetch users, comments, and reactions in parallel
-        const [usersRes, commentsRes, reactionsRes] = await Promise.all([
+        // Fetch users, comments, reactions, and media in parallel
+        const [usersRes, commentsRes, reactionsRes, mediaRes] = await Promise.all([
           supabaseFetch('users', { select: 'id,name,avatar_url' }),
           supabaseFetch('comments', {
             select: '*',
             filters: [{ column: 'post_id', op: 'in', value: `(${postIds.join(',')})` }]
           }),
           supabaseFetch('reactions', {
+            select: '*',
+            filters: [{ column: 'post_id', op: 'in', value: `(${postIds.join(',')})` }]
+          }),
+          supabaseFetch('post_media', {
             select: '*',
             filters: [{ column: 'post_id', op: 'in', value: `(${postIds.join(',')})` }]
           })
@@ -92,12 +96,26 @@ export default function Feed() {
           reactionsByPost[reaction.post_id].push(reaction)
         })
 
-        // Add author, comments, and reactions to posts
+        // Group media by post_id and sort by display_order
+        const mediaByPost = {}
+        mediaRes.data?.forEach(media => {
+          if (!mediaByPost[media.post_id]) {
+            mediaByPost[media.post_id] = []
+          }
+          mediaByPost[media.post_id].push(media)
+        })
+        // Sort each post's media by display_order
+        Object.values(mediaByPost).forEach(mediaList => {
+          mediaList.sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+        })
+
+        // Add author, comments, reactions, and media to posts
         const postsWithData = postsData.map(post => ({
           ...post,
           author: userMap[post.user_id] || { name: 'Unknown' },
           reactions: reactionsByPost[post.id] || [],
-          comments: commentsByPost[post.id] || []
+          comments: commentsByPost[post.id] || [],
+          media: mediaByPost[post.id] || []
         }))
 
         // Sort by created_at descending

@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Feed from './pages/Feed'
 import NewPost from './pages/NewPost'
+import PostDetail from './pages/PostDetail'
 import Challenges from './pages/Challenges'
 import History from './pages/History'
 import WeeklyRecap from './pages/WeeklyRecap'
@@ -83,6 +84,11 @@ export default function App() {
       <Route path="/post/new" element={
         <ProtectedRoute>
           <NewPost />
+        </ProtectedRoute>
+      } />
+      <Route path="/post/:id" element={
+        <ProtectedRoute>
+          <PostDetail />
         </ProtectedRoute>
       } />
       <Route path="/challenges" element={
