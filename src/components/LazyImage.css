@@ -36,3 +36,7 @@
 .lazy-image.loaded {
   opacity: 1;
 }
+
+.lazy-image.clickable {
+  cursor: zoom-in;
+}

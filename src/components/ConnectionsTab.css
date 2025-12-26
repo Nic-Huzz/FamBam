@@ -1,0 +1,229 @@
+.connections-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Round Robin Card */
+.round-robin-card {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.round-robin-card.complete {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+}
+
+.round-robin-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.round-robin-icon {
+  font-size: 32px;
+}
+
+.round-robin-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.round-robin-progress {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 4px 0 0 0;
+}
+
+.round-robin-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.member-chip {
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.member-chip.connected {
+  background: var(--mint);
+  color: var(--text-dark);
+}
+
+/* Connections Section */
+.connections-section {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px 0;
+}
+
+.empty-connections {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+}
+
+.empty-connections .empty-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.empty-connections p {
+  margin: 0;
+}
+
+.empty-hint {
+  font-size: 14px;
+  margin-top: 8px !important;
+  opacity: 0.8;
+}
+
+/* Connections List */
+.connections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.connection-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: var(--cream);
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+
+.connection-item.needs-reconnect {
+  background: linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%);
+}
+
+.connection-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.connection-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.connection-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.connection-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.connection-streak {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--coral);
+  background: linear-gradient(135deg, #fff5f0 0%, #ffe4e6 100%);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.connection-bar-container {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.connection-bar {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.connection-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.connection-count {
+  font-weight: 600;
+}
+
+.connection-last.warning {
+  color: var(--coral);
+  font-weight: 600;
+}
+
+/* Impact Section */
+.impact-section {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.impact-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.impact-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--cream);
+  border-radius: 12px;
+}
+
+.impact-icon {
+  font-size: 28px;
+}
+
+.impact-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.impact-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.impact-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}

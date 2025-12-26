@@ -20,10 +20,10 @@ supabase link --project-ref nxgekhiknodvxrfvkugk
 
 ## Deploy the Notification Function
 
-1. Set up secrets (you need the VAPID private key from when you generated keys):
+1. Set up secrets:
 ```bash
-supabase secrets set VAPID_PUBLIC_KEY="BHH1ADIllMqPhPY67UKdAqdEYIFN19uvPZKNVRNM0lFzJaNl5RXfCn6fykAA2igdRxjPmkz_5veGvh5bz2ckSkU"
-supabase secrets set VAPID_PRIVATE_KEY="your-vapid-private-key-here"
+supabase secrets set VAPID_PUBLIC_KEY="BGo2nQSASIePE-DEc1OFkgAfDx4HtAYBjTxjM4grboN8mBTur4MbixZcdPDwUpSw8MQ0l6_T9O1ECnjWTj5yMKk"
+supabase secrets set VAPID_PRIVATE_KEY="56jxoSqlePThPIVowNmZy7h1D5047wfpEywSMpFhSRY"
 ```
 
 2. Deploy the function:

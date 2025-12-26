@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, autoCompleteChallenge } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { getCommentSuggestions, isAIEnabled } from '../lib/ai'
 import LazyImage from './LazyImage'
@@ -18,16 +18,19 @@ const POST_TYPE_LABELS = {
   'grateful': { label: 'Grateful', icon: '🙏' },
   'weekend': { label: 'Weekend Plans', icon: '📅' },
   'struggle': { label: 'Struggled With', icon: '💪' },
+  'visit': { label: 'Family Visit', icon: '🏠' },
+  'call': { label: 'Family Call', icon: '📞' },
 }
 
 export default function PostCard({ post, onUpdate, hideShare = false }) {
-  const { profile } = useAuth()
+  const { profile, refreshProfile } = useAuth()
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [commentSuggestions, setCommentSuggestions] = useState([])
   const [loadingSuggestions, setLoadingSuggestions] = useState(false)
   const [shareMessage, setShareMessage] = useState('')
+  const [challengeCompleted, setChallengeCompleted] = useState(null)
 
   const timeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000)
@@ -79,6 +82,16 @@ export default function PostCard({ post, onUpdate, hideShare = false }) {
           message: newComment.trim(),
         })
       setNewComment('')
+
+      // Auto-complete "Reply to a post" challenge
+      const result = await autoCompleteChallenge(profile.id, 'Reply to a post', profile, true)
+      if (result) {
+        setChallengeCompleted(result)
+        await refreshProfile()
+        // Hide toast after 3 seconds
+        setTimeout(() => setChallengeCompleted(null), 3000)
+      }
+
       if (onUpdate) onUpdate()
     } catch (error) {
       console.error('Error posting comment:', error)
@@ -289,6 +302,13 @@ export default function PostCard({ post, onUpdate, hideShare = false }) {
               Send
             </button>
           </form>
+        </div>
+      )}
+
+      {/* Challenge completion toast */}
+      {challengeCompleted && (
+        <div className="comment-challenge-toast">
+          +{challengeCompleted.pointsEarned} pts!
         </div>
       )}
     </div>

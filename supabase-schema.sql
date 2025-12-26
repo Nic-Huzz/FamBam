@@ -115,9 +115,13 @@ CREATE TABLE completed_challenges (
   challenge_id UUID NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
   week_number INTEGER NOT NULL,
   completion_number INTEGER NOT NULL DEFAULT 1,
+  target_user_id UUID REFERENCES users(id) ON DELETE SET NULL, -- For tracking who was visited/called
   completed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(user_id, challenge_id, week_number, completion_number)
 );
+
+-- Migration for existing databases:
+-- ALTER TABLE completed_challenges ADD COLUMN IF NOT EXISTS target_user_id UUID REFERENCES users(id) ON DELETE SET NULL;
 
 -- Push notification subscriptions table
 CREATE TABLE push_subscriptions (
@@ -277,11 +281,100 @@ CREATE POLICY "Anyone can view active challenges" ON challenges
   FOR SELECT USING (is_active = true);
 
 -- Completed challenges policies
-CREATE POLICY "Users can view their own completed challenges" ON completed_challenges
-  FOR SELECT USING (user_id = auth.uid());
+-- Allow users to view completed challenges for all family members (for leaderboard)
+CREATE POLICY "Users can view family completed challenges" ON completed_challenges
+  FOR SELECT USING (
+    user_id IN (
+      SELECT id FROM users WHERE family_id IN (
+        SELECT family_id FROM users WHERE id = auth.uid()
+      )
+    )
+  );
 
 CREATE POLICY "Users can complete challenges" ON completed_challenges
   FOR INSERT WITH CHECK (user_id = auth.uid());
+
+-- Migration for existing databases:
+-- DROP POLICY IF EXISTS "Users can view their own completed challenges" ON completed_challenges;
+-- CREATE POLICY "Users can view family completed challenges" ON completed_challenges
+--   FOR SELECT USING (
+--     user_id IN (
+--       SELECT id FROM users WHERE family_id IN (
+--         SELECT family_id FROM users WHERE id = auth.uid()
+--       )
+--     )
+--   );
+
+-- Badges table
+CREATE TABLE badges (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL UNIQUE,
+  description TEXT,
+  icon TEXT NOT NULL,
+  badge_type TEXT CHECK (badge_type IN ('weekly', 'achievement', 'milestone')) NOT NULL,
+  criteria JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- User's earned badges
+CREATE TABLE user_badges (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  badge_id UUID NOT NULL REFERENCES badges(id) ON DELETE CASCADE,
+  week_number INTEGER, -- For weekly badges, NULL for milestone/achievement
+  earned_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, badge_id, week_number)
+);
+
+CREATE INDEX idx_user_badges_user ON user_badges(user_id);
+CREATE INDEX idx_user_badges_week ON user_badges(week_number);
+
+ALTER TABLE badges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view badges" ON badges FOR SELECT USING (true);
+
+CREATE POLICY "Users can view family badges" ON user_badges
+  FOR SELECT USING (
+    user_id IN (
+      SELECT id FROM users WHERE family_id IN (
+        SELECT family_id FROM users WHERE id = auth.uid()
+      )
+    )
+  );
+
+CREATE POLICY "Users can earn badges" ON user_badges
+  FOR INSERT WITH CHECK (user_id = auth.uid());
+
+-- Seed badge definitions
+INSERT INTO badges (name, description, icon, badge_type, criteria) VALUES
+  -- Weekly Leaderboard
+  ('Gold', '1st place in weekly family leaderboard', '🥇', 'weekly', '{"rank": 1}'),
+  ('Silver', '2nd place in weekly family leaderboard', '🥈', 'weekly', '{"rank": 2}'),
+  ('Bronze', '3rd place in weekly family leaderboard', '🥉', 'weekly', '{"rank": 3}'),
+  ('Most Improved', 'Biggest point increase vs previous week', '📈', 'weekly', '{"most_improved": true}'),
+
+  -- Milestone Badges
+  ('Century Club', 'Earned 100 total points', '💯', 'milestone', '{"points_total": 100}'),
+  ('High Roller', 'Earned 500 total points', '🎰', 'milestone', '{"points_total": 500}'),
+  ('Legend', 'Earned 1000 total points', '👑', 'milestone', '{"points_total": 1000}'),
+
+  -- Achievement Badges
+  ('Streak Master', 'Maintained a 4+ week streak', '🔥', 'achievement', '{"streak_weeks": 4}'),
+  ('Comeback Kid', 'Returned after missing a week', '💪', 'achievement', '{"comeback": true}'),
+  ('Storyteller', 'Shared 3 posts in a single week', '📖', 'achievement', '{"posts_per_week": 3}'),
+  ('Visitor', 'Visited 3 different family members', '🏠', 'achievement', '{"unique_visits": 3}'),
+  ('Connector', 'Called 5 different family members', '📞', 'achievement', '{"unique_calls": 5}'),
+  ('Perfect Week', 'Completed every challenge in a week', '⭐', 'weekly', '{"perfect": true}'),
+  ('Round Robin', 'Connected with every family member in one week', '🎯', 'weekly', '{"all_members": true}'),
+  ('Bridge Builder', 'Most connected person in the family this week', '🌉', 'weekly', '{"most_connected": true}'),
+  ('Inner Circle', 'Connected with same person 4 weeks in a row', '💫', 'achievement', '{"streak_weeks": 4}');
+
+-- Migration for existing databases:
+-- CREATE TABLE badges (...)
+-- CREATE TABLE user_badges (...)
+-- Run the CREATE POLICY statements
+-- Run the INSERT INTO badges statements
 
 -- Push subscriptions policies
 CREATE POLICY "Users can view their own push subscription" ON push_subscriptions

@@ -9,7 +9,10 @@ import {
   unsubscribeFromPush,
   isSubscribedToPush
 } from '../lib/notifications'
+import { getUserBadges } from '../lib/badges'
 import BottomNav from '../components/BottomNav'
+import BadgeDisplay from '../components/BadgeDisplay'
+import ConnectionsTab from '../components/ConnectionsTab'
 import './Profile.css'
 
 // VAPID public key - in production, move to environment variable
@@ -27,6 +30,8 @@ export default function Profile() {
   const [notificationLoading, setNotificationLoading] = useState(false)
   const [pushSupported, setPushSupported] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
+  const [userBadges, setUserBadges] = useState([])
+  const [activeTab, setActiveTab] = useState('badges') // 'badges' or 'connections'
 
   // Family management state
   const [familyMembers, setFamilyMembers] = useState([])
@@ -60,18 +65,26 @@ export default function Profile() {
     fetchWeeklyStats()
   }, [profile?.id])
 
+  // Fetch user badges
+  useEffect(() => {
+    const fetchBadges = async () => {
+      if (!profile?.id) return
+      const badges = await getUserBadges(profile.id)
+      setUserBadges(badges)
+    }
+
+    fetchBadges()
+  }, [profile?.id])
+
   // Check push notification status
   useEffect(() => {
     const checkNotificationStatus = async () => {
-      const supported = isPushSupported()
-      setPushSupported(supported)
+      // Check if Notification API is supported (works in Chrome, Safari, Firefox)
+      const notificationSupported = 'Notification' in window
+      setPushSupported(notificationSupported)
 
-      // Check if notifications are enabled (either via push subscription or permission)
-      if (supported) {
-        const subscribed = await isSubscribedToPush()
-        setNotificationsEnabled(subscribed)
-      } else if ('Notification' in window) {
-        // Fallback: just check permission
+      if (notificationSupported) {
+        // Check current permission status
         setNotificationsEnabled(Notification.permission === 'granted')
       }
     }
@@ -104,30 +117,39 @@ export default function Profile() {
     setNotificationLoading(true)
     try {
       if (notificationsEnabled) {
-        // Disable notifications
-        if (pushSupported) {
+        // Can't programmatically revoke permission, but we can unsubscribe from push
+        if (VAPID_PUBLIC_KEY) {
           await unsubscribeFromPush(profile.id)
         }
+        // Show user how to disable in browser
+        alert('To fully disable notifications, go to your browser settings for this site.')
         setNotificationsEnabled(false)
       } else {
-        // Request permission first
+        // Request permission
         const permission = await Notification.requestPermission()
-        if (permission !== 'granted') {
-          alert('Notification permission was denied. Please enable it in your browser settings.')
-          return
-        }
+        if (permission === 'granted') {
+          setNotificationsEnabled(true)
 
-        // If push is supported and VAPID key is set, do full push subscription
-        if (pushSupported && VAPID_PUBLIC_KEY) {
-          await subscribeToPush(profile.id, VAPID_PUBLIC_KEY)
+          // If VAPID key is set, also subscribe to push
+          if (VAPID_PUBLIC_KEY) {
+            try {
+              await subscribeToPush(profile.id, VAPID_PUBLIC_KEY)
+            } catch (pushError) {
+              console.log('Push subscription failed, using basic notifications:', pushError)
+            }
+          }
+
+          // Show a test notification
+          new Notification('Notifications Enabled!', {
+            body: 'You\'ll now receive updates from FamBam',
+            icon: '/favicon.svg'
+          })
+        } else if (permission === 'denied') {
+          alert('Notification permission was denied. To enable, click the lock icon in your browser\'s address bar and allow notifications.')
         }
-        setNotificationsEnabled(true)
       }
     } catch (error) {
       console.error('Error toggling notifications:', error)
-      if (error.message?.includes('denied')) {
-        alert('Notification permission was denied. Please enable it in your browser settings.')
-      }
     } finally {
       setNotificationLoading(false)
     }
@@ -452,13 +474,39 @@ export default function Profile() {
             <span className="stat-value">
               {profile?.streak_days || 0} <span className="streak-fire">🔥</span>
             </span>
-            <span className="stat-label">Day Streak</span>
+            <span className="stat-label">Week Streak</span>
           </div>
           <div className="stat-card">
             <span className="stat-value">{weeklyCompleted}</span>
             <span className="stat-label">This Week</span>
           </div>
         </div>
+
+        {/* Badges & Connections Tabs */}
+        <section className="profile-section">
+          <div className="profile-tabs">
+            <button
+              className={`profile-tab ${activeTab === 'badges' ? 'active' : ''}`}
+              onClick={() => setActiveTab('badges')}
+            >
+              Badges
+            </button>
+            <button
+              className={`profile-tab ${activeTab === 'connections' ? 'active' : ''}`}
+              onClick={() => setActiveTab('connections')}
+            >
+              Connections
+            </button>
+          </div>
+
+          {activeTab === 'badges' ? (
+            <div className="card badges-card">
+              <BadgeDisplay badges={userBadges} showEmpty={true} />
+            </div>
+          ) : (
+            <ConnectionsTab />
+          )}
+        </section>
 
         {/* Family Info */}
         <section className="profile-section">
@@ -653,16 +701,16 @@ export default function Profile() {
           <div className="card settings-card">
             <div className="setting-row">
               <div className="setting-info">
-                <span className="setting-label">Push Notifications</span>
+                <span className="setting-label">Notifications</span>
                 <span className="setting-desc">
-                  {!('Notification' in window)
+                  {!pushSupported
                     ? 'Not supported in this browser'
                     : notificationsEnabled
                     ? 'Enabled - you\'ll receive updates'
                     : 'Get notified about new posts and activity'}
                 </span>
               </div>
-              {'Notification' in window && (
+              {pushSupported && (
                 <button
                   className={`toggle-btn ${notificationsEnabled ? 'active' : ''}`}
                   onClick={handleNotificationToggle}

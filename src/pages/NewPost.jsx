@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { supabase, autoCompleteChallenge } from '../lib/supabase'
+import { supabase, autoCompleteChallenge, getCurrentWeekNumber } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { getPostPrompts, getCaptionSuggestions, isAIEnabled } from '../lib/ai'
 import { compressImage } from '../lib/imageCompression'
+import { checkStorytellerBadge } from '../lib/badges'
 import './NewPost.css'
 
 // Post type options that map to challenges
@@ -343,6 +344,9 @@ export default function NewPost() {
           result = await autoCompleteChallenge(profile.id, selectedOption.challenge, profile, true)
         }
       }
+
+      // Check Storyteller badge (3 posts in a week)
+      await checkStorytellerBadge(profile.id, getCurrentWeekNumber())
 
       if (result) {
         setChallengeCompleted(result)

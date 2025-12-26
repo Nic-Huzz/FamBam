@@ -145,6 +145,39 @@
   padding-left: 4px;
 }
 
+/* Profile Tabs */
+.profile-tabs {
+  display: flex;
+  background: var(--white);
+  padding: 4px;
+  border-radius: var(--radius-button);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+
+.profile-tab {
+  flex: 1;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-button);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.profile-tab:hover {
+  color: var(--coral);
+}
+
+.profile-tab.active {
+  background: var(--gradient-primary);
+  color: white;
+}
+
 /* Family info */
 .family-header-row {
   display: flex;

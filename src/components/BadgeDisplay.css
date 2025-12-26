@@ -1,0 +1,90 @@
+.badge-display {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.badge-display-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+}
+
+.badge-display-empty .empty-badge-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
+.badge-display-empty p {
+  font-size: 14px;
+}
+
+.badge-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.badge-group-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge-icon {
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--cream);
+  border-radius: 12px;
+  cursor: default;
+  transition: transform 0.2s;
+}
+
+.badge-icon:hover {
+  transform: scale(1.1);
+}
+
+.badge-icon.weekly-badge {
+  background: linear-gradient(135deg, #fff5f0 0%, #fff0f5 100%);
+  border: 2px solid var(--blush);
+}
+
+/* Size variants */
+.badge-sm .badge-icon {
+  font-size: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.badge-lg .badge-icon {
+  font-size: 40px;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+}
+
+/* Inline badges for leaderboard */
+.inline-badges {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 6px;
+}
+
+.inline-badge {
+  font-size: 16px;
+}

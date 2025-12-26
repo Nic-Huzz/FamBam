@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase, getCurrentWeekNumber } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { getWeeklyBadgesForFamily, calculateWeeklyBadges } from '../lib/badges'
+import { InlineBadges } from '../components/BadgeDisplay'
 import BottomNav from '../components/BottomNav'
 import './Leaderboard.css'
 
@@ -9,6 +11,7 @@ export default function Leaderboard() {
   const [members, setMembers] = useState([])
   const [view, setView] = useState('all') // 'all' or 'week'
   const [loading, setLoading] = useState(true)
+  const [weeklyBadges, setWeeklyBadges] = useState({})
 
   const fetchLeaderboard = async () => {
     if (!family?.id) return
@@ -35,6 +38,10 @@ export default function Leaderboard() {
 
         if (usersError) throw usersError
 
+        // Get user IDs from family to filter completed challenges
+        const familyUserIds = usersData?.map(u => u.id) || []
+
+        // Only fetch completed challenges for family members
         const { data: completedData, error: completedError } = await supabase
           .from('completed_challenges')
           .select(`
@@ -42,6 +49,7 @@ export default function Leaderboard() {
             challenge:challenges(points_value)
           `)
           .eq('week_number', weekNumber)
+          .in('user_id', familyUserIds)
 
         if (completedError) throw completedError
 
@@ -62,6 +70,13 @@ export default function Leaderboard() {
         // Sort by points
         membersWithPoints.sort((a, b) => b.points - a.points)
         setMembers(membersWithPoints)
+
+        // Calculate weekly badges (awards Gold/Silver/Bronze)
+        await calculateWeeklyBadges(family.id, weekNumber)
+
+        // Fetch weekly badges for display
+        const badges = await getWeeklyBadgesForFamily(family.id, weekNumber)
+        setWeeklyBadges(badges)
       }
     } catch (error) {
       console.error('Error fetching leaderboard:', error)
@@ -125,6 +140,9 @@ export default function Leaderboard() {
                   <span className="member-name">
                     {member.name}
                     {member.id === profile?.id && <span className="you-tag">(You)</span>}
+                    {view === 'week' && weeklyBadges[member.id] && (
+                      <InlineBadges badges={weeklyBadges[member.id]} />
+                    )}
                   </span>
                 </div>
                 <div className="member-points">
