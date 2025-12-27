@@ -24,7 +24,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 // Raw fetch helper that bypasses SDK (for when SDK hangs)
 export async function supabaseFetch(table, options = {}) {
-  const { method = 'GET', body, select = '*', filters = [], single = false } = options
+  const { method = 'GET', body, select = '*', filters = [], single = false, order, limit } = options
 
   // Get access token from localStorage
   const storageKey = `sb-${supabaseUrl.split('//')[1].split('.')[0]}-auth-token`
@@ -38,6 +38,17 @@ export async function supabaseFetch(table, options = {}) {
   filters.forEach(f => {
     url += `&${f.column}=${f.op}.${f.value}`
   })
+
+  // Add ordering
+  if (order) {
+    const direction = order.ascending ? 'asc' : 'desc'
+    url += `&order=${order.column}.${direction}`
+  }
+
+  // Add limit
+  if (limit) {
+    url += `&limit=${limit}`
+  }
 
   const headers = {
     'apikey': supabaseAnonKey,
@@ -78,6 +89,68 @@ export function generateInviteCode() {
     code += chars.charAt(Math.floor(Math.random() * chars.length))
   }
   return code
+}
+
+// Calculate streak from completed_challenges history
+// Returns the number of consecutive days with activity, counting back from today
+export async function calculateStreakFromHistory(userId) {
+  try {
+    // Fetch all completed challenges for this user, ordered by date
+    const { data, error } = await supabase
+      .from('completed_challenges')
+      .select('completed_at')
+      .eq('user_id', userId)
+      .order('completed_at', { ascending: false })
+
+    if (error || !data || data.length === 0) {
+      return 1 // First activity
+    }
+
+    // Get unique dates (in local timezone)
+    const uniqueDates = [...new Set(
+      data.map(c => new Date(c.completed_at).toLocaleDateString('en-CA'))
+    )].sort().reverse() // Most recent first
+
+    if (uniqueDates.length === 0) return 1
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const todayStr = today.toLocaleDateString('en-CA')
+
+    // Check if the most recent activity is today or yesterday
+    const mostRecentDate = uniqueDates[0]
+    const mostRecent = new Date(mostRecentDate)
+    mostRecent.setHours(0, 0, 0, 0)
+
+    const daysSinceMostRecent = Math.floor((today - mostRecent) / (1000 * 60 * 60 * 24))
+
+    // If most recent activity is more than 1 day ago, streak is broken
+    if (daysSinceMostRecent > 1) {
+      return 1
+    }
+
+    // Count consecutive days going backwards
+    let streak = 0
+    let checkDate = daysSinceMostRecent === 0 ? today : new Date(today.getTime() - 24 * 60 * 60 * 1000)
+
+    for (const dateStr of uniqueDates) {
+      const checkDateStr = checkDate.toLocaleDateString('en-CA')
+
+      if (dateStr === checkDateStr) {
+        streak++
+        checkDate = new Date(checkDate.getTime() - 24 * 60 * 60 * 1000) // Go back one day
+      } else if (dateStr < checkDateStr) {
+        // Missed a day, streak ends
+        break
+      }
+      // If dateStr > checkDateStr, skip (multiple completions on same day)
+    }
+
+    return Math.max(streak, 1)
+  } catch (err) {
+    console.error('Error calculating streak from history:', err)
+    return 1
+  }
 }
 
 // Map post content type to challenge title
@@ -152,26 +225,40 @@ export async function autoCompleteChallenge(userId, contentTypeOrTitle, userProf
       return null
     }
 
-    // Calculate streak update
-    const lastWeek = userProfile?.last_challenge_week
+    // Calculate daily streak update
+    const lastActive = userProfile?.last_active ? new Date(userProfile.last_active) : null
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     let newStreakDays = userProfile?.streak_days || 0
 
-    if (lastWeek === null || lastWeek === undefined) {
-      newStreakDays = 1
-    } else if (lastWeek === weekNumber) {
-      // Already completed a challenge this week, no streak change
-    } else if (lastWeek === weekNumber - 1) {
-      newStreakDays += 1
+    if (!lastActive) {
+      // No last_active - calculate from history
+      newStreakDays = await calculateStreakFromHistory(userId)
     } else {
-      newStreakDays = 1
+      const lastActiveDay = new Date(lastActive)
+      lastActiveDay.setHours(0, 0, 0, 0)
+
+      const daysDiff = Math.floor((today - lastActiveDay) / (1000 * 60 * 60 * 24))
+
+      if (daysDiff === 0) {
+        // Already active today, no streak change
+      } else if (daysDiff === 1) {
+        // Active yesterday, increment streak
+        newStreakDays += 1
+      } else if (daysDiff > 1) {
+        // last_active is stale - recalculate from history instead of resetting
+        newStreakDays = await calculateStreakFromHistory(userId)
+      }
     }
 
-    // Update user points and streak
+    // Update user points, streak, and last_active
     const { error: updateError } = await supabase
       .from('users')
       .update({
         points_total: (userProfile?.points_total || 0) + challenge.points_value,
         streak_days: newStreakDays,
+        last_active: new Date().toISOString(),
         last_challenge_week: weekNumber
       })
       .eq('id', userId)

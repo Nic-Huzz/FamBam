@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabase, calculateStreakFromHistory } from '../lib/supabase'
 import { getCurrentWeekNumber } from '../lib/dateUtils'
 import { isConnectionChallenge, getConnectionType, getConnectionIcon, getConnectionActionWord } from '../lib/connectionUtils'
 import { useAuth } from '../context/AuthContext'
@@ -129,26 +129,38 @@ export default function Challenges() {
 
       if (completeError) throw completeError
 
-      // Calculate streak update
-      const lastWeek = profile.last_challenge_week
+      // Calculate daily streak update
+      const lastActive = profile.last_active ? new Date(profile.last_active) : null
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
       let newStreakDays = profile.streak_days || 0
 
-      if (lastWeek === null || lastWeek === undefined) {
-        newStreakDays = 1
-      } else if (lastWeek === weekNumber) {
-        // Already completed a challenge this week, no streak change
-      } else if (lastWeek === weekNumber - 1) {
-        newStreakDays += 1
+      if (!lastActive) {
+        // No last_active - calculate from history
+        newStreakDays = await calculateStreakFromHistory(profile.id)
       } else {
-        newStreakDays = 1
+        const lastActiveDay = new Date(lastActive)
+        lastActiveDay.setHours(0, 0, 0, 0)
+        const daysDiff = Math.floor((today - lastActiveDay) / (1000 * 60 * 60 * 24))
+
+        if (daysDiff === 0) {
+          // Already active today, no streak change
+        } else if (daysDiff === 1) {
+          newStreakDays += 1
+        } else if (daysDiff > 1) {
+          // last_active is stale - recalculate from history
+          newStreakDays = await calculateStreakFromHistory(profile.id)
+        }
       }
 
-      // Update user points, streak, and last_challenge_week
+      // Update user points, streak, and last_active
       const { error: updateError } = await supabase
         .from('users')
         .update({
           points_total: (profile.points_total || 0) + challenge.points_value,
           streak_days: newStreakDays,
+          last_active: new Date().toISOString(),
           last_challenge_week: weekNumber
         })
         .eq('id', profile.id)
@@ -179,23 +191,31 @@ export default function Challenges() {
           // Get their current profile
           const { data: memberProfile } = await supabase
             .from('users')
-            .select('points_total, streak_days, last_challenge_week')
+            .select('points_total, streak_days, last_active')
             .eq('id', selectedMember.id)
             .single()
 
           if (memberProfile) {
-            // Calculate their streak update
+            // Calculate their daily streak update
+            const memberLastActive = memberProfile.last_active ? new Date(memberProfile.last_active) : null
             let memberStreakDays = memberProfile.streak_days || 0
-            const memberLastWeek = memberProfile.last_challenge_week
 
-            if (memberLastWeek === null || memberLastWeek === undefined) {
-              memberStreakDays = 1
-            } else if (memberLastWeek === weekNumber) {
-              // Already has activity this week
-            } else if (memberLastWeek === weekNumber - 1) {
-              memberStreakDays += 1
+            if (!memberLastActive) {
+              // No last_active - calculate from history
+              memberStreakDays = await calculateStreakFromHistory(selectedMember.id)
             } else {
-              memberStreakDays = 1
+              const memberLastDay = new Date(memberLastActive)
+              memberLastDay.setHours(0, 0, 0, 0)
+              const memberDaysDiff = Math.floor((today - memberLastDay) / (1000 * 60 * 60 * 24))
+
+              if (memberDaysDiff === 0) {
+                // Already active today
+              } else if (memberDaysDiff === 1) {
+                memberStreakDays += 1
+              } else if (memberDaysDiff > 1) {
+                // last_active is stale - recalculate from history
+                memberStreakDays = await calculateStreakFromHistory(selectedMember.id)
+              }
             }
 
             // Award them the same points
@@ -204,6 +224,7 @@ export default function Challenges() {
               .update({
                 points_total: (memberProfile.points_total || 0) + challenge.points_value,
                 streak_days: memberStreakDays,
+                last_active: new Date().toISOString(),
                 last_challenge_week: weekNumber
               })
               .eq('id', selectedMember.id)

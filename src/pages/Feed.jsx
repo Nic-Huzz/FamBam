@@ -7,41 +7,84 @@ import PostCard from '../components/PostCard'
 import { FeedSkeleton } from '../components/Skeleton'
 import './Feed.css'
 
+const POSTS_PER_PAGE = 10
+
+// Format date for day separator
+const formatDayLabel = (dateStr) => {
+  const date = new Date(dateStr)
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  const isToday = date.toDateString() === today.toDateString()
+  const isYesterday = date.toDateString() === yesterday.toDateString()
+
+  if (isToday) return 'Today'
+  if (isYesterday) return 'Yesterday'
+
+  return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
+}
+
+// Get date key for grouping (YYYY-MM-DD)
+const getDateKey = (dateStr) => {
+  return new Date(dateStr).toLocaleDateString('en-CA') // Returns YYYY-MM-DD
+}
+
 export default function Feed() {
   const { profile, family, error: authError } = useAuth()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
   const [pullDistance, setPullDistance] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const [userMap, setUserMap] = useState({})
   const contentRef = useRef(null)
   const startY = useRef(0)
   const isPulling = useRef(false)
 
   useEffect(() => {
-    // If no family, stop loading and show appropriate state
     if (!family?.id) {
       setLoading(false)
       return
     }
-
-    fetchPosts()
+    fetchPosts(true)
   }, [family?.id])
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (reset = false) => {
     if (!family?.id) {
       setLoading(false)
       return
     }
 
-    setLoading(true)
+    if (reset) {
+      setLoading(true)
+      setPosts([])
+      setHasMore(true)
+    } else {
+      setLoadingMore(true)
+    }
     setError(null)
 
     try {
-      // Fetch posts using raw fetch
+      // Get the oldest post date for cursor pagination
+      const oldestDate = !reset && posts.length > 0
+        ? posts[posts.length - 1].created_at
+        : null
+
+      // Build filters
+      const filters = [{ column: 'family_id', op: 'eq', value: family.id }]
+      if (oldestDate) {
+        filters.push({ column: 'created_at', op: 'lt', value: oldestDate })
+      }
+
+      // Fetch posts with pagination
       const { data: postsData, error: fetchError } = await supabaseFetch('posts', {
         select: '*',
-        filters: [{ column: 'family_id', op: 'eq', value: family.id }]
+        filters,
+        order: { column: 'created_at', ascending: false },
+        limit: POSTS_PER_PAGE + 1 // Fetch one extra to check if there's more
       })
 
       if (fetchError) {
@@ -50,13 +93,27 @@ export default function Feed() {
         return
       }
 
-      // Fetch authors for posts
-      if (postsData && postsData.length > 0) {
-        const postIds = postsData.map(p => p.id)
+      // Check if there are more posts
+      const hasMorePosts = postsData && postsData.length > POSTS_PER_PAGE
+      setHasMore(hasMorePosts)
 
-        // Fetch users, comments, reactions, and media in parallel
-        const [usersRes, commentsRes, reactionsRes, mediaRes] = await Promise.all([
-          supabaseFetch('users', { select: 'id,name,avatar_url' }),
+      // Remove the extra post we fetched for checking
+      const postsToProcess = hasMorePosts ? postsData.slice(0, POSTS_PER_PAGE) : (postsData || [])
+
+      if (postsToProcess.length > 0) {
+        const postIds = postsToProcess.map(p => p.id)
+
+        // Fetch users if we don't have them cached
+        let currentUserMap = userMap
+        if (Object.keys(currentUserMap).length === 0) {
+          const usersRes = await supabaseFetch('users', { select: 'id,name,avatar_url' })
+          currentUserMap = {}
+          usersRes.data?.forEach(u => currentUserMap[u.id] = u)
+          setUserMap(currentUserMap)
+        }
+
+        // Fetch comments, reactions, and media for these posts
+        const [commentsRes, reactionsRes, mediaRes] = await Promise.all([
           supabaseFetch('comments', {
             select: '*',
             filters: [{ column: 'post_id', op: 'in', value: `(${postIds.join(',')})` }]
@@ -71,11 +128,7 @@ export default function Feed() {
           })
         ])
 
-        // Build user map for authors
-        const userMap = {}
-        usersRes.data?.forEach(u => userMap[u.id] = u)
-
-        // Group comments by post_id and add author info
+        // Group comments by post_id
         const commentsByPost = {}
         commentsRes.data?.forEach(comment => {
           if (!commentsByPost[comment.post_id]) {
@@ -83,7 +136,7 @@ export default function Feed() {
           }
           commentsByPost[comment.post_id].push({
             ...comment,
-            author: userMap[comment.user_id] || { name: 'Unknown' }
+            author: currentUserMap[comment.user_id] || { name: 'Unknown' }
           })
         })
 
@@ -96,7 +149,7 @@ export default function Feed() {
           reactionsByPost[reaction.post_id].push(reaction)
         })
 
-        // Group media by post_id and sort by display_order
+        // Group media by post_id
         const mediaByPost = {}
         mediaRes.data?.forEach(media => {
           if (!mediaByPost[media.post_id]) {
@@ -104,25 +157,25 @@ export default function Feed() {
           }
           mediaByPost[media.post_id].push(media)
         })
-        // Sort each post's media by display_order
         Object.values(mediaByPost).forEach(mediaList => {
           mediaList.sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
         })
 
         // Add author, comments, reactions, and media to posts
-        const postsWithData = postsData.map(post => ({
+        const postsWithData = postsToProcess.map(post => ({
           ...post,
-          author: userMap[post.user_id] || { name: 'Unknown' },
+          author: currentUserMap[post.user_id] || { name: 'Unknown' },
           reactions: reactionsByPost[post.id] || [],
           comments: commentsByPost[post.id] || [],
           media: mediaByPost[post.id] || []
         }))
 
-        // Sort by created_at descending
-        postsWithData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-
-        setPosts(postsWithData)
-      } else {
+        if (reset) {
+          setPosts(postsWithData)
+        } else {
+          setPosts(prev => [...prev, ...postsWithData])
+        }
+      } else if (reset) {
         setPosts([])
       }
     } catch (err) {
@@ -130,7 +183,14 @@ export default function Feed() {
       setError(err.message)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
       setRefreshing(false)
+    }
+  }
+
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      fetchPosts(false)
     }
   }
 
@@ -157,11 +217,46 @@ export default function Feed() {
   const handleTouchEnd = useCallback(() => {
     if (pullDistance > 80 && !refreshing) {
       setRefreshing(true)
-      fetchPosts()
+      fetchPosts(true)
     }
     setPullDistance(0)
     isPulling.current = false
   }, [pullDistance, refreshing])
+
+  // Group posts by day for rendering
+  const renderPostsWithDaySeparators = () => {
+    const elements = []
+    let currentDateKey = null
+
+    posts.forEach((post, index) => {
+      const postDateKey = getDateKey(post.created_at)
+
+      // Add day separator if this is a new day
+      if (postDateKey !== currentDateKey) {
+        currentDateKey = postDateKey
+        elements.push(
+          <div key={`day-${postDateKey}`} className="day-separator">
+            <span>{formatDayLabel(post.created_at)}</span>
+          </div>
+        )
+      }
+
+      elements.push(
+        <PostCard
+          key={post.id}
+          post={post}
+          onUpdate={() => fetchPosts(true)}
+          onReactionUpdate={(postId, newReactions) => {
+            setPosts(prev => prev.map(p =>
+              p.id === postId ? { ...p, reactions: newReactions } : p
+            ))
+          }}
+        />
+      )
+    })
+
+    return elements
+  }
 
   // Show setup prompt if user has no profile or no family
   if (!profile) {
@@ -222,7 +317,7 @@ export default function Feed() {
             <span className="empty-icon">⚠️</span>
             <h2>Something went wrong</h2>
             <p>{authError || error}</p>
-            <button onClick={fetchPosts} className="btn-primary">Try Again</button>
+            <button onClick={() => fetchPosts(true)} className="btn-primary">Try Again</button>
           </div>
         </main>
         <BottomNav />
@@ -275,9 +370,26 @@ export default function Feed() {
             <Link to="/post/new" className="btn-primary">Share Something</Link>
           </div>
         ) : (
-          posts.map(post => (
-            <PostCard key={post.id} post={post} onUpdate={fetchPosts} />
-          ))
+          <>
+            {renderPostsWithDaySeparators()}
+
+            {/* Load more button */}
+            {hasMore && (
+              <button
+                className="load-more-btn"
+                onClick={loadMore}
+                disabled={loadingMore}
+              >
+                {loadingMore ? 'Loading...' : 'Load older posts'}
+              </button>
+            )}
+
+            {!hasMore && posts.length > POSTS_PER_PAGE && (
+              <div className="end-of-feed">
+                You've reached the beginning!
+              </div>
+            )}
+          </>
         )}
       </main>
 

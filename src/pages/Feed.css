@@ -104,3 +104,64 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* Day separators */
+.day-separator {
+  display: flex;
+  align-items: center;
+  margin: 16px 0 8px;
+  padding: 0 4px;
+}
+
+.day-separator::before,
+.day-separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color, #e0e0e0);
+}
+
+.day-separator span {
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Load more button */
+.load-more-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  margin: 16px 0;
+  background: white;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--coral);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  background: var(--coral);
+  color: white;
+  border-color: var(--coral);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* End of feed message */
+.end-of-feed {
+  text-align: center;
+  padding: 20px;
+  margin: 16px 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}

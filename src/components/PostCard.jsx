@@ -22,7 +22,7 @@ const POST_TYPE_LABELS = {
   'call': { label: 'Family Call', icon: '📞' },
 }
 
-export default function PostCard({ post, onUpdate, hideShare = false }) {
+export default function PostCard({ post, onUpdate, onReactionUpdate, hideShare = false }) {
   const { profile, refreshProfile } = useAuth()
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState('')
@@ -54,22 +54,48 @@ export default function PostCard({ post, onUpdate, hideShare = false }) {
       r => r.user_id === profile.id && r.emoji === emoji
     )
 
+    let newReactions
+
     if (existingReaction) {
+      // Optimistically remove reaction from local state
+      newReactions = post.reactions.filter(r => r.id !== existingReaction.id)
+
       await supabase
         .from('reactions')
         .delete()
         .eq('id', existingReaction.id)
     } else {
-      await supabase
+      // Optimistically add reaction to local state
+      const tempReaction = {
+        id: `temp-${Date.now()}`,
+        post_id: post.id,
+        user_id: profile.id,
+        emoji,
+      }
+      newReactions = [...(post.reactions || []), tempReaction]
+
+      const { data } = await supabase
         .from('reactions')
         .insert({
           post_id: post.id,
           user_id: profile.id,
           emoji,
         })
+        .select()
+        .single()
+
+      // Replace temp reaction with real one if we got data back
+      if (data) {
+        newReactions = newReactions.map(r =>
+          r.id === tempReaction.id ? data : r
+        )
+      }
     }
 
-    if (onUpdate) onUpdate()
+    // Update just this post's reactions without refreshing the whole feed
+    if (onReactionUpdate) {
+      onReactionUpdate(post.id, newReactions)
+    }
   }
 
   const handleComment = async (e) => {
