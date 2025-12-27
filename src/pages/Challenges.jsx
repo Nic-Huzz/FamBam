@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { supabase, getCurrentWeekNumber } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
+import { getCurrentWeekNumber } from '../lib/dateUtils'
+import { isConnectionChallenge, getConnectionType, getConnectionIcon, getConnectionActionWord } from '../lib/connectionUtils'
 import { useAuth } from '../context/AuthContext'
 import { checkAllBadges } from '../lib/badges'
 import { getConnectionStats } from '../lib/connections'
@@ -32,8 +34,7 @@ export default function Challenges() {
 
   // Check if challenge requires family member selection
   const requiresMemberSelection = (challenge) => {
-    const title = challenge.title.toLowerCase()
-    return title.includes('visit') || title.includes('call')
+    return isConnectionChallenge(challenge.title)
   }
 
   const fetchFamilyMembers = async () => {
@@ -158,7 +159,7 @@ export default function Challenges() {
       const memberName = selectedMember?.name || otherName
       if (requiresMemberSelection(challenge) && memberName) {
         // Create a post to show in the feed
-        const actionWord = challenge.title.toLowerCase().includes('visit') ? 'visited' : 'called'
+        const actionWord = getConnectionActionWord(challenge.title)
         const postMessage = selectedMember
           ? `${actionWord} ${memberName}! 🎉`
           : `${actionWord} ${memberName}! 🎉`
@@ -170,7 +171,7 @@ export default function Challenges() {
             family_id: family.id,
             content_type: 'text',
             message: postMessage,
-            post_type: challenge.title.toLowerCase().includes('visit') ? 'visit' : 'call',
+            post_type: getConnectionType(challenge.title),
           })
 
         // If a family member from the app was selected, award them points too
@@ -380,9 +381,9 @@ export default function Challenges() {
         }}>
           <div className="member-selector-modal">
             <span className="selector-emoji">
-              {pendingChallenge.title.toLowerCase().includes('visit') ? '🏠' : '📞'}
+              {getConnectionIcon(pendingChallenge.title)}
             </span>
-            <h2>Who did you {pendingChallenge.title.toLowerCase().includes('visit') ? 'visit' : 'call'}?</h2>
+            <h2>Who did you {getConnectionType(pendingChallenge.title)}?</h2>
 
             {/* Smart Nudge Suggestion */}
             {suggestedMember && suggestedMember.needsReconnect && !selectedMemberId && (

@@ -1,6 +1,36 @@
+import { useState } from 'react'
 import './BadgeDisplay.css'
 
+function BadgeIcon({ badge, userBadge, isSelected, onClick }) {
+  return (
+    <button
+      className={`badge-icon ${isSelected ? 'selected' : ''}`}
+      onClick={onClick}
+      title={`${badge.name}: ${badge.description}`}
+    >
+      {badge.icon}
+    </button>
+  )
+}
+
+function BadgeDetails({ badge, onClose }) {
+  if (!badge) return null
+
+  return (
+    <div className="badge-details">
+      <span className="badge-details-icon">{badge.icon}</span>
+      <div className="badge-details-text">
+        <span className="badge-details-name">{badge.name}</span>
+        <span className="badge-details-desc">{badge.description}</span>
+      </div>
+      <button className="badge-details-close" onClick={onClose}>×</button>
+    </div>
+  )
+}
+
 export default function BadgeDisplay({ badges, size = 'md', showEmpty = false }) {
+  const [selectedBadge, setSelectedBadge] = useState(null)
+
   if (!badges || badges.length === 0) {
     if (showEmpty) {
       return (
@@ -20,6 +50,14 @@ export default function BadgeDisplay({ badges, size = 'md', showEmpty = false })
     achievement: badges.filter(b => b.badge?.badge_type === 'achievement'),
   }
 
+  const handleBadgeClick = (badge) => {
+    if (selectedBadge?.name === badge.name) {
+      setSelectedBadge(null)
+    } else {
+      setSelectedBadge(badge)
+    }
+  }
+
   return (
     <div className={`badge-display badge-${size}`}>
       {grouped.milestone.length > 0 && (
@@ -27,13 +65,13 @@ export default function BadgeDisplay({ badges, size = 'md', showEmpty = false })
           <span className="badge-group-label">Milestones</span>
           <div className="badge-icons">
             {grouped.milestone.map(ub => (
-              <span
+              <BadgeIcon
                 key={ub.id}
-                className="badge-icon"
-                title={`${ub.badge.name}: ${ub.badge.description}`}
-              >
-                {ub.badge.icon}
-              </span>
+                badge={ub.badge}
+                userBadge={ub}
+                isSelected={selectedBadge?.name === ub.badge.name}
+                onClick={() => handleBadgeClick(ub.badge)}
+              />
             ))}
           </div>
         </div>
@@ -44,13 +82,13 @@ export default function BadgeDisplay({ badges, size = 'md', showEmpty = false })
           <span className="badge-group-label">Achievements</span>
           <div className="badge-icons">
             {grouped.achievement.map(ub => (
-              <span
+              <BadgeIcon
                 key={ub.id}
-                className="badge-icon"
-                title={`${ub.badge.name}: ${ub.badge.description}`}
-              >
-                {ub.badge.icon}
-              </span>
+                badge={ub.badge}
+                userBadge={ub}
+                isSelected={selectedBadge?.name === ub.badge.name}
+                onClick={() => handleBadgeClick(ub.badge)}
+              />
             ))}
           </div>
         </div>
@@ -61,17 +99,19 @@ export default function BadgeDisplay({ badges, size = 'md', showEmpty = false })
           <span className="badge-group-label">This Week</span>
           <div className="badge-icons">
             {grouped.weekly.map(ub => (
-              <span
+              <BadgeIcon
                 key={ub.id}
-                className="badge-icon weekly-badge"
-                title={`${ub.badge.name}: ${ub.badge.description}`}
-              >
-                {ub.badge.icon}
-              </span>
+                badge={ub.badge}
+                userBadge={ub}
+                isSelected={selectedBadge?.name === ub.badge.name}
+                onClick={() => handleBadgeClick(ub.badge)}
+              />
             ))}
           </div>
         </div>
       )}
+
+      <BadgeDetails badge={selectedBadge} onClose={() => setSelectedBadge(null)} />
     </div>
   )
 }

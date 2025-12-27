@@ -53,6 +53,7 @@
   font-size: 16px;
   line-height: 1.5;
   margin-bottom: 12px;
+  white-space: pre-wrap;
 }
 
 .post-image,
@@ -279,4 +280,63 @@
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+/* Post delete menu */
+.post-menu {
+  margin-left: auto;
+}
+
+.post-menu-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.post-menu-btn:hover {
+  background: var(--blush);
+  color: var(--coral);
+}
+
+.delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.delete-confirm span {
+  color: var(--text-muted);
+}
+
+.delete-confirm button {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-confirm .confirm-yes {
+  background: #ff4444;
+  color: white;
+}
+
+.delete-confirm .confirm-yes:hover {
+  background: #cc0000;
+}
+
+.delete-confirm .confirm-no {
+  background: var(--cream);
+  color: var(--text-dark);
+}
+
+.delete-confirm .confirm-no:hover {
+  background: var(--blush);
 }

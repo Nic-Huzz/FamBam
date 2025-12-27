@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase, getCurrentWeekNumber } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
+import { getCurrentWeekNumber, getWeekStartDate, getWeekEndDate, getWeekDateRange } from '../lib/dateUtils'
 import { useAuth } from '../context/AuthContext'
 import { generateWeeklyDigest, isAIEnabled } from '../lib/ai'
 import BottomNav from '../components/BottomNav'
@@ -32,7 +33,7 @@ export default function WeeklyRecap() {
 
       // Fetch posts for the week
       const weekStart = getWeekStartDate(weekNum)
-      const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000)
+      const weekEnd = getWeekEndDate(weekNum)
 
       const { data: posts, error: postsError } = await supabase
         .from('posts')
@@ -140,32 +141,15 @@ export default function WeeklyRecap() {
     }
   }
 
-  const getWeekStartDate = (weekNum) => {
-    const year = new Date().getFullYear()
-    const jan1 = new Date(year, 0, 1)
-    return new Date(jan1.getTime() + (weekNum - 1) * 7 * 24 * 60 * 60 * 1000)
-  }
-
-  const getWeekDateRange = (weekNum) => {
-    const startDate = getWeekStartDate(weekNum)
-    const endDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000)
-
-    const formatDate = (date) => {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    }
-
-    return `${formatDate(startDate)} - ${formatDate(endDate)}`
-  }
-
   // Calculate the week number when the family was created
   const getFamilyCreatedWeek = () => {
     if (!family?.created_at) return 1
     const createdDate = new Date(family.created_at)
-    const year = createdDate.getFullYear()
-    const jan1 = new Date(year, 0, 1)
-    const diff = createdDate - jan1
+    // Use same epoch as dateUtils (Jan 1, 2024)
+    const epoch = new Date('2024-01-01T00:00:00Z')
+    const diff = createdDate - epoch
     const oneWeek = 1000 * 60 * 60 * 24 * 7
-    return Math.ceil(diff / oneWeek)
+    return Math.max(1, Math.ceil(diff / oneWeek))
   }
 
   const familyCreatedWeek = getFamilyCreatedWeek()

@@ -1,4 +1,6 @@
-import { supabase, getCurrentWeekNumber } from './supabase'
+import { supabase } from './supabase'
+import { getCurrentWeekNumber } from './dateUtils'
+import { isConnectionChallenge } from './connectionUtils'
 
 // Get connection stats for a user with all family members
 export async function getConnectionStats(userId, familyId) {
@@ -28,10 +30,9 @@ export async function getConnectionStats(userId, familyId) {
     if (connError) return []
 
     // Filter to only visit/call challenges
-    const visitCallConnections = connections?.filter(c => {
-      const title = c.challenge?.title?.toLowerCase() || ''
-      return title.includes('visit') || title.includes('call')
-    }) || []
+    const visitCallConnections = connections?.filter(c =>
+      isConnectionChallenge(c.challenge?.title)
+    ) || []
 
     // Calculate stats per family member
     const currentWeek = getCurrentWeekNumber()
@@ -133,8 +134,7 @@ export async function getWeeklyConnectionProgress(userId, familyId) {
     // Filter to visit/call and get unique targets
     const connectedIds = new Set()
     connections?.forEach(c => {
-      const title = c.challenge?.title?.toLowerCase() || ''
-      if ((title.includes('visit') || title.includes('call')) && c.target_user_id) {
+      if (isConnectionChallenge(c.challenge?.title) && c.target_user_id) {
         connectedIds.add(c.target_user_id)
       }
     })
@@ -190,8 +190,7 @@ export async function getConnectionRank(userId, familyId) {
     userIds.forEach(id => connectionCounts[id] = 0)
 
     connections?.forEach(c => {
-      const title = c.challenge?.title?.toLowerCase() || ''
-      if (title.includes('visit') || title.includes('call')) {
+      if (isConnectionChallenge(c.challenge?.title)) {
         connectionCounts[c.user_id] = (connectionCounts[c.user_id] || 0) + 1
       }
     })

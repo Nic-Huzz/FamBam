@@ -1,0 +1,7 @@
+/* MediaPicker styles */
+/* Most styles inherited from NewPost.css */
+
+.media-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

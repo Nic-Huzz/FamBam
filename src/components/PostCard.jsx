@@ -31,6 +31,10 @@ export default function PostCard({ post, onUpdate, hideShare = false }) {
   const [loadingSuggestions, setLoadingSuggestions] = useState(false)
   const [shareMessage, setShareMessage] = useState('')
   const [challengeCompleted, setChallengeCompleted] = useState(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const isAuthor = profile?.id === post.user_id
 
   const timeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000)
@@ -171,6 +175,24 @@ export default function PostCard({ post, onUpdate, hideShare = false }) {
     }
   }
 
+  const handleDelete = async () => {
+    if (deleting) return
+    setDeleting(true)
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', post.id)
+
+      if (error) throw error
+      if (onUpdate) onUpdate()
+    } catch (err) {
+      console.error('Error deleting post:', err)
+      setDeleting(false)
+      setShowDeleteConfirm(false)
+    }
+  }
+
   const reactionCounts = getReactionCounts()
 
   return (
@@ -192,6 +214,36 @@ export default function PostCard({ post, onUpdate, hideShare = false }) {
           </div>
           <span className="post-time">{timeAgo(post.created_at)}</span>
         </div>
+        {isAuthor && (
+          <div className="post-menu">
+            {showDeleteConfirm ? (
+              <div className="delete-confirm">
+                <span>Delete?</span>
+                <button
+                  className="confirm-yes"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? '...' : 'Yes'}
+                </button>
+                <button
+                  className="confirm-no"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  No
+                </button>
+              </div>
+            ) : (
+              <button
+                className="post-menu-btn"
+                onClick={() => setShowDeleteConfirm(true)}
+                title="Delete post"
+              >
+                ×
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="post-content">

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { getCurrentWeekNumber } from './dateUtils'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -66,14 +67,8 @@ export async function supabaseFetch(table, options = {}) {
   }
 }
 
-// Helper to get current week number
-export function getCurrentWeekNumber() {
-  const now = new Date()
-  const start = new Date(now.getFullYear(), 0, 1)
-  const diff = now - start
-  const oneWeek = 1000 * 60 * 60 * 24 * 7
-  return Math.ceil(diff / oneWeek)
-}
+// Re-export for backward compatibility (imported at top of file)
+export { getCurrentWeekNumber }
 
 // Generate random invite code
 export function generateInviteCode() {
@@ -101,14 +96,15 @@ export async function autoCompleteChallenge(userId, contentTypeOrTitle, userProf
   try {
     const weekNumber = getCurrentWeekNumber()
 
-    // Find the challenge by title
-    const { data: challenge, error: challengeError } = await supabase
+    // Find the challenge by title (use limit(1) to handle duplicates gracefully)
+    const { data: challenges, error: challengeError } = await supabase
       .from('challenges')
       .select('id, points_value, max_completions_per_week')
       .eq('title', challengeTitle)
       .eq('is_active', true)
-      .single()
+      .limit(1)
 
+    const challenge = challenges?.[0]
     if (challengeError || !challenge) {
       console.log('Challenge not found:', challengeTitle)
       return null

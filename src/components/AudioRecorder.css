@@ -1,0 +1,45 @@
+/* AudioRecorder styles */
+.audio-recorder-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--cream);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.audio-recorder-preview .audio-preview {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.audio-recorder-preview .audio-icon {
+  font-size: 24px;
+}
+
+.audio-recorder-preview audio {
+  flex: 1;
+  height: 36px;
+}
+
+.audio-recorder-preview .audio-duration {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+.audio-recorder-preview .remove-audio {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.audio-recorder-preview .remove-audio:hover {
+  color: var(--coral);
+}

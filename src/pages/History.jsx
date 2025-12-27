@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase, getCurrentWeekNumber } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
+import { getCurrentWeekNumber, getWeekDateRange } from '../lib/dateUtils'
 import { useAuth } from '../context/AuthContext'
 import BottomNav from '../components/BottomNav'
 import './History.css'
@@ -67,20 +68,6 @@ export default function History() {
     } finally {
       setLoading(false)
     }
-  }
-
-  // Get date range for a week number
-  const getWeekDateRange = (weekNum) => {
-    const year = new Date().getFullYear()
-    const jan1 = new Date(year, 0, 1)
-    const startDate = new Date(jan1.getTime() + (weekNum - 1) * 7 * 24 * 60 * 60 * 1000)
-    const endDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000)
-
-    const formatDate = (date) => {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    }
-
-    return `${formatDate(startDate)} - ${formatDate(endDate)}`
   }
 
   const selectedWeekData = weeklyData.find(w => w.weekNumber === selectedWeek)
@@ -150,7 +137,7 @@ export default function History() {
                     onClick={() => setSelectedWeek(week.weekNumber)}
                   >
                     <span className="week-num">
-                      {week.weekNumber === currentWeek ? 'This Week' : `Week ${week.weekNumber}`}
+                      {week.weekNumber === currentWeek ? 'This Week' : week.dateRange}
                     </span>
                     <span className="week-points">+{week.totalPoints} pts</span>
                   </button>
@@ -163,9 +150,8 @@ export default function History() {
               <div className="week-details">
                 <div className="week-header">
                   <h2>
-                    {selectedWeek === currentWeek ? 'This Week' : `Week ${selectedWeek}`}
+                    {selectedWeek === currentWeek ? 'This Week' : selectedWeekData.dateRange}
                   </h2>
-                  <span className="week-date">{selectedWeekData.dateRange}</span>
                 </div>
 
                 <div className="week-summary card">
