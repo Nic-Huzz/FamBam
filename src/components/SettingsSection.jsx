@@ -253,11 +253,12 @@ export default function SettingsSection() {
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY
     try {
       // Simulate someone ELSE posting so YOU get notified
+      // Use a valid UUID format that doesn't exist
       const payload = {
         type: 'INSERT',
         table: 'posts',
         record: {
-          user_id: 'fake-other-user-id',  // Not you
+          user_id: '00000000-0000-0000-0000-000000000000',  // Valid UUID, not you
           family_id: family.id,
           content: 'Test post from family member'
         }
