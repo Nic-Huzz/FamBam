@@ -238,6 +238,40 @@ export default function SettingsSection() {
     }
   }
 
+  const debugSendToMe = async () => {
+    setDebugOutput('')
+    debugLog('Sending push notification to YOU...')
+    const url = import.meta.env.VITE_SUPABASE_URL
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY
+    try {
+      // Simulate someone ELSE posting so YOU get notified
+      const res = await fetch(`${url}/functions/v1/send-notification`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'INSERT',
+          table: 'posts',
+          record: {
+            user_id: 'fake-other-user-id',  // Not you
+            family_id: family?.id,
+            content: 'Test post from family member'
+          }
+        })
+      })
+      debugLog('Status: ' + res.status)
+      const data = await res.json()
+      debugLog(data)
+      if (data.sent === 0) {
+        debugLog('\n⚠️ 0 sent - check Edge Function logs')
+      }
+    } catch (e) {
+      debugLog('Error: ' + e.message)
+    }
+  }
+
   return (
     <>
       {/* Settings */}
@@ -283,6 +317,7 @@ export default function SettingsSection() {
                 <button onClick={debugCheckDbSubscriptions}>Check DB</button>
                 <button onClick={debugLocalNotification}>Local Test</button>
                 <button onClick={debugTestEdgeFunction}>Test Edge Fn</button>
+                <button onClick={debugSendToMe} style={{ background: '#0a0', color: '#000' }}>Send to Me</button>
               </div>
               <pre className="debug-output">{debugOutput || 'Click a button to test'}</pre>
             </div>
