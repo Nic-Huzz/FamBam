@@ -167,6 +167,21 @@ export default function SettingsSection() {
     }
   }
 
+  const debugClearMySubscription = async () => {
+    setDebugOutput('')
+    debugLog('Clearing your subscription...')
+    if (!profile?.id) {
+      debugLog('Error: Not logged in')
+      return
+    }
+    const { error } = await supabase.from('push_subscriptions').delete().eq('user_id', profile.id)
+    if (error) {
+      debugLog('Error: ' + error.message)
+    } else {
+      debugLog('Deleted! Now click Subscribe to re-register.')
+    }
+  }
+
   const debugRegisterSW = async () => {
     setDebugOutput('')
     debugLog('Registering service worker...')
@@ -329,6 +344,7 @@ export default function SettingsSection() {
                 <button onClick={debugRegisterSW}>Register SW</button>
                 <button onClick={debugSubscribe}>Subscribe</button>
                 <button onClick={debugCheckDbSubscriptions}>Check DB</button>
+                <button onClick={debugClearMySubscription} style={{ background: '#a00', color: '#fff' }}>Clear Mine</button>
                 <button onClick={debugLocalNotification}>Local Test</button>
                 <button onClick={debugTestEdgeFunction}>Test Edge Fn</button>
                 <button onClick={debugSendToMe} style={{ background: '#0a0', color: '#000' }}>Send to Me</button>
