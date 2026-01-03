@@ -15,6 +15,8 @@ function PageLoader() {
 const Landing = lazy(() => import('./pages/Landing'))
 const Login = lazy(() => import('./pages/Login'))
 const Signup = lazy(() => import('./pages/Signup'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 const Feed = lazy(() => import('./pages/Feed'))
 const NewPost = lazy(() => import('./pages/NewPost'))
 const PostDetail = lazy(() => import('./pages/PostDetail'))
@@ -77,6 +79,12 @@ export default function App() {
             <Signup />
           </PublicRoute>
         } />
+        <Route path="/forgot-password" element={
+          <PublicRoute>
+            <ForgotPassword />
+          </PublicRoute>
+        } />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Protected routes */}
         <Route path="/feed" element={

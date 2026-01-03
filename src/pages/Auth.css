@@ -194,3 +194,65 @@
 .auth-method-toggle .method-btn:hover:not(.active) {
   color: var(--text-dark);
 }
+
+/* Forgot Password Link */
+.forgot-password-link {
+  text-align: right;
+  margin-top: -8px;
+  margin-bottom: 16px;
+}
+
+.forgot-password-link a {
+  font-size: 14px;
+  color: var(--coral);
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+}
+
+/* Success Message */
+.auth-success-message {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 16px;
+  border-radius: var(--radius-input);
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.auth-success-message p {
+  margin: 0;
+}
+
+.auth-success-message p + p {
+  margin-top: 8px;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: white;
+  color: var(--coral);
+  border: 2px solid var(--coral);
+  padding: 14px 24px;
+  border-radius: var(--radius-button);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background: var(--coral);
+  color: white;
+}
+
+/* Loading spinner for auth pages */
+.loading-spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}

@@ -4,7 +4,10 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import {
   subscribeToPush,
-  unsubscribeFromPush
+  unsubscribeFromPush,
+  isPushSupported,
+  isSubscribedToPush,
+  registerServiceWorker
 } from '../lib/notifications'
 import './SettingsSection.css'
 
@@ -21,6 +24,8 @@ export default function SettingsSection() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [familyMembers, setFamilyMembers] = useState([])
+  const [showDebug, setShowDebug] = useState(false)
+  const [debugOutput, setDebugOutput] = useState('')
 
   const isAdmin = family?.created_by === profile?.id
 
@@ -130,6 +135,109 @@ export default function SettingsSection() {
     }
   }
 
+  // Debug functions
+  const debugLog = (msg) => {
+    const text = typeof msg === 'object' ? JSON.stringify(msg, null, 2) : String(msg)
+    setDebugOutput(prev => prev + text + '\n')
+  }
+
+  const debugCheckStatus = async () => {
+    setDebugOutput('')
+    debugLog('=== Notification Status ===')
+    debugLog('Push supported: ' + isPushSupported())
+    debugLog('Permission: ' + (typeof Notification !== 'undefined' ? Notification.permission : 'N/A'))
+    debugLog('VAPID key set: ' + !!VAPID_PUBLIC_KEY)
+    debugLog('Subscribed: ' + await isSubscribedToPush())
+
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration()
+      debugLog('Service Worker: ' + (reg ? 'registered' : 'not registered'))
+    }
+  }
+
+  const debugCheckDbSubscriptions = async () => {
+    setDebugOutput('')
+    debugLog('Checking push_subscriptions...')
+    const { data, error } = await supabase.from('push_subscriptions').select('user_id, endpoint')
+    if (error) {
+      debugLog('Error: ' + error.message)
+    } else {
+      debugLog('Found ' + (data?.length || 0) + ' subscriptions')
+      data?.forEach(s => debugLog('- ' + s.user_id.slice(0, 8) + '... → ' + s.endpoint.slice(0, 50) + '...'))
+    }
+  }
+
+  const debugRegisterSW = async () => {
+    setDebugOutput('')
+    debugLog('Registering service worker...')
+    try {
+      const reg = await registerServiceWorker()
+      debugLog('Success! Scope: ' + reg.scope)
+    } catch (e) {
+      debugLog('Error: ' + e.message)
+    }
+  }
+
+  const debugSubscribe = async () => {
+    setDebugOutput('')
+    debugLog('Subscribing to push...')
+    if (!profile?.id) {
+      debugLog('Error: Not logged in')
+      return
+    }
+    if (!VAPID_PUBLIC_KEY) {
+      debugLog('Error: VAPID key not set')
+      return
+    }
+    try {
+      const sub = await subscribeToPush(profile.id, VAPID_PUBLIC_KEY)
+      debugLog('Success!')
+      debugLog('Endpoint: ' + sub.endpoint.slice(0, 60) + '...')
+    } catch (e) {
+      debugLog('Error: ' + e.message)
+    }
+  }
+
+  const debugLocalNotification = () => {
+    setDebugOutput('')
+    debugLog('Sending local notification...')
+    if (Notification.permission === 'granted') {
+      new Notification('Test from FamBam', {
+        body: 'Local notification test successful!',
+        icon: '/favicon.svg'
+      })
+      debugLog('Sent!')
+    } else {
+      debugLog('Permission: ' + Notification.permission)
+    }
+  }
+
+  const debugTestEdgeFunction = async () => {
+    setDebugOutput('')
+    debugLog('Testing Edge Function...')
+    const url = import.meta.env.VITE_SUPABASE_URL
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY
+    try {
+      const res = await fetch(`${url}/functions/v1/send-notification`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'INSERT',
+          table: 'posts',
+          record: { user_id: profile?.id, family_id: family?.id, content: 'Test' }
+        })
+      })
+      debugLog('Status: ' + res.status)
+      const data = await res.json()
+      debugLog(data)
+    } catch (e) {
+      debugLog('Error: ' + e.message)
+    }
+  }
+
   return (
     <>
       {/* Settings */}
@@ -157,6 +265,28 @@ export default function SettingsSection() {
               </button>
             )}
           </div>
+
+          {/* Debug Panel Toggle */}
+          <button
+            className="debug-toggle-btn"
+            onClick={() => setShowDebug(!showDebug)}
+          >
+            {showDebug ? 'Hide Debug' : 'Debug Notifications'}
+          </button>
+
+          {showDebug && (
+            <div className="debug-panel">
+              <div className="debug-buttons">
+                <button onClick={debugCheckStatus}>Check Status</button>
+                <button onClick={debugRegisterSW}>Register SW</button>
+                <button onClick={debugSubscribe}>Subscribe</button>
+                <button onClick={debugCheckDbSubscriptions}>Check DB</button>
+                <button onClick={debugLocalNotification}>Local Test</button>
+                <button onClick={debugTestEdgeFunction}>Test Edge Fn</button>
+              </div>
+              <pre className="debug-output">{debugOutput || 'Click a button to test'}</pre>
+            </div>
+          )}
           <button className="logout-btn" onClick={handleSignOut}>
             Log Out
           </button>
