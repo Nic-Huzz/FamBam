@@ -271,6 +271,7 @@ export default function SettingsSection() {
     debugLog('Sending push notification to YOU...')
     debugLog('Your user_id: ' + profile?.id)
     debugLog('Your family_id: ' + family?.id)
+    debugLog('Client VAPID key: ' + VAPID_PUBLIC_KEY?.slice(0, 20) + '...')
 
     if (!family?.id) {
       debugLog('ERROR: No family_id found!')
