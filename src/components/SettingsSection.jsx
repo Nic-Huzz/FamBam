@@ -241,31 +241,44 @@ export default function SettingsSection() {
   const debugSendToMe = async () => {
     setDebugOutput('')
     debugLog('Sending push notification to YOU...')
+    debugLog('Your user_id: ' + profile?.id)
+    debugLog('Your family_id: ' + family?.id)
+
+    if (!family?.id) {
+      debugLog('ERROR: No family_id found!')
+      return
+    }
+
     const url = import.meta.env.VITE_SUPABASE_URL
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY
     try {
       // Simulate someone ELSE posting so YOU get notified
+      const payload = {
+        type: 'INSERT',
+        table: 'posts',
+        record: {
+          user_id: 'fake-other-user-id',  // Not you
+          family_id: family.id,
+          content: 'Test post from family member'
+        }
+      }
+      debugLog('Sending: ' + JSON.stringify(payload.record))
+
       const res = await fetch(`${url}/functions/v1/send-notification`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${key}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          type: 'INSERT',
-          table: 'posts',
-          record: {
-            user_id: 'fake-other-user-id',  // Not you
-            family_id: family?.id,
-            content: 'Test post from family member'
-          }
-        })
+        body: JSON.stringify(payload)
       })
       debugLog('Status: ' + res.status)
       const data = await res.json()
       debugLog(data)
-      if (data.sent === 0) {
-        debugLog('\n⚠️ 0 sent - check Edge Function logs')
+      if (data.sent === 0 && data.total > 0) {
+        debugLog('\n⚠️ Found users but failed to send')
+      } else if (data.total === 0) {
+        debugLog('\n⚠️ No family members found to notify')
       }
     } catch (e) {
       debugLog('Error: ' + e.message)
