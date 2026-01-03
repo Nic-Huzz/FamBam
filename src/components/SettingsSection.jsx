@@ -195,7 +195,7 @@ export default function SettingsSection() {
 
   const debugSubscribe = async () => {
     setDebugOutput('')
-    debugLog('Subscribing to push...')
+    debugLog('Subscribing to push (forcing new subscription)...')
     if (!profile?.id) {
       debugLog('Error: Not logged in')
       return
@@ -205,6 +205,19 @@ export default function SettingsSection() {
       return
     }
     try {
+      // First, unsubscribe any existing browser subscription
+      const registration = await navigator.serviceWorker.ready
+      const existingSub = await registration.pushManager.getSubscription()
+      if (existingSub) {
+        debugLog('Unsubscribing old browser subscription...')
+        await existingSub.unsubscribe()
+      }
+
+      // Delete from database
+      await supabase.from('push_subscriptions').delete().eq('user_id', profile.id)
+
+      // Now create fresh subscription
+      debugLog('Creating new subscription...')
       const sub = await subscribeToPush(profile.id, VAPID_PUBLIC_KEY)
       debugLog('Success!')
       debugLog('Endpoint: ' + sub.endpoint.slice(0, 60) + '...')
