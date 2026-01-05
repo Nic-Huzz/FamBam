@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -11,6 +12,7 @@ import './SettingsSection.css'
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || ''
 
 export default function SettingsSection() {
+  const { t, i18n } = useTranslation()
   const { profile, family, signOut } = useAuth()
   const navigate = useNavigate()
 
@@ -130,21 +132,25 @@ export default function SettingsSection() {
     }
   }
 
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang)
+  }
+
   return (
     <>
       {/* Settings */}
       <section className="profile-section">
-        <h2>Settings</h2>
+        <h2>{t('settings.title')}</h2>
         <div className="card settings-card">
           <div className="setting-row">
             <div className="setting-info">
-              <span className="setting-label">Notifications</span>
+              <span className="setting-label">{t('settings.notifications.label')}</span>
               <span className="setting-desc">
                 {!pushSupported
-                  ? 'Not supported in this browser'
+                  ? t('settings.notifications.notSupported')
                   : notificationsEnabled
-                  ? 'Enabled - you\'ll receive updates'
-                  : 'Get notified about new posts and activity'}
+                  ? t('settings.notifications.enabled')
+                  : t('settings.notifications.disabled')}
               </span>
             </div>
             {pushSupported && (
@@ -158,29 +164,45 @@ export default function SettingsSection() {
             )}
           </div>
 
-                    <button className="logout-btn" onClick={handleSignOut}>
-            Log Out
+          <div className="setting-row">
+            <div className="setting-info">
+              <span className="setting-label">{t('settings.language.label')}</span>
+              <span className="setting-desc">{t('settings.language.description')}</span>
+            </div>
+            <select
+              className="language-select"
+              value={i18n.language}
+              onChange={(e) => changeLanguage(e.target.value)}
+            >
+              <option value="en">English</option>
+              <option value="es">Espanol</option>
+              <option value="de">Deutsch</option>
+            </select>
+          </div>
+
+          <button className="logout-btn" onClick={handleSignOut}>
+            {t('settings.logOut')}
           </button>
         </div>
       </section>
 
       {/* Legal & Account */}
       <section className="profile-section">
-        <h2>Legal & Account</h2>
+        <h2>{t('settings.legal.title')}</h2>
         <div className="card settings-card">
           <Link to="/terms" className="setting-link">
-            <span>Terms of Service</span>
+            <span>{t('settings.legal.terms')}</span>
             <span className="link-arrow">→</span>
           </Link>
           <Link to="/privacy" className="setting-link">
-            <span>Privacy Policy</span>
+            <span>{t('settings.legal.privacy')}</span>
             <span className="link-arrow">→</span>
           </Link>
           <button
             className="delete-account-btn"
             onClick={() => setShowDeleteAccount(true)}
           >
-            Delete Account
+            {t('settings.deleteAccount.button')}
           </button>
         </div>
       </section>
@@ -189,18 +211,15 @@ export default function SettingsSection() {
       {showDeleteAccount && (
         <div className="modal-overlay" onClick={() => setShowDeleteAccount(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>Delete Account?</h3>
-            <p>
-              This will permanently delete your account and all your data including
-              posts, comments, and challenge history. This action cannot be undone.
-            </p>
+            <h3>{t('settings.deleteAccount.modalTitle')}</h3>
+            <p>{t('settings.deleteAccount.modalDescription')}</p>
             <div className="form-group">
-              <label>Type DELETE to confirm:</label>
+              <label>{t('settings.deleteAccount.confirmLabel')}</label>
               <input
                 type="text"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
-                placeholder="DELETE"
+                placeholder={t('settings.deleteAccount.confirmPlaceholder')}
               />
             </div>
             <div className="modal-actions">
@@ -209,7 +228,7 @@ export default function SettingsSection() {
                 onClick={handleDeleteAccount}
                 disabled={deleteConfirmText !== 'DELETE' || deleting}
               >
-                {deleting ? 'Deleting...' : 'Delete My Account'}
+                {deleting ? t('settings.deleteAccount.submitting') : t('settings.deleteAccount.submitButton')}
               </button>
               <button
                 className="modal-cancel"
@@ -218,7 +237,7 @@ export default function SettingsSection() {
                   setDeleteConfirmText('')
                 }}
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </div>

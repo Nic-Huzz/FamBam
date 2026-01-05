@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import './ProfileHeader.css'
 
 export default function ProfileHeader() {
+  const { t } = useTranslation()
   const { profile, refreshProfile } = useAuth()
   const [editing, setEditing] = useState(false)
   const [newName, setNewName] = useState(profile?.name || '')
@@ -109,10 +111,10 @@ export default function ProfileHeader() {
           />
           <div className="edit-actions">
             <button onClick={handleSaveName} disabled={saving}>
-              {saving ? 'Saving...' : 'Save'}
+              {saving ? t('profile.edit.saving') : t('profile.edit.save')}
             </button>
             <button onClick={() => setEditing(false)} className="cancel">
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </div>
@@ -123,7 +125,7 @@ export default function ProfileHeader() {
             setNewName(profile?.name || '')
             setEditing(true)
           }}>
-            Edit
+            {t('profile.edit.button')}
           </button>
         </div>
       )}

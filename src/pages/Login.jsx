@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import './Auth.css'
 
 export default function Login() {
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -15,7 +17,7 @@ export default function Login() {
     setError('')
 
     if (!email || !password) {
-      setError('Please enter email and password')
+      setError(t('auth.login.errorEmpty'))
       return
     }
 
@@ -45,9 +47,9 @@ export default function Login() {
     } catch (err) {
       console.error('Login error:', err)
       if (err.message.includes('Invalid login credentials')) {
-        setError('Invalid email or password')
+        setError(t('auth.login.errorInvalid'))
       } else {
-        setError(err.message || 'Failed to sign in')
+        setError(err.message || t('auth.login.errorGeneric'))
       }
     } finally {
       setLoading(false)
@@ -59,49 +61,49 @@ export default function Login() {
       <div className="auth-container">
         <div className="auth-header">
           <Link to="/" className="auth-logo">FamBam</Link>
-          <h1>Welcome back!</h1>
-          <p>Sign in to connect with your family</p>
+          <h1>{t('auth.login.title')}</h1>
+          <p>{t('auth.login.subtitle')}</p>
         </div>
 
         <form onSubmit={handleLogin} className="auth-form">
           {error && <div className="auth-error">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('auth.login.email')}</label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
+              placeholder={t('auth.login.emailPlaceholder')}
               required
               autoFocus
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t('auth.login.password')}</label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your password"
+              placeholder={t('auth.login.passwordPlaceholder')}
               required
             />
           </div>
 
           <div className="forgot-password-link">
-            <Link to="/forgot-password">Forgot password?</Link>
+            <Link to="/forgot-password">{t('auth.login.forgotPassword')}</Link>
           </div>
 
           <button type="submit" className="btn-primary auth-submit" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('auth.login.submitting') : t('auth.login.submitButton')}
           </button>
         </form>
 
         <p className="auth-footer">
-          Don't have an account? <Link to="/signup">Sign up</Link>
+          {t('auth.login.noAccount')} <Link to="/signup">{t('auth.login.signUp')}</Link>
         </p>
       </div>
     </div>

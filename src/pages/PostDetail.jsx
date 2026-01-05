@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabaseFetch } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import PostCard from '../components/PostCard'
 import './PostDetail.css'
 
 export default function PostDetail() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
   const { profile, family } = useAuth()
@@ -32,7 +34,7 @@ export default function PostDetail() {
 
       if (postError) throw postError
       if (!postData || postData.length === 0) {
-        setError('Post not found')
+        setError(t('errors.notFound'))
         return
       }
 
@@ -40,7 +42,7 @@ export default function PostDetail() {
 
       // Check if user has access (is in the same family)
       if (family && postItem.family_id !== family.id) {
-        setError('You don\'t have access to this post')
+        setError(t('errors.unauthorized'))
         return
       }
 
@@ -88,7 +90,7 @@ export default function PostDetail() {
       setPost(completePost)
     } catch (err) {
       console.error('Error fetching post:', err)
-      setError(err.message || 'Failed to load post')
+      setError(err.message || t('errors.generic'))
     } finally {
       setLoading(false)
     }
@@ -98,8 +100,8 @@ export default function PostDetail() {
     return (
       <div className="page post-detail-page">
         <header className="post-detail-header">
-          <Link to="/feed" className="back-btn">← Back</Link>
-          <h1>Post</h1>
+          <Link to="/feed" className="back-btn">← {t('common.back')}</Link>
+          <h1>{t('post.title')}</h1>
           <div style={{ width: 60 }}></div>
         </header>
         <main className="page-content">
@@ -115,16 +117,16 @@ export default function PostDetail() {
     return (
       <div className="page post-detail-page">
         <header className="post-detail-header">
-          <Link to="/feed" className="back-btn">← Back</Link>
-          <h1>Post</h1>
+          <Link to="/feed" className="back-btn">← {t('common.back')}</Link>
+          <h1>{t('post.title')}</h1>
           <div style={{ width: 60 }}></div>
         </header>
         <main className="page-content">
           <div className="empty-state">
             <span className="empty-icon">😕</span>
             <h2>{error}</h2>
-            <p>This post may have been deleted or you don't have permission to view it.</p>
-            <Link to="/feed" className="btn-primary">Go to Feed</Link>
+            <p>{t('post.notFoundDesc')}</p>
+            <Link to="/feed" className="btn-primary">{t('nav.feed')}</Link>
           </div>
         </main>
       </div>
@@ -134,8 +136,8 @@ export default function PostDetail() {
   return (
     <div className="page post-detail-page">
       <header className="post-detail-header">
-        <Link to="/feed" className="back-btn">← Back</Link>
-        <h1>Post</h1>
+        <Link to="/feed" className="back-btn">← {t('common.back')}</Link>
+        <h1>{t('post.title')}</h1>
         <div style={{ width: 60 }}></div>
       </header>
 

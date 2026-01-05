@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabaseFetch } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import BottomNav from '../components/BottomNav'
@@ -9,29 +10,30 @@ import './Feed.css'
 
 const POSTS_PER_PAGE = 10
 
-// Format date for day separator
-const formatDayLabel = (dateStr) => {
-  const date = new Date(dateStr)
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-
-  const isToday = date.toDateString() === today.toDateString()
-  const isYesterday = date.toDateString() === yesterday.toDateString()
-
-  if (isToday) return 'Today'
-  if (isYesterday) return 'Yesterday'
-
-  return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })
-}
-
 // Get date key for grouping (YYYY-MM-DD)
 const getDateKey = (dateStr) => {
   return new Date(dateStr).toLocaleDateString('en-CA') // Returns YYYY-MM-DD
 }
 
 export default function Feed() {
+  const { t, i18n } = useTranslation()
   const { profile, family, error: authError } = useAuth()
+
+  // Format date for day separator
+  const formatDayLabel = (dateStr) => {
+    const date = new Date(dateStr)
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    const isToday = date.toDateString() === today.toDateString()
+    const isYesterday = date.toDateString() === yesterday.toDateString()
+
+    if (isToday) return t('feed.today') || 'Today'
+    if (isYesterday) return t('feed.yesterday') || 'Yesterday'
+
+    return date.toLocaleDateString(i18n.language, { weekday: 'long', month: 'short', day: 'numeric' })
+  }
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -270,9 +272,9 @@ export default function Feed() {
         <main className="page-content">
           <div className="empty-state">
             <span className="empty-icon">👋</span>
-            <h2>Welcome!</h2>
-            <p>Your profile isn't set up yet. Please sign out and sign up again to complete setup.</p>
-            <Link to="/profile" className="btn-primary">Go to Profile</Link>
+            <h2>{t('feed.welcome')}</h2>
+            <p>{t('feed.setupProfile')}</p>
+            <Link to="/profile" className="btn-primary">{t('nav.profile')}</Link>
           </div>
         </main>
         <BottomNav />
@@ -294,9 +296,9 @@ export default function Feed() {
         <main className="page-content">
           <div className="empty-state">
             <span className="empty-icon">👨‍👩‍👧‍👦</span>
-            <h2>No Family Yet</h2>
-            <p>You're not part of a family group yet. Join one with an invite code or create a new family.</p>
-            <Link to="/profile" className="btn-primary">Set Up Family</Link>
+            <h2>{t('feed.noFamily')}</h2>
+            <p>{t('feed.noFamilyDesc')}</p>
+            <Link to="/profile" className="btn-primary">{t('feed.setupFamily')}</Link>
           </div>
         </main>
         <BottomNav />
@@ -309,15 +311,15 @@ export default function Feed() {
       <div className="page feed-page">
         <header className="feed-header">
           <div className="feed-header-content">
-            <h1>{family?.name || 'Family Feed'}</h1>
+            <h1>{family?.name || t('feed.title')}</h1>
           </div>
         </header>
         <main className="page-content">
           <div className="empty-state">
             <span className="empty-icon">⚠️</span>
-            <h2>Something went wrong</h2>
+            <h2>{t('errors.generic')}</h2>
             <p>{authError || error}</p>
-            <button onClick={() => fetchPosts(true)} className="btn-primary">Try Again</button>
+            <button onClick={() => fetchPosts(true)} className="btn-primary">{t('feed.tryAgain')}</button>
           </div>
         </main>
         <BottomNav />
@@ -334,7 +336,7 @@ export default function Feed() {
             <span className="points-badge">{profile?.points_total || 0} pts</span>
             {profile?.streak_days > 0 && (
               <span className="streak-badge">
-                🔥 {profile.streak_days} day streak
+                🔥 {t('challenges.streak.days', { count: profile.streak_days })}
               </span>
             )}
           </div>
@@ -355,7 +357,7 @@ export default function Feed() {
             style={{ height: refreshing ? 50 : pullDistance * 0.5 }}
           >
             <div className={`refresh-spinner ${refreshing ? 'spinning' : ''}`}>
-              {refreshing ? '↻' : pullDistance > 80 ? '↓ Release' : '↓ Pull'}
+              {refreshing ? '↻' : pullDistance > 80 ? `↓ ${t('feed.release')}` : `↓ ${t('feed.pull')}`}
             </div>
           </div>
         )}
@@ -365,9 +367,9 @@ export default function Feed() {
         ) : posts.length === 0 ? (
           <div className="empty-state">
             <span className="empty-icon">📸</span>
-            <h2>No posts yet</h2>
-            <p>Be the first to share an update with your family!</p>
-            <Link to="/post/new" className="btn-primary">Share Something</Link>
+            <h2>{t('feed.empty.title')}</h2>
+            <p>{t('feed.empty.subtitle')}</p>
+            <Link to="/post/new" className="btn-primary">{t('feed.empty.cta')}</Link>
           </div>
         ) : (
           <>
@@ -380,13 +382,13 @@ export default function Feed() {
                 onClick={loadMore}
                 disabled={loadingMore}
               >
-                {loadingMore ? 'Loading...' : 'Load older posts'}
+                {loadingMore ? t('common.loading') : t('feed.loadMore')}
               </button>
             )}
 
             {!hasMore && posts.length > POSTS_PER_PAGE && (
               <div className="end-of-feed">
-                You've reached the beginning!
+                {t('feed.endOfFeed')}
               </div>
             )}
           </>

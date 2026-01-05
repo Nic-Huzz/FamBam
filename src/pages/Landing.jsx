@@ -1,22 +1,24 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import './Landing.css'
 
 export default function Landing() {
+  const { t } = useTranslation()
+
   return (
     <div className="landing-page">
       <div className="landing-hero">
         <div className="landing-content">
           <h1 className="landing-title">
-            Stay closer to the ones who matter most
+            {t('landing.hero.title')}
           </h1>
           <p className="landing-subtitle">
-            FamBam helps families stay meaningfully connected through shared updates,
-            fun challenges, and friendly competition.
+            {t('landing.hero.subtitle')}
           </p>
 
           <div className="landing-buttons">
-            <Link to="/signup" className="btn-primary">Get Started</Link>
-            <Link to="/login" className="btn-secondary">Login</Link>
+            <Link to="/signup" className="btn-primary">{t('landing.hero.cta')}</Link>
+            <Link to="/login" className="btn-secondary">{t('landing.hero.login')}</Link>
           </div>
         </div>
 
@@ -46,18 +48,18 @@ export default function Landing() {
       <div className="landing-features">
         <div className="feature-card">
           <span className="feature-icon">📸</span>
-          <h3>Share Updates</h3>
-          <p>Post photos and messages to keep everyone in the loop</p>
+          <h3>{t('landing.features.moments.title')}</h3>
+          <p>{t('landing.features.moments.description')}</p>
         </div>
         <div className="feature-card">
           <span className="feature-icon">🎯</span>
-          <h3>Weekly Challenges</h3>
-          <p>Fun activities to encourage meaningful connection</p>
+          <h3>{t('landing.features.challenges.title')}</h3>
+          <p>{t('landing.features.challenges.description')}</p>
         </div>
         <div className="feature-card">
           <span className="feature-icon">🏆</span>
-          <h3>Family Leaderboard</h3>
-          <p>Friendly competition to keep everyone engaged</p>
+          <h3>{t('landing.features.leaderboard.title')}</h3>
+          <p>{t('landing.features.leaderboard.description')}</p>
         </div>
       </div>
     </div>

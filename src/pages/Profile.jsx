@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import { useWeeklyStats, useBadges } from '../hooks'
 import BottomNav from '../components/BottomNav'
@@ -10,6 +11,7 @@ import SettingsSection from '../components/SettingsSection'
 import './Profile.css'
 
 export default function Profile() {
+  const { t } = useTranslation()
   const { profile } = useAuth()
   const { weeklyCompleted } = useWeeklyStats(profile?.id)
   const { badges } = useBadges(profile?.id)
@@ -24,17 +26,17 @@ export default function Profile() {
         <div className="stats-row">
           <div className="stat-card">
             <span className="stat-value">{profile?.points_total || 0}</span>
-            <span className="stat-label">Total Points</span>
+            <span className="stat-label">{t('profile.stats.points')}</span>
           </div>
           <div className="stat-card">
             <span className="stat-value">
               {profile?.streak_days || 0} <span className="streak-fire">🔥</span>
             </span>
-            <span className="stat-label">Week Streak</span>
+            <span className="stat-label">{t('profile.stats.streak')}</span>
           </div>
           <div className="stat-card">
             <span className="stat-value">{weeklyCompleted}</span>
-            <span className="stat-label">This Week</span>
+            <span className="stat-label">{t('challenges.thisWeek')}</span>
           </div>
         </div>
 
@@ -45,13 +47,13 @@ export default function Profile() {
               className={`profile-tab ${activeTab === 'badges' ? 'active' : ''}`}
               onClick={() => setActiveTab('badges')}
             >
-              Badges
+              {t('profile.badges.title')}
             </button>
             <button
               className={`profile-tab ${activeTab === 'connections' ? 'active' : ''}`}
               onClick={() => setActiveTab('connections')}
             >
-              Connections
+              {t('profile.connections.title')}
             </button>
           </div>
 

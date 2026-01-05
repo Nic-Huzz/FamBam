@@ -1,0 +1,454 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back!",
+      "subtitle": "Sign in to connect with your family",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "Your password",
+      "forgotPassword": "Forgot password?",
+      "submitButton": "Sign In",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "errorEmpty": "Please enter email and password",
+      "errorInvalid": "Invalid email or password",
+      "errorGeneric": "Failed to sign in"
+    },
+    "signup": {
+      "title": "Join FamBam",
+      "subtitle": "Create an account to get started",
+      "name": "Your Name",
+      "namePlaceholder": "What should your family call you?",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "password": "Password",
+      "passwordPlaceholder": "At least 6 characters",
+      "submitButton": "Create Account",
+      "submitting": "Creating account...",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "orJoinFamily": "or join a family",
+      "errorName": "Please enter your name",
+      "errorEmail": "Please enter your email",
+      "errorPassword": "Password must be at least 6 characters",
+      "joinFamily": {
+        "title": "Join a Family",
+        "subtitle": "Enter your family's invite code",
+        "code": "Family Code",
+        "codePlaceholder": "e.g. ABC123",
+        "submitButton": "Join Family",
+        "submitting": "Joining...",
+        "orCreate": "or create a new family",
+        "errorCode": "Please enter a family code",
+        "errorInvalid": "Invalid family code"
+      },
+      "createFamily": {
+        "title": "Create a Family",
+        "subtitle": "Start your family group",
+        "name": "Family Name",
+        "namePlaceholder": "e.g. The Smiths",
+        "submitButton": "Create Family",
+        "submitting": "Creating..."
+      },
+      "complete": {
+        "title": "Complete Your Profile",
+        "subtitle": "Almost there! Choose how you'd like to join"
+      }
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your email to receive a reset link",
+      "submitButton": "Send Reset Link",
+      "submitting": "Sending...",
+      "success": "Check your email for a password reset link!",
+      "backToLogin": "Back to login"
+    },
+    "resetPassword": {
+      "title": "Set New Password",
+      "subtitle": "Enter your new password below",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "submitButton": "Update Password",
+      "submitting": "Updating...",
+      "errorMismatch": "Passwords do not match",
+      "errorLength": "Password must be at least 6 characters",
+      "success": "Password updated successfully!",
+      "redirecting": "Redirecting to login..."
+    }
+  },
+  "nav": {
+    "feed": "Feed",
+    "challenges": "Challenges",
+    "history": "History",
+    "profile": "Profile"
+  },
+  "landing": {
+    "hero": {
+      "title": "Stay Connected with Your Family",
+      "subtitle": "FamBam makes it easy and fun to stay in touch with weekly challenges, shared moments, and family leaderboards.",
+      "cta": "Get Started",
+      "login": "Sign In"
+    },
+    "features": {
+      "challenges": {
+        "title": "Weekly Challenges",
+        "description": "Fun activities that bring everyone together"
+      },
+      "moments": {
+        "title": "Share Moments",
+        "description": "Post photos and updates with your family"
+      },
+      "leaderboard": {
+        "title": "Family Leaderboard",
+        "description": "Earn points and see who's leading"
+      }
+    }
+  },
+  "feed": {
+    "title": "Family Feed",
+    "empty": {
+      "title": "No posts yet",
+      "subtitle": "Be the first to share something with your family!",
+      "cta": "Create First Post"
+    },
+    "newPost": "New Post",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "welcome": "Welcome!",
+    "setupProfile": "Your profile isn't set up yet. Please sign out and sign up again to complete setup.",
+    "noFamily": "No Family Yet",
+    "noFamilyDesc": "You're not part of a family group yet. Join one with an invite code or create a new family.",
+    "setupFamily": "Set Up Family",
+    "tryAgain": "Try Again",
+    "pull": "Pull",
+    "release": "Release",
+    "loadMore": "Load older posts",
+    "endOfFeed": "You've reached the beginning!"
+  },
+  "post": {
+    "title": "Post",
+    "notFoundDesc": "This post may have been deleted or you don't have permission to view it.",
+    "timeAgo": {
+      "now": "Just now",
+      "minutes": "{{count}}m",
+      "hours": "{{count}}h",
+      "days": "{{count}}d",
+      "weeks": "{{count}}w"
+    },
+    "reactions": {
+      "add": "Add reaction"
+    },
+    "comments": {
+      "title": "Comments",
+      "empty": "No comments yet",
+      "placeholder": "Write a comment...",
+      "submit": "Post",
+      "count": "{{count}} comments",
+      "countOne": "1 comment"
+    },
+    "share": {
+      "button": "Share",
+      "copied": "Link copied!",
+      "failed": "Failed to share"
+    },
+    "delete": {
+      "button": "Delete",
+      "confirm": "Are you sure you want to delete this post?",
+      "success": "Post deleted"
+    },
+    "challenge": "Completed challenge",
+    "quickReplies": "Quick replies"
+  },
+  "postTypes": {
+    "goodNews": "Good News",
+    "celebrating": "Celebrating",
+    "surprise": "Surprise",
+    "curiosity": "Curiosity",
+    "learning": "Learning",
+    "grateful": "Grateful",
+    "weekend": "Weekend Plans",
+    "struggle": "Struggled With",
+    "visit": "Family Visit",
+    "call": "Family Call"
+  },
+  "newPost": {
+    "title": "New Post",
+    "whatSharing": "What are you sharing?",
+    "types": {
+      "justSharing": "Just sharing..."
+    },
+    "placeholder": "What's happening with you?",
+    "addPhotos": "Add Photos",
+    "addVoice": "Add Voice Note",
+    "photoVideo": "Photo/Video",
+    "submit": "Share",
+    "submitting": "Sharing...",
+    "aiSuggestions": {
+      "title": "Need inspiration?",
+      "loading": "Loading ideas...",
+      "error": "Couldn't load suggestions"
+    },
+    "validation": {
+      "empty": "Please write something or add media",
+      "tooLong": "Post is too long"
+    },
+    "errors": {
+      "maxPhotos": "You can only add up to {{max}} photos/videos per post",
+      "fileTooLarge": "File too large. Max size: {{size}}",
+      "createFailed": "Failed to create post"
+    },
+    "challengeComplete": {
+      "points": "+{{points}} points!",
+      "completed": "Challenge completed: {{title}}"
+    }
+  },
+  "challenges": {
+    "title": "Challenges",
+    "thisWeek": "This Week",
+    "completed": "Completed",
+    "points": "{{count}} points",
+    "complete": "Complete",
+    "completing": "Completing...",
+    "alreadyDone": "Already done!",
+    "selectMember": "Select family member",
+    "selectMemberPrompt": "Who did you {{action}}?",
+    "selectPlaceholder": "Select a family member...",
+    "otherOption": "Other (not in app)",
+    "enterName": "Enter their name...",
+    "connection": {
+      "visit": "visit",
+      "call": "call"
+    },
+    "empty": {
+      "title": "No challenges yet",
+      "subtitle": "Check back soon for new challenges!"
+    },
+    "streak": {
+      "title": "Weekly Streak",
+      "days": "{{count}} days",
+      "keep": "Keep it up!"
+    },
+    "progress": {
+      "of": "{{completed}} of {{total}} complete"
+    },
+    "categories": {
+      "connect": "Connect",
+      "share": "Share Updates",
+      "celebrate": "Celebrate",
+      "reflect": "Reflect & Discover"
+    },
+    "nudge": {
+      "notConnected": "You haven't connected with {{name}} yet!",
+      "daysSince": "It's been {{days}} days since you connected with {{name}}",
+      "select": "Select {{name}}"
+    },
+    "memberStats": {
+      "bonus": "{{name}} will also earn +{{points}} points!",
+      "streak": "{{weeks}} week streak with {{name}}!"
+    },
+    "modal": {
+      "nice": "Nice!",
+      "pointsEarned": "+{{points}} points",
+      "completedMessage": "You completed \"{{title}}\"",
+      "viewLeaderboard": "View Leaderboard",
+      "keepGoing": "Keep Going",
+      "completeChallenge": "Complete Challenge"
+    },
+    "nav": {
+      "history": "History",
+      "recap": "Recap"
+    }
+  },
+  "history": {
+    "title": "Challenge History",
+    "subtitle": "Your progress over time",
+    "thisWeek": "This Week",
+    "weekOf": "Week of {{date}}",
+    "challenges": "Challenges",
+    "posts": "Posts",
+    "points": "Points",
+    "empty": {
+      "title": "No history yet",
+      "subtitle": "Complete your first challenge to start building your streak!",
+      "cta": "Start a Challenge"
+    },
+    "stats": {
+      "weeksActive": "Weeks Active",
+      "challengesDone": "Challenges Done",
+      "totalPoints": "Total Points",
+      "completed": "Completed"
+    },
+    "selectWeek": "Select Week",
+    "challengesCompleted": "Challenges Completed",
+    "pointsEarned": "Points Earned",
+    "completedChallenges": "Completed Challenges",
+    "nav": {
+      "thisWeek": "This Week",
+      "history": "History",
+      "recap": "Recap"
+    }
+  },
+  "weeklyRecap": {
+    "title": "Weekly Recap",
+    "subtitle": "{{name}}'s activity summary",
+    "week": "Week {{number}}",
+    "thisWeek": "This Week",
+    "highlights": "Highlights",
+    "topContributor": "Top Contributor",
+    "challengesCompleted": "Challenges Completed",
+    "postsShared": "Posts Shared",
+    "totalPoints": "Total Points",
+    "familyActivity": "Family Activity",
+    "viewAll": "View All",
+    "stats": {
+      "posts": "Posts",
+      "reactions": "Reactions",
+      "comments": "Comments",
+      "challenges": "Challenges"
+    },
+    "contentShared": "Content Shared",
+    "content": {
+      "photos": "{{count}} photos",
+      "videos": "{{count}} videos",
+      "voiceNotes": "{{count}} voice notes",
+      "textPosts": "{{count}} text posts"
+    },
+    "mostActive": "Most Active",
+    "ai": {
+      "title": "AI Summary",
+      "generate": "Generate Summary",
+      "generating": "Generating...",
+      "noPosts": "No posts this week to summarize"
+    },
+    "empty": {
+      "title": "Quiet week!",
+      "subtitle": "No posts were shared this week.",
+      "cta": "Share Something"
+    },
+    "nav": {
+      "thisWeek": "This Week",
+      "history": "History",
+      "recap": "Recap"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "stats": {
+      "points": "Points",
+      "streak": "Streak",
+      "posts": "Posts",
+      "challenges": "Challenges"
+    },
+    "badges": {
+      "title": "Badges",
+      "empty": "No badges yet",
+      "viewAll": "View All"
+    },
+    "connections": {
+      "title": "Connections",
+      "visits": "Visits",
+      "calls": "Calls",
+      "thisWeek": "This Week",
+      "total": "Total"
+    },
+    "edit": {
+      "button": "Edit Profile",
+      "title": "Edit Profile",
+      "name": "Name",
+      "avatar": "Profile Photo",
+      "changeAvatar": "Change Photo",
+      "save": "Save",
+      "saving": "Saving..."
+    }
+  },
+  "family": {
+    "title": "Your Family",
+    "members": "Members",
+    "inviteCode": "Invite Code",
+    "copyCode": "Copy Code",
+    "codeCopied": "Code copied!",
+    "invite": {
+      "title": "Invite Family",
+      "description": "Share this code with family members to join",
+      "share": "Share Invite"
+    },
+    "admin": {
+      "title": "Family Admin",
+      "rename": "Rename Family",
+      "newName": "New Name",
+      "transfer": "Transfer Ownership"
+    },
+    "leave": {
+      "button": "Leave Family",
+      "confirm": "Are you sure you want to leave this family?",
+      "adminWarning": "You must transfer ownership first"
+    }
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "thisWeek": "This Week",
+    "allTime": "All Time",
+    "rank": "Rank",
+    "points": "Points",
+    "you": "(You)",
+    "empty": "No leaderboard data yet"
+  },
+  "settings": {
+    "title": "Settings",
+    "notifications": {
+      "label": "Notifications",
+      "notSupported": "Not supported in this browser",
+      "enabled": "Enabled - you'll receive updates",
+      "disabled": "Get notified about new posts and activity"
+    },
+    "logOut": "Log Out",
+    "legal": {
+      "title": "Legal & Account",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy"
+    },
+    "deleteAccount": {
+      "button": "Delete Account",
+      "modalTitle": "Delete Account?",
+      "modalDescription": "This will permanently delete your account and all your data including posts, comments, and challenge history. This action cannot be undone.",
+      "confirmLabel": "Type DELETE to confirm:",
+      "confirmPlaceholder": "DELETE",
+      "submitButton": "Delete My Account",
+      "submitting": "Deleting...",
+      "transferWarning": "Please transfer family ownership before deleting your account."
+    },
+    "language": {
+      "label": "Language",
+      "description": "Choose your preferred language"
+    }
+  },
+  "legal": {
+    "terms": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: {{date}}"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: {{date}}"
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "network": "Network error. Please check your connection.",
+    "notFound": "Not found",
+    "unauthorized": "Please sign in to continue"
+  }
+}

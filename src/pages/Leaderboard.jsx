@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase, getCurrentWeekNumber } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { getWeeklyBadgesForFamily, calculateWeeklyBadges } from '../lib/badges'
@@ -7,6 +8,7 @@ import BottomNav from '../components/BottomNav'
 import './Leaderboard.css'
 
 export default function Leaderboard() {
+  const { t } = useTranslation()
   const { profile, family } = useAuth()
   const [members, setMembers] = useState([])
   const [view, setView] = useState('all') // 'all' or 'week'
@@ -93,19 +95,19 @@ export default function Leaderboard() {
   return (
     <div className="page leaderboard-page">
       <header className="page-header">
-        <h1>Family Leaderboard</h1>
+        <h1>{t('leaderboard.title')}</h1>
         <div className="view-toggle">
           <button
             className={`toggle-btn ${view === 'week' ? 'active' : ''}`}
             onClick={() => setView('week')}
           >
-            This Week
+            {t('leaderboard.thisWeek')}
           </button>
           <button
             className={`toggle-btn ${view === 'all' ? 'active' : ''}`}
             onClick={() => setView('all')}
           >
-            All Time
+            {t('leaderboard.allTime')}
           </button>
         </div>
       </header>
@@ -118,8 +120,8 @@ export default function Leaderboard() {
         ) : members.length === 0 ? (
           <div className="empty-state">
             <span className="empty-icon">🏆</span>
-            <h2>No one here yet</h2>
-            <p>Complete challenges to climb the leaderboard!</p>
+            <h2>{t('leaderboard.empty')}</h2>
+            <p>{t('leaderboard.emptySubtitle') || 'Complete challenges to climb the leaderboard!'}</p>
           </div>
         ) : (
           <div className="leaderboard-list">
@@ -139,7 +141,7 @@ export default function Leaderboard() {
                 <div className="member-info">
                   <span className="member-name">
                     {member.name}
-                    {member.id === profile?.id && <span className="you-tag">(You)</span>}
+                    {member.id === profile?.id && <span className="you-tag">{t('leaderboard.you')}</span>}
                     {view === 'week' && weeklyBadges[member.id] && (
                       <InlineBadges badges={weeklyBadges[member.id]} />
                     )}

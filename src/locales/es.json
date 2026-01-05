@@ -1,0 +1,452 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "submit": "Enviar"
+  },
+  "auth": {
+    "login": {
+      "title": "Bienvenido de nuevo!",
+      "subtitle": "Inicia sesion para conectarte con tu familia",
+      "email": "Correo electronico",
+      "emailPlaceholder": "tu@correo.com",
+      "password": "Contrasena",
+      "passwordPlaceholder": "Tu contrasena",
+      "forgotPassword": "Olvidaste tu contrasena?",
+      "submitButton": "Iniciar Sesion",
+      "submitting": "Iniciando sesion...",
+      "noAccount": "No tienes una cuenta?",
+      "signUp": "Registrate",
+      "errorEmpty": "Por favor ingresa correo y contrasena",
+      "errorInvalid": "Correo o contrasena invalidos",
+      "errorGeneric": "Error al iniciar sesion"
+    },
+    "signup": {
+      "title": "Unete a FamBam",
+      "subtitle": "Crea una cuenta para comenzar",
+      "name": "Tu Nombre",
+      "namePlaceholder": "Como te llama tu familia?",
+      "email": "Correo electronico",
+      "emailPlaceholder": "tu@correo.com",
+      "password": "Contrasena",
+      "passwordPlaceholder": "Minimo 6 caracteres",
+      "submitButton": "Crear Cuenta",
+      "submitting": "Creando cuenta...",
+      "haveAccount": "Ya tienes una cuenta?",
+      "signIn": "Inicia sesion",
+      "orJoinFamily": "o unete a una familia",
+      "errorName": "Por favor ingresa tu nombre",
+      "errorEmail": "Por favor ingresa tu correo",
+      "errorPassword": "La contrasena debe tener al menos 6 caracteres",
+      "joinFamily": {
+        "title": "Unirse a una Familia",
+        "subtitle": "Ingresa el codigo de invitacion de tu familia",
+        "code": "Codigo Familiar",
+        "codePlaceholder": "ej. ABC123",
+        "submitButton": "Unirse a la Familia",
+        "submitting": "Uniendose...",
+        "orCreate": "o crear una nueva familia",
+        "errorCode": "Por favor ingresa un codigo familiar",
+        "errorInvalid": "Codigo familiar invalido"
+      },
+      "createFamily": {
+        "title": "Crear una Familia",
+        "subtitle": "Comienza tu grupo familiar",
+        "name": "Nombre de la Familia",
+        "namePlaceholder": "ej. Los Garcia",
+        "submitButton": "Crear Familia",
+        "submitting": "Creando..."
+      },
+      "complete": {
+        "title": "Completa tu Perfil",
+        "subtitle": "Casi listo! Elige como quieres unirte"
+      }
+    },
+    "forgotPassword": {
+      "title": "Restablecer Contrasena",
+      "subtitle": "Ingresa tu correo para recibir un enlace de restablecimiento",
+      "submitButton": "Enviar Enlace",
+      "submitting": "Enviando...",
+      "success": "Revisa tu correo para el enlace de restablecimiento!",
+      "backToLogin": "Volver al inicio de sesion"
+    },
+    "resetPassword": {
+      "title": "Nueva Contrasena",
+      "subtitle": "Ingresa tu nueva contrasena abajo",
+      "newPassword": "Nueva Contrasena",
+      "confirmPassword": "Confirmar Contrasena",
+      "submitButton": "Actualizar Contrasena",
+      "submitting": "Actualizando...",
+      "errorMismatch": "Las contrasenas no coinciden",
+      "errorLength": "La contrasena debe tener al menos 6 caracteres",
+      "success": "Contrasena actualizada exitosamente!",
+      "redirecting": "Redirigiendo al inicio de sesion..."
+    }
+  },
+  "nav": {
+    "feed": "Inicio",
+    "challenges": "Desafios",
+    "history": "Historial",
+    "profile": "Perfil"
+  },
+  "landing": {
+    "hero": {
+      "title": "Mantente Conectado con tu Familia",
+      "subtitle": "FamBam hace facil y divertido mantenerse en contacto con desafios semanales, momentos compartidos y tablas de clasificacion familiar.",
+      "cta": "Comenzar",
+      "login": "Iniciar Sesion"
+    },
+    "features": {
+      "challenges": {
+        "title": "Desafios Semanales",
+        "description": "Actividades divertidas que unen a todos"
+      },
+      "moments": {
+        "title": "Comparte Momentos",
+        "description": "Publica fotos y actualizaciones con tu familia"
+      },
+      "leaderboard": {
+        "title": "Tabla Familiar",
+        "description": "Gana puntos y mira quien lidera"
+      }
+    }
+  },
+  "feed": {
+    "title": "Feed Familiar",
+    "empty": {
+      "title": "Aun no hay publicaciones",
+      "subtitle": "Se el primero en compartir algo con tu familia!",
+      "cta": "Crear Primera Publicacion"
+    },
+    "newPost": "Nueva Publicacion",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "welcome": "Bienvenido!",
+    "setupProfile": "Tu perfil aun no esta configurado. Por favor cierra sesion y registrate de nuevo para completar la configuracion.",
+    "noFamily": "Sin Familia Aun",
+    "noFamilyDesc": "Aun no eres parte de un grupo familiar. Unete con un codigo de invitacion o crea una nueva familia.",
+    "setupFamily": "Configurar Familia",
+    "tryAgain": "Intentar de Nuevo",
+    "pull": "Jalar",
+    "release": "Soltar",
+    "loadMore": "Cargar publicaciones anteriores",
+    "endOfFeed": "Has llegado al inicio!"
+  },
+  "post": {
+    "timeAgo": {
+      "now": "Ahora mismo",
+      "minutes": "{{count}}m",
+      "hours": "{{count}}h",
+      "days": "{{count}}d",
+      "weeks": "{{count}}sem"
+    },
+    "reactions": {
+      "add": "Agregar reaccion"
+    },
+    "comments": {
+      "title": "Comentarios",
+      "empty": "Aun no hay comentarios",
+      "placeholder": "Escribe un comentario...",
+      "submit": "Publicar",
+      "count": "{{count}} comentarios",
+      "countOne": "1 comentario"
+    },
+    "share": {
+      "button": "Compartir",
+      "copied": "Enlace copiado!",
+      "failed": "Error al compartir"
+    },
+    "delete": {
+      "button": "Eliminar",
+      "confirm": "Estas seguro de que quieres eliminar esta publicacion?",
+      "success": "Publicacion eliminada"
+    },
+    "challenge": "Desafio completado",
+    "quickReplies": "Respuestas rapidas"
+  },
+  "postTypes": {
+    "goodNews": "Buenas Noticias",
+    "celebrating": "Celebrando",
+    "surprise": "Sorpresa",
+    "curiosity": "Curiosidad",
+    "learning": "Aprendiendo",
+    "grateful": "Agradecido",
+    "weekend": "Planes del Fin de Semana",
+    "struggle": "Luchando Con",
+    "visit": "Visita Familiar",
+    "call": "Llamada Familiar"
+  },
+  "newPost": {
+    "title": "Nueva Publicacion",
+    "whatSharing": "Que estas compartiendo?",
+    "types": {
+      "justSharing": "Solo compartiendo..."
+    },
+    "placeholder": "Que esta pasando contigo?",
+    "addPhotos": "Agregar Fotos",
+    "addVoice": "Agregar Nota de Voz",
+    "photoVideo": "Foto/Video",
+    "submit": "Compartir",
+    "submitting": "Compartiendo...",
+    "aiSuggestions": {
+      "title": "Necesitas inspiracion?",
+      "loading": "Cargando ideas...",
+      "error": "No se pudieron cargar sugerencias"
+    },
+    "validation": {
+      "empty": "Por favor escribe algo o agrega contenido",
+      "tooLong": "La publicacion es muy larga"
+    },
+    "errors": {
+      "maxPhotos": "Solo puedes agregar hasta {{max}} fotos/videos por publicacion",
+      "fileTooLarge": "Archivo muy grande. Tamano maximo: {{size}}",
+      "createFailed": "Error al crear publicacion"
+    },
+    "challengeComplete": {
+      "points": "+{{points}} puntos!",
+      "completed": "Desafio completado: {{title}}"
+    }
+  },
+  "challenges": {
+    "title": "Desafios",
+    "thisWeek": "Esta Semana",
+    "completed": "Completado",
+    "points": "{{count}} puntos",
+    "complete": "Completar",
+    "completing": "Completando...",
+    "alreadyDone": "Ya hecho!",
+    "selectMember": "Seleccionar familiar",
+    "selectMemberPrompt": "A quien {{action}}?",
+    "selectPlaceholder": "Selecciona un familiar...",
+    "otherOption": "Otro (no en la app)",
+    "enterName": "Ingresa su nombre...",
+    "connection": {
+      "visit": "visitaste",
+      "call": "llamaste"
+    },
+    "empty": {
+      "title": "Aun no hay desafios",
+      "subtitle": "Vuelve pronto para nuevos desafios!"
+    },
+    "streak": {
+      "title": "Racha Semanal",
+      "days": "{{count}} dias",
+      "keep": "Sigue asi!"
+    },
+    "progress": {
+      "of": "{{completed}} de {{total}} completados"
+    },
+    "categories": {
+      "connect": "Conectar",
+      "share": "Compartir",
+      "celebrate": "Celebrar",
+      "reflect": "Reflexionar"
+    },
+    "nudge": {
+      "notConnected": "Aun no te has conectado con {{name}}!",
+      "daysSince": "Han pasado {{days}} dias desde que te conectaste con {{name}}",
+      "select": "Seleccionar {{name}}"
+    },
+    "memberStats": {
+      "bonus": "{{name}} tambien ganara +{{points}} puntos!",
+      "streak": "{{weeks}} semanas de racha con {{name}}!"
+    },
+    "modal": {
+      "nice": "Muy bien!",
+      "pointsEarned": "+{{points}} puntos",
+      "completedMessage": "Completaste \"{{title}}\"",
+      "viewLeaderboard": "Ver Clasificacion",
+      "keepGoing": "Continuar",
+      "completeChallenge": "Completar Desafio"
+    },
+    "nav": {
+      "history": "Historial",
+      "recap": "Resumen"
+    }
+  },
+  "history": {
+    "title": "Historial de Desafios",
+    "subtitle": "Tu progreso a traves del tiempo",
+    "thisWeek": "Esta Semana",
+    "weekOf": "Semana del {{date}}",
+    "challenges": "Desafios",
+    "posts": "Publicaciones",
+    "points": "Puntos",
+    "empty": {
+      "title": "Aun no hay historial",
+      "subtitle": "Completa tu primer desafio para comenzar tu racha!",
+      "cta": "Iniciar un Desafio"
+    },
+    "stats": {
+      "weeksActive": "Semanas Activo",
+      "challengesDone": "Desafios Hechos",
+      "totalPoints": "Puntos Totales",
+      "completed": "Completados"
+    },
+    "selectWeek": "Seleccionar Semana",
+    "challengesCompleted": "Desafios Completados",
+    "pointsEarned": "Puntos Ganados",
+    "completedChallenges": "Desafios Completados",
+    "nav": {
+      "thisWeek": "Esta Semana",
+      "history": "Historial",
+      "recap": "Resumen"
+    }
+  },
+  "weeklyRecap": {
+    "title": "Resumen Semanal",
+    "subtitle": "Resumen de actividad de {{name}}",
+    "week": "Semana {{number}}",
+    "thisWeek": "Esta Semana",
+    "highlights": "Destacados",
+    "topContributor": "Mayor Contribuidor",
+    "challengesCompleted": "Desafios Completados",
+    "postsShared": "Publicaciones Compartidas",
+    "totalPoints": "Puntos Totales",
+    "familyActivity": "Actividad Familiar",
+    "viewAll": "Ver Todo",
+    "stats": {
+      "posts": "Publicaciones",
+      "reactions": "Reacciones",
+      "comments": "Comentarios",
+      "challenges": "Desafios"
+    },
+    "contentShared": "Contenido Compartido",
+    "content": {
+      "photos": "{{count}} fotos",
+      "videos": "{{count}} videos",
+      "voiceNotes": "{{count}} notas de voz",
+      "textPosts": "{{count}} publicaciones de texto"
+    },
+    "mostActive": "Mas Activos",
+    "ai": {
+      "title": "Resumen IA",
+      "generate": "Generar Resumen",
+      "generating": "Generando...",
+      "noPosts": "No hay publicaciones esta semana para resumir"
+    },
+    "empty": {
+      "title": "Semana tranquila!",
+      "subtitle": "No se compartieron publicaciones esta semana.",
+      "cta": "Compartir Algo"
+    },
+    "nav": {
+      "thisWeek": "Esta Semana",
+      "history": "Historial",
+      "recap": "Resumen"
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "stats": {
+      "points": "Puntos",
+      "streak": "Racha",
+      "posts": "Publicaciones",
+      "challenges": "Desafios"
+    },
+    "badges": {
+      "title": "Insignias",
+      "empty": "Aun no hay insignias",
+      "viewAll": "Ver Todas"
+    },
+    "connections": {
+      "title": "Conexiones",
+      "visits": "Visitas",
+      "calls": "Llamadas",
+      "thisWeek": "Esta Semana",
+      "total": "Total"
+    },
+    "edit": {
+      "button": "Editar Perfil",
+      "title": "Editar Perfil",
+      "name": "Nombre",
+      "avatar": "Foto de Perfil",
+      "changeAvatar": "Cambiar Foto",
+      "save": "Guardar",
+      "saving": "Guardando..."
+    }
+  },
+  "family": {
+    "title": "Tu Familia",
+    "members": "Miembros",
+    "inviteCode": "Codigo de Invitacion",
+    "copyCode": "Copiar Codigo",
+    "codeCopied": "Codigo copiado!",
+    "invite": {
+      "title": "Invitar Familia",
+      "description": "Comparte este codigo con familiares para unirse",
+      "share": "Compartir Invitacion"
+    },
+    "admin": {
+      "title": "Admin Familiar",
+      "rename": "Renombrar Familia",
+      "newName": "Nuevo Nombre",
+      "transfer": "Transferir Propiedad"
+    },
+    "leave": {
+      "button": "Dejar Familia",
+      "confirm": "Estas seguro de que quieres dejar esta familia?",
+      "adminWarning": "Debes transferir la propiedad primero"
+    }
+  },
+  "leaderboard": {
+    "title": "Tabla de Clasificacion",
+    "thisWeek": "Esta Semana",
+    "allTime": "Todo el Tiempo",
+    "rank": "Posicion",
+    "points": "Puntos",
+    "you": "(Tu)",
+    "empty": "Aun no hay datos de clasificacion"
+  },
+  "settings": {
+    "title": "Configuracion",
+    "notifications": {
+      "label": "Notificaciones",
+      "notSupported": "No soportado en este navegador",
+      "enabled": "Activadas - recibiras actualizaciones",
+      "disabled": "Recibe notificaciones de nuevas publicaciones y actividad"
+    },
+    "logOut": "Cerrar Sesion",
+    "legal": {
+      "title": "Legal y Cuenta",
+      "terms": "Terminos de Servicio",
+      "privacy": "Politica de Privacidad"
+    },
+    "deleteAccount": {
+      "button": "Eliminar Cuenta",
+      "modalTitle": "Eliminar Cuenta?",
+      "modalDescription": "Esto eliminara permanentemente tu cuenta y todos tus datos incluyendo publicaciones, comentarios e historial de desafios. Esta accion no se puede deshacer.",
+      "confirmLabel": "Escribe DELETE para confirmar:",
+      "confirmPlaceholder": "DELETE",
+      "submitButton": "Eliminar Mi Cuenta",
+      "submitting": "Eliminando...",
+      "transferWarning": "Por favor transfiere la propiedad de la familia antes de eliminar tu cuenta."
+    },
+    "language": {
+      "label": "Idioma",
+      "description": "Elige tu idioma preferido"
+    }
+  },
+  "legal": {
+    "terms": {
+      "title": "Terminos de Servicio",
+      "lastUpdated": "Ultima actualizacion: {{date}}"
+    },
+    "privacy": {
+      "title": "Politica de Privacidad",
+      "lastUpdated": "Ultima actualizacion: {{date}}"
+    }
+  },
+  "errors": {
+    "generic": "Algo salio mal",
+    "network": "Error de red. Por favor verifica tu conexion.",
+    "notFound": "No encontrado",
+    "unauthorized": "Por favor inicia sesion para continuar"
+  }
+}

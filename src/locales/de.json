@@ -1,0 +1,452 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Loschen",
+    "confirm": "Bestatigen",
+    "back": "Zuruck",
+    "next": "Weiter",
+    "submit": "Absenden"
+  },
+  "auth": {
+    "login": {
+      "title": "Willkommen zuruck!",
+      "subtitle": "Melde dich an, um dich mit deiner Familie zu verbinden",
+      "email": "E-Mail",
+      "emailPlaceholder": "deine@email.de",
+      "password": "Passwort",
+      "passwordPlaceholder": "Dein Passwort",
+      "forgotPassword": "Passwort vergessen?",
+      "submitButton": "Anmelden",
+      "submitting": "Anmeldung...",
+      "noAccount": "Noch kein Konto?",
+      "signUp": "Registrieren",
+      "errorEmpty": "Bitte E-Mail und Passwort eingeben",
+      "errorInvalid": "Ungultige E-Mail oder Passwort",
+      "errorGeneric": "Anmeldung fehlgeschlagen"
+    },
+    "signup": {
+      "title": "Tritt FamBam bei",
+      "subtitle": "Erstelle ein Konto, um loszulegen",
+      "name": "Dein Name",
+      "namePlaceholder": "Wie soll dich deine Familie nennen?",
+      "email": "E-Mail",
+      "emailPlaceholder": "deine@email.de",
+      "password": "Passwort",
+      "passwordPlaceholder": "Mindestens 6 Zeichen",
+      "submitButton": "Konto erstellen",
+      "submitting": "Konto wird erstellt...",
+      "haveAccount": "Bereits ein Konto?",
+      "signIn": "Anmelden",
+      "orJoinFamily": "oder einer Familie beitreten",
+      "errorName": "Bitte gib deinen Namen ein",
+      "errorEmail": "Bitte gib deine E-Mail ein",
+      "errorPassword": "Passwort muss mindestens 6 Zeichen haben",
+      "joinFamily": {
+        "title": "Familie beitreten",
+        "subtitle": "Gib den Einladungscode deiner Familie ein",
+        "code": "Familiencode",
+        "codePlaceholder": "z.B. ABC123",
+        "submitButton": "Familie beitreten",
+        "submitting": "Beitritt...",
+        "orCreate": "oder eine neue Familie erstellen",
+        "errorCode": "Bitte Familiencode eingeben",
+        "errorInvalid": "Ungultiger Familiencode"
+      },
+      "createFamily": {
+        "title": "Familie erstellen",
+        "subtitle": "Starte deine Familiengruppe",
+        "name": "Familienname",
+        "namePlaceholder": "z.B. Die Mullers",
+        "submitButton": "Familie erstellen",
+        "submitting": "Erstellen..."
+      },
+      "complete": {
+        "title": "Profil vervollstandigen",
+        "subtitle": "Fast geschafft! Wahle wie du beitreten mochtest"
+      }
+    },
+    "forgotPassword": {
+      "title": "Passwort zurucksetzen",
+      "subtitle": "Gib deine E-Mail ein, um einen Link zum Zurucksetzen zu erhalten",
+      "submitButton": "Link senden",
+      "submitting": "Senden...",
+      "success": "Prufe deine E-Mails fur den Link zum Zurucksetzen!",
+      "backToLogin": "Zuruck zur Anmeldung"
+    },
+    "resetPassword": {
+      "title": "Neues Passwort festlegen",
+      "subtitle": "Gib dein neues Passwort ein",
+      "newPassword": "Neues Passwort",
+      "confirmPassword": "Passwort bestatigen",
+      "submitButton": "Passwort aktualisieren",
+      "submitting": "Aktualisieren...",
+      "errorMismatch": "Passworter stimmen nicht uberein",
+      "errorLength": "Passwort muss mindestens 6 Zeichen haben",
+      "success": "Passwort erfolgreich aktualisiert!",
+      "redirecting": "Weiterleitung zur Anmeldung..."
+    }
+  },
+  "nav": {
+    "feed": "Feed",
+    "challenges": "Aufgaben",
+    "history": "Verlauf",
+    "profile": "Profil"
+  },
+  "landing": {
+    "hero": {
+      "title": "Bleib mit deiner Familie verbunden",
+      "subtitle": "FamBam macht es einfach und spassig, in Kontakt zu bleiben mit wochentlichen Herausforderungen, geteilten Momenten und Familien-Bestenlisten.",
+      "cta": "Loslegen",
+      "login": "Anmelden"
+    },
+    "features": {
+      "challenges": {
+        "title": "Wochentliche Herausforderungen",
+        "description": "Lustige Aktivitaten, die alle zusammenbringen"
+      },
+      "moments": {
+        "title": "Momente teilen",
+        "description": "Fotos und Updates mit deiner Familie teilen"
+      },
+      "leaderboard": {
+        "title": "Familien-Bestenliste",
+        "description": "Verdiene Punkte und sieh wer vorne liegt"
+      }
+    }
+  },
+  "feed": {
+    "title": "Familien-Feed",
+    "empty": {
+      "title": "Noch keine Beitrage",
+      "subtitle": "Sei der Erste, der etwas mit deiner Familie teilt!",
+      "cta": "Ersten Beitrag erstellen"
+    },
+    "newPost": "Neuer Beitrag",
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "welcome": "Willkommen!",
+    "setupProfile": "Dein Profil ist noch nicht eingerichtet. Bitte melde dich ab und registriere dich erneut, um die Einrichtung abzuschliessen.",
+    "noFamily": "Noch keine Familie",
+    "noFamilyDesc": "Du bist noch nicht Teil einer Familiengruppe. Tritt einer mit einem Einladungscode bei oder erstelle eine neue Familie.",
+    "setupFamily": "Familie einrichten",
+    "tryAgain": "Erneut versuchen",
+    "pull": "Ziehen",
+    "release": "Loslassen",
+    "loadMore": "Altere Beitrage laden",
+    "endOfFeed": "Du hast den Anfang erreicht!"
+  },
+  "post": {
+    "timeAgo": {
+      "now": "Gerade eben",
+      "minutes": "{{count}} Min.",
+      "hours": "{{count}} Std.",
+      "days": "{{count}} T.",
+      "weeks": "{{count}} Wo."
+    },
+    "reactions": {
+      "add": "Reaktion hinzufugen"
+    },
+    "comments": {
+      "title": "Kommentare",
+      "empty": "Noch keine Kommentare",
+      "placeholder": "Schreibe einen Kommentar...",
+      "submit": "Senden",
+      "count": "{{count}} Kommentare",
+      "countOne": "1 Kommentar"
+    },
+    "share": {
+      "button": "Teilen",
+      "copied": "Link kopiert!",
+      "failed": "Teilen fehlgeschlagen"
+    },
+    "delete": {
+      "button": "Loschen",
+      "confirm": "Diesen Beitrag wirklich loschen?",
+      "success": "Beitrag geloscht"
+    },
+    "challenge": "Herausforderung abgeschlossen",
+    "quickReplies": "Schnellantworten"
+  },
+  "postTypes": {
+    "goodNews": "Gute Nachrichten",
+    "celebrating": "Feiernd",
+    "surprise": "Uberraschung",
+    "curiosity": "Neugier",
+    "learning": "Lernend",
+    "grateful": "Dankbar",
+    "weekend": "Wochenendplane",
+    "struggle": "Gekampft Mit",
+    "visit": "Familienbesuch",
+    "call": "Familienanruf"
+  },
+  "newPost": {
+    "title": "Neuer Beitrag",
+    "whatSharing": "Was teilst du?",
+    "types": {
+      "justSharing": "Nur teilen..."
+    },
+    "placeholder": "Was passiert bei dir?",
+    "addPhotos": "Fotos hinzufugen",
+    "addVoice": "Sprachnachricht hinzufugen",
+    "photoVideo": "Foto/Video",
+    "submit": "Teilen",
+    "submitting": "Teilen...",
+    "aiSuggestions": {
+      "title": "Brauchst du Inspiration?",
+      "loading": "Ideen laden...",
+      "error": "Vorschlage konnten nicht geladen werden"
+    },
+    "validation": {
+      "empty": "Bitte schreibe etwas oder fuge Medien hinzu",
+      "tooLong": "Beitrag ist zu lang"
+    },
+    "errors": {
+      "maxPhotos": "Du kannst nur bis zu {{max}} Fotos/Videos pro Beitrag hinzufugen",
+      "fileTooLarge": "Datei zu gross. Maximale Grosse: {{size}}",
+      "createFailed": "Beitrag konnte nicht erstellt werden"
+    },
+    "challengeComplete": {
+      "points": "+{{points}} Punkte!",
+      "completed": "Herausforderung abgeschlossen: {{title}}"
+    }
+  },
+  "challenges": {
+    "title": "Herausforderungen",
+    "thisWeek": "Diese Woche",
+    "completed": "Abgeschlossen",
+    "points": "{{count}} Punkte",
+    "complete": "Abschliessen",
+    "completing": "Abschliessen...",
+    "alreadyDone": "Bereits erledigt!",
+    "selectMember": "Familienmitglied auswahlen",
+    "selectMemberPrompt": "Wen hast du {{action}}?",
+    "selectPlaceholder": "Wahle ein Familienmitglied...",
+    "otherOption": "Andere (nicht in der App)",
+    "enterName": "Name eingeben...",
+    "connection": {
+      "visit": "besucht",
+      "call": "angerufen"
+    },
+    "empty": {
+      "title": "Noch keine Herausforderungen",
+      "subtitle": "Schau bald wieder vorbei!"
+    },
+    "streak": {
+      "title": "Wochentliche Serie",
+      "days": "{{count}} Tage",
+      "keep": "Mach weiter so!"
+    },
+    "progress": {
+      "of": "{{completed}} von {{total}} abgeschlossen"
+    },
+    "categories": {
+      "connect": "Verbinden",
+      "share": "Teilen",
+      "celebrate": "Feiern",
+      "reflect": "Nachdenken"
+    },
+    "nudge": {
+      "notConnected": "Du hast dich noch nicht mit {{name}} verbunden!",
+      "daysSince": "Es ist {{days}} Tage her, dass du dich mit {{name}} verbunden hast",
+      "select": "{{name}} auswahlen"
+    },
+    "memberStats": {
+      "bonus": "{{name}} bekommt auch +{{points}} Punkte!",
+      "streak": "{{weeks}} Wochen Serie mit {{name}}!"
+    },
+    "modal": {
+      "nice": "Super!",
+      "pointsEarned": "+{{points}} Punkte",
+      "completedMessage": "Du hast \"{{title}}\" abgeschlossen",
+      "viewLeaderboard": "Bestenliste anzeigen",
+      "keepGoing": "Weitermachen",
+      "completeChallenge": "Herausforderung abschliessen"
+    },
+    "nav": {
+      "history": "Verlauf",
+      "recap": "Ruckblick"
+    }
+  },
+  "history": {
+    "title": "Herausforderungsverlauf",
+    "subtitle": "Dein Fortschritt uber die Zeit",
+    "thisWeek": "Diese Woche",
+    "weekOf": "Woche vom {{date}}",
+    "challenges": "Herausforderungen",
+    "posts": "Beitrage",
+    "points": "Punkte",
+    "empty": {
+      "title": "Noch kein Verlauf",
+      "subtitle": "Schliesse deine erste Herausforderung ab, um deine Serie zu starten!",
+      "cta": "Herausforderung starten"
+    },
+    "stats": {
+      "weeksActive": "Aktive Wochen",
+      "challengesDone": "Herausforderungen erledigt",
+      "totalPoints": "Gesamtpunkte",
+      "completed": "Abgeschlossen"
+    },
+    "selectWeek": "Woche auswahlen",
+    "challengesCompleted": "Herausforderungen abgeschlossen",
+    "pointsEarned": "Verdiente Punkte",
+    "completedChallenges": "Abgeschlossene Herausforderungen",
+    "nav": {
+      "thisWeek": "Diese Woche",
+      "history": "Verlauf",
+      "recap": "Ruckblick"
+    }
+  },
+  "weeklyRecap": {
+    "title": "Wochenruckblick",
+    "subtitle": "Aktivitatsubersicht von {{name}}",
+    "week": "Woche {{number}}",
+    "thisWeek": "Diese Woche",
+    "highlights": "Highlights",
+    "topContributor": "Top-Beitragender",
+    "challengesCompleted": "Abgeschlossene Herausforderungen",
+    "postsShared": "Geteilte Beitrage",
+    "totalPoints": "Gesamtpunkte",
+    "familyActivity": "Familienaktivitat",
+    "viewAll": "Alle anzeigen",
+    "stats": {
+      "posts": "Beitrage",
+      "reactions": "Reaktionen",
+      "comments": "Kommentare",
+      "challenges": "Herausforderungen"
+    },
+    "contentShared": "Geteilte Inhalte",
+    "content": {
+      "photos": "{{count}} Fotos",
+      "videos": "{{count}} Videos",
+      "voiceNotes": "{{count}} Sprachnachrichten",
+      "textPosts": "{{count}} Textbeitrage"
+    },
+    "mostActive": "Am aktivsten",
+    "ai": {
+      "title": "KI-Zusammenfassung",
+      "generate": "Zusammenfassung generieren",
+      "generating": "Wird generiert...",
+      "noPosts": "Keine Beitrage diese Woche zum Zusammenfassen"
+    },
+    "empty": {
+      "title": "Ruhige Woche!",
+      "subtitle": "Diese Woche wurden keine Beitrage geteilt.",
+      "cta": "Etwas teilen"
+    },
+    "nav": {
+      "thisWeek": "Diese Woche",
+      "history": "Verlauf",
+      "recap": "Ruckblick"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "stats": {
+      "points": "Punkte",
+      "streak": "Serie",
+      "posts": "Beitrage",
+      "challenges": "Herausforderungen"
+    },
+    "badges": {
+      "title": "Abzeichen",
+      "empty": "Noch keine Abzeichen",
+      "viewAll": "Alle anzeigen"
+    },
+    "connections": {
+      "title": "Verbindungen",
+      "visits": "Besuche",
+      "calls": "Anrufe",
+      "thisWeek": "Diese Woche",
+      "total": "Gesamt"
+    },
+    "edit": {
+      "button": "Profil bearbeiten",
+      "title": "Profil bearbeiten",
+      "name": "Name",
+      "avatar": "Profilbild",
+      "changeAvatar": "Bild andern",
+      "save": "Speichern",
+      "saving": "Speichern..."
+    }
+  },
+  "family": {
+    "title": "Deine Familie",
+    "members": "Mitglieder",
+    "inviteCode": "Einladungscode",
+    "copyCode": "Code kopieren",
+    "codeCopied": "Code kopiert!",
+    "invite": {
+      "title": "Familie einladen",
+      "description": "Teile diesen Code mit Familienmitgliedern zum Beitreten",
+      "share": "Einladung teilen"
+    },
+    "admin": {
+      "title": "Familien-Admin",
+      "rename": "Familie umbenennen",
+      "newName": "Neuer Name",
+      "transfer": "Eigentum ubertragen"
+    },
+    "leave": {
+      "button": "Familie verlassen",
+      "confirm": "Bist du sicher, dass du diese Familie verlassen mochtest?",
+      "adminWarning": "Du musst zuerst das Eigentum ubertragen"
+    }
+  },
+  "leaderboard": {
+    "title": "Bestenliste",
+    "thisWeek": "Diese Woche",
+    "allTime": "Gesamt",
+    "rank": "Rang",
+    "points": "Punkte",
+    "you": "(Du)",
+    "empty": "Noch keine Ranglistendaten"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "notifications": {
+      "label": "Benachrichtigungen",
+      "notSupported": "In diesem Browser nicht unterstutzt",
+      "enabled": "Aktiviert - Du erhaltst Updates",
+      "disabled": "Werde uber neue Beitrage und Aktivitaten benachrichtigt"
+    },
+    "logOut": "Abmelden",
+    "legal": {
+      "title": "Rechtliches & Konto",
+      "terms": "Nutzungsbedingungen",
+      "privacy": "Datenschutzrichtlinie"
+    },
+    "deleteAccount": {
+      "button": "Konto loschen",
+      "modalTitle": "Konto loschen?",
+      "modalDescription": "Dies loscht dauerhaft dein Konto und alle deine Daten einschliesslich Beitrage, Kommentare und Herausforderungsverlauf. Diese Aktion kann nicht ruckgangig gemacht werden.",
+      "confirmLabel": "Tippe DELETE zur Bestatigung:",
+      "confirmPlaceholder": "DELETE",
+      "submitButton": "Mein Konto loschen",
+      "submitting": "Loschen...",
+      "transferWarning": "Bitte ubertrage zuerst das Familieneigentum, bevor du dein Konto loschst."
+    },
+    "language": {
+      "label": "Sprache",
+      "description": "Wahle deine bevorzugte Sprache"
+    }
+  },
+  "legal": {
+    "terms": {
+      "title": "Nutzungsbedingungen",
+      "lastUpdated": "Zuletzt aktualisiert: {{date}}"
+    },
+    "privacy": {
+      "title": "Datenschutzrichtlinie",
+      "lastUpdated": "Zuletzt aktualisiert: {{date}}"
+    }
+  },
+  "errors": {
+    "generic": "Etwas ist schief gelaufen",
+    "network": "Netzwerkfehler. Bitte uberprufe deine Verbindung.",
+    "notFound": "Nicht gefunden",
+    "unauthorized": "Bitte melde dich an, um fortzufahren"
+  }
+}

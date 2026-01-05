@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase, autoCompleteChallenge } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { getCommentSuggestions, isAIEnabled } from '../lib/ai'
@@ -8,22 +9,23 @@ import './PostCard.css'
 
 const REACTION_EMOJIS = ['❤️', '😂', '😮', '🙌', '🎉']
 
-// Map post_type values to display labels and icons
-const POST_TYPE_LABELS = {
-  'good_news': { label: 'Good News', icon: '🎉' },
-  'win': { label: 'Celebrating', icon: '🏆' },
-  'surprise': { label: 'Surprise', icon: '😲' },
-  'curiosity': { label: 'Curiosity', icon: '🔍' },
-  'learning': { label: 'Learning', icon: '💡' },
-  'grateful': { label: 'Grateful', icon: '🙏' },
-  'weekend': { label: 'Weekend Plans', icon: '📅' },
-  'struggle': { label: 'Struggled With', icon: '💪' },
-  'visit': { label: 'Family Visit', icon: '🏠' },
-  'call': { label: 'Family Call', icon: '📞' },
-}
-
 export default function PostCard({ post, onUpdate, onReactionUpdate, hideShare = false }) {
+  const { t } = useTranslation()
   const { profile, refreshProfile } = useAuth()
+
+  // Map post_type values to display labels and icons
+  const POST_TYPE_LABELS = {
+    'good_news': { label: t('postTypes.goodNews'), icon: '🎉' },
+    'win': { label: t('postTypes.celebrating'), icon: '🏆' },
+    'surprise': { label: t('postTypes.surprise'), icon: '😲' },
+    'curiosity': { label: t('postTypes.curiosity'), icon: '🔍' },
+    'learning': { label: t('postTypes.learning'), icon: '💡' },
+    'grateful': { label: t('postTypes.grateful'), icon: '🙏' },
+    'weekend': { label: t('postTypes.weekend'), icon: '📅' },
+    'struggle': { label: t('postTypes.struggle'), icon: '💪' },
+    'visit': { label: t('postTypes.visit'), icon: '🏠' },
+    'call': { label: t('postTypes.call'), icon: '📞' },
+  }
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -38,13 +40,13 @@ export default function PostCard({ post, onUpdate, onReactionUpdate, hideShare =
 
   const timeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000)
-    if (seconds < 60) return 'just now'
+    if (seconds < 60) return t('post.timeAgo.now')
     const minutes = Math.floor(seconds / 60)
-    if (minutes < 60) return `${minutes}m ago`
+    if (minutes < 60) return t('post.timeAgo.minutes', { count: minutes })
     const hours = Math.floor(minutes / 60)
-    if (hours < 24) return `${hours}h ago`
+    if (hours < 24) return t('post.timeAgo.hours', { count: hours })
     const days = Math.floor(hours / 24)
-    return `${days}d ago`
+    return t('post.timeAgo.days', { count: days })
   }
 
   const handleReaction = async (emoji) => {
@@ -244,19 +246,19 @@ export default function PostCard({ post, onUpdate, onReactionUpdate, hideShare =
           <div className="post-menu">
             {showDeleteConfirm ? (
               <div className="delete-confirm">
-                <span>Delete?</span>
+                <span>{t('post.delete.button')}?</span>
                 <button
                   className="confirm-yes"
                   onClick={handleDelete}
                   disabled={deleting}
                 >
-                  {deleting ? '...' : 'Yes'}
+                  {deleting ? '...' : t('common.confirm')}
                 </button>
                 <button
                   className="confirm-no"
                   onClick={() => setShowDeleteConfirm(false)}
                 >
-                  No
+                  {t('common.cancel')}
                 </button>
               </div>
             ) : (
@@ -319,12 +321,12 @@ export default function PostCard({ post, onUpdate, onReactionUpdate, hideShare =
           className="comments-toggle"
           onClick={handleToggleComments}
         >
-          💬 {post.comments?.length || 0} comments
+          💬 {post.comments?.length === 1 ? t('post.comments.countOne') : t('post.comments.count', { count: post.comments?.length || 0 })}
         </button>
 
         {!hideShare && (
           <button className="share-btn" onClick={handleShare}>
-            {shareMessage || '↗ Share'}
+            {shareMessage || `↗ ${t('post.share.button')}`}
           </button>
         )}
       </div>
@@ -348,13 +350,13 @@ export default function PostCard({ post, onUpdate, onReactionUpdate, hideShare =
           {/* AI Comment Suggestions */}
           {loadingSuggestions && (
             <div className="ai-suggestions-loading">
-              <span>✨</span> Getting suggestions...
+              <span>✨</span> {t('newPost.aiSuggestions.loading')}
             </div>
           )}
 
           {commentSuggestions.length > 0 && !newComment && (
             <div className="ai-comment-suggestions">
-              <span className="suggestions-label">✨ Quick replies:</span>
+              <span className="suggestions-label">✨ {t('post.quickReplies')}:</span>
               <div className="suggestions-list">
                 {commentSuggestions.map((suggestion, i) => (
                   <button
@@ -372,12 +374,12 @@ export default function PostCard({ post, onUpdate, onReactionUpdate, hideShare =
           <form onSubmit={handleComment} className="comment-form">
             <input
               type="text"
-              placeholder="Write a comment..."
+              placeholder={t('post.comments.placeholder')}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
             />
             <button type="submit" disabled={!newComment.trim() || submitting}>
-              Send
+              {t('post.comments.submit')}
             </button>
           </form>
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { getCurrentWeekNumber, getWeekStartDate, getWeekEndDate, getWeekDateRange } from '../lib/dateUtils'
 import { useAuth } from '../context/AuthContext'
@@ -8,6 +9,7 @@ import BottomNav from '../components/BottomNav'
 import './WeeklyRecap.css'
 
 export default function WeeklyRecap() {
+  const { t } = useTranslation()
   const { profile, family } = useAuth()
   const [weekData, setWeekData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -161,7 +163,7 @@ export default function WeeklyRecap() {
     if (week >= familyCreatedWeek && week > 0) {
       availableWeeks.push({
         number: week,
-        label: week === currentWeek ? 'This Week' : `Week ${week}`,
+        label: week === currentWeek ? t('weeklyRecap.thisWeek') : t('weeklyRecap.week', { number: week }),
         dateRange: getWeekDateRange(week),
       })
     }
@@ -170,15 +172,15 @@ export default function WeeklyRecap() {
   return (
     <div className="page recap-page">
       <header className="page-header">
-        <h1>Weekly Recap</h1>
-        <p className="header-subtitle">{family?.name}'s activity summary</p>
+        <h1>{t('weeklyRecap.title')}</h1>
+        <p className="header-subtitle">{t('weeklyRecap.subtitle', { name: family?.name })}</p>
       </header>
 
       {/* Navigation Tabs */}
       <div className="challenges-nav">
-        <Link to="/challenges" className="nav-tab">This Week</Link>
-        <Link to="/history" className="nav-tab">History</Link>
-        <Link to="/recap" className="nav-tab active">Recap</Link>
+        <Link to="/challenges" className="nav-tab">{t('weeklyRecap.nav.thisWeek')}</Link>
+        <Link to="/history" className="nav-tab">{t('weeklyRecap.nav.history')}</Link>
+        <Link to="/recap" className="nav-tab active">{t('weeklyRecap.nav.recap')}</Link>
       </div>
 
       <main className="page-content">
@@ -211,52 +213,52 @@ export default function WeeklyRecap() {
               <div className="recap-stat">
                 <span className="stat-icon">📝</span>
                 <span className="stat-value">{weekData.totalPosts}</span>
-                <span className="stat-label">Posts</span>
+                <span className="stat-label">{t('weeklyRecap.stats.posts')}</span>
               </div>
               <div className="recap-stat">
                 <span className="stat-icon">❤️</span>
                 <span className="stat-value">{weekData.totalReactions}</span>
-                <span className="stat-label">Reactions</span>
+                <span className="stat-label">{t('weeklyRecap.stats.reactions')}</span>
               </div>
               <div className="recap-stat">
                 <span className="stat-icon">💬</span>
                 <span className="stat-value">{weekData.totalComments}</span>
-                <span className="stat-label">Comments</span>
+                <span className="stat-label">{t('weeklyRecap.stats.comments')}</span>
               </div>
               <div className="recap-stat">
                 <span className="stat-icon">🎯</span>
                 <span className="stat-value">{weekData.challengeCompletions}</span>
-                <span className="stat-label">Challenges</span>
+                <span className="stat-label">{t('weeklyRecap.stats.challenges')}</span>
               </div>
             </div>
 
             {/* Content Breakdown */}
             {weekData.totalPosts > 0 && (
               <div className="card content-breakdown">
-                <h3>Content Shared</h3>
+                <h3>{t('weeklyRecap.contentShared')}</h3>
                 <div className="breakdown-items">
                   {weekData.contentTypes.photo > 0 && (
                     <div className="breakdown-item">
                       <span className="breakdown-icon">📸</span>
-                      <span>{weekData.contentTypes.photo} photos</span>
+                      <span>{t('weeklyRecap.content.photos', { count: weekData.contentTypes.photo })}</span>
                     </div>
                   )}
                   {weekData.contentTypes.video > 0 && (
                     <div className="breakdown-item">
                       <span className="breakdown-icon">🎬</span>
-                      <span>{weekData.contentTypes.video} videos</span>
+                      <span>{t('weeklyRecap.content.videos', { count: weekData.contentTypes.video })}</span>
                     </div>
                   )}
                   {weekData.contentTypes.audio > 0 && (
                     <div className="breakdown-item">
                       <span className="breakdown-icon">🎤</span>
-                      <span>{weekData.contentTypes.audio} voice notes</span>
+                      <span>{t('weeklyRecap.content.voiceNotes', { count: weekData.contentTypes.audio })}</span>
                     </div>
                   )}
                   {weekData.contentTypes.text > 0 && (
                     <div className="breakdown-item">
                       <span className="breakdown-icon">✏️</span>
-                      <span>{weekData.contentTypes.text} text posts</span>
+                      <span>{t('weeklyRecap.content.textPosts', { count: weekData.contentTypes.text })}</span>
                     </div>
                   )}
                 </div>
@@ -266,7 +268,7 @@ export default function WeeklyRecap() {
             {/* Top Contributors */}
             {weekData.topContributors.length > 0 && (
               <div className="card top-contributors">
-                <h3>Most Active</h3>
+                <h3>{t('weeklyRecap.mostActive')}</h3>
                 <div className="contributors-list">
                   {weekData.topContributors.map((name, index) => (
                     <div key={name} className="contributor">
@@ -285,7 +287,7 @@ export default function WeeklyRecap() {
               <div className="card ai-digest">
                 <h3>
                   <span className="ai-sparkle">✨</span>
-                  AI Summary
+                  {t('weeklyRecap.ai.title')}
                 </h3>
                 {aiDigest ? (
                   <p className="digest-text">{aiDigest}</p>
@@ -295,11 +297,11 @@ export default function WeeklyRecap() {
                     onClick={generateDigest}
                     disabled={digestLoading || weekData.totalPosts === 0}
                   >
-                    {digestLoading ? 'Generating...' : 'Generate Summary'}
+                    {digestLoading ? t('weeklyRecap.ai.generating') : t('weeklyRecap.ai.generate')}
                   </button>
                 )}
                 {weekData.totalPosts === 0 && !aiDigest && (
-                  <p className="no-activity">No posts this week to summarize</p>
+                  <p className="no-activity">{t('weeklyRecap.ai.noPosts')}</p>
                 )}
               </div>
             )}
@@ -308,11 +310,11 @@ export default function WeeklyRecap() {
             {weekData.totalPosts === 0 && (
               <div className="empty-week">
                 <span className="empty-icon">📭</span>
-                <h3>Quiet week!</h3>
-                <p>No posts were shared this week.</p>
+                <h3>{t('weeklyRecap.empty.title')}</h3>
+                <p>{t('weeklyRecap.empty.subtitle')}</p>
                 {selectedWeek === currentWeek && (
                   <Link to="/post/new" className="btn-primary">
-                    Share Something
+                    {t('weeklyRecap.empty.cta')}
                   </Link>
                 )}
               </div>

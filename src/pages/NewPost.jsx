@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase, autoCompleteChallenge, getCurrentWeekNumber } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { checkStorytellerBadge } from '../lib/badges'
@@ -8,26 +9,27 @@ import { AiPostPrompts, AiCaptionSuggestions } from '../components/AiSuggestions
 import { compressImage } from '../lib/imageCompression'
 import './NewPost.css'
 
-// Post type options that map to challenges
-const POST_TYPE_OPTIONS = [
-  { value: '', label: 'Just sharing...', challenge: null },
-  { value: 'good_news', label: 'Good news', challenge: 'Share good news' },
-  { value: 'win', label: 'Celebrating a win', challenge: 'Celebrate a win' },
-  { value: 'surprise', label: 'Surprise of the week', challenge: 'Surprise of the week' },
-  { value: 'curiosity', label: 'Curiosity of the week', challenge: 'Curiosity of the week' },
-  { value: 'learning', label: 'Learning of the week', challenge: 'Learning of the week' },
-  { value: 'grateful', label: 'Grateful for...', challenge: "Share what you're grateful for" },
-  { value: 'weekend', label: 'Weekend plans', challenge: 'Weekend plans check-in' },
-  { value: 'struggle', label: 'Something I struggled with', challenge: 'Share a struggle' },
-]
-
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024 // 50MB
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024 // 10MB
 const MAX_PHOTOS = 10
 
 export default function NewPost() {
+  const { t } = useTranslation()
   const { profile, family, refreshProfile } = useAuth()
   const navigate = useNavigate()
+
+  // Post type options that map to challenges (challenge titles are stored in English for matching)
+  const POST_TYPE_OPTIONS = [
+    { value: '', label: t('newPost.types.justSharing'), challenge: null },
+    { value: 'good_news', label: t('postTypes.goodNews'), challenge: 'Share good news' },
+    { value: 'win', label: t('postTypes.celebrating'), challenge: 'Celebrate a win' },
+    { value: 'surprise', label: t('postTypes.surprise'), challenge: 'Surprise of the week' },
+    { value: 'curiosity', label: t('postTypes.curiosity'), challenge: 'Curiosity of the week' },
+    { value: 'learning', label: t('postTypes.learning'), challenge: 'Learning of the week' },
+    { value: 'grateful', label: t('postTypes.grateful'), challenge: "Share what you're grateful for" },
+    { value: 'weekend', label: t('postTypes.weekend'), challenge: 'Weekend plans check-in' },
+    { value: 'struggle', label: t('postTypes.struggle'), challenge: 'Share a struggle' },
+  ]
 
   const [message, setMessage] = useState('')
   const [postType, setPostType] = useState('')
@@ -46,7 +48,7 @@ export default function NewPost() {
     if (files.length === 0) return
 
     if (mediaFiles.length + files.length > MAX_PHOTOS) {
-      setError(`You can only add up to ${MAX_PHOTOS} photos/videos per post`)
+      setError(t('newPost.errors.maxPhotos', { max: MAX_PHOTOS }))
       return
     }
 
@@ -58,7 +60,7 @@ export default function NewPost() {
       const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE
 
       if (file.size > maxSize) {
-        setError(`File too large. Max size: ${isVideo ? '50MB' : '10MB'}`)
+        setError(t('newPost.errors.fileTooLarge', { size: isVideo ? '50MB' : '10MB' }))
         continue
       }
 
@@ -103,7 +105,7 @@ export default function NewPost() {
     e.preventDefault()
 
     if (!message.trim() && mediaFiles.length === 0 && !audioFile) {
-      setError('Please add a message, photo, video, or voice note')
+      setError(t('newPost.validation.empty'))
       return
     }
 
@@ -218,7 +220,7 @@ export default function NewPost() {
       navigate('/feed')
     } catch (err) {
       console.error('Error creating post:', err)
-      setError(err.message || 'Failed to create post')
+      setError(err.message || t('newPost.errors.createFailed'))
     } finally {
       setLoading(false)
     }
@@ -231,13 +233,13 @@ export default function NewPost() {
     <div className="new-post-page">
       <header className="new-post-header">
         <Link to="/feed" className="close-btn">×</Link>
-        <h1>Share an Update</h1>
+        <h1>{t('newPost.title')}</h1>
         <button
           className="post-btn"
           onClick={handleSubmit}
           disabled={!canPost || loading || isRecording}
         >
-          {loading ? 'Posting...' : 'Post'}
+          {loading ? t('newPost.submitting') : t('newPost.submit')}
         </button>
       </header>
 
@@ -255,7 +257,7 @@ export default function NewPost() {
 
         {/* Post Type Selector */}
         <div className="post-type-selector">
-          <label htmlFor="postType">What are you sharing?</label>
+          <label htmlFor="postType">{t('newPost.whatSharing')}</label>
           <select
             id="postType"
             value={postType}
@@ -278,7 +280,7 @@ export default function NewPost() {
         />
 
         <textarea
-          placeholder="What's happening with you?"
+          placeholder={t('newPost.placeholder')}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           className="post-textarea"
@@ -351,7 +353,7 @@ export default function NewPost() {
               disabled={isRecording || !!audioFile}
             />
             <span className="action-icon">📷</span>
-            <span>Photo/Video</span>
+            <span>{t('newPost.photoVideo')}</span>
           </label>
 
           {mediaFiles.length === 0 && !audioFile && !audioPreview && (
@@ -368,8 +370,8 @@ export default function NewPost() {
           <div className="challenge-toast">
             <span className="toast-icon">🎉</span>
             <div className="toast-content">
-              <strong>+{challengeCompleted.pointsEarned} points!</strong>
-              <span>Challenge completed: {challengeCompleted.challengeTitle}</span>
+              <strong>{t('newPost.challengeComplete.points', { points: challengeCompleted.pointsEarned })}</strong>
+              <span>{t('newPost.challengeComplete.completed', { title: challengeCompleted.challengeTitle })}</span>
             </div>
           </div>
         )}

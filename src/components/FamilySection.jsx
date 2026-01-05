@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { useFamilyMembers } from '../hooks'
 import './FamilySection.css'
 
 export default function FamilySection() {
+  const { t } = useTranslation()
   const { profile, family, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const { members: familyMembers, setMembers: setFamilyMembers } = useFamilyMembers(family?.id)
@@ -155,7 +157,7 @@ export default function FamilySection() {
   return (
     <>
       <section className="profile-section">
-        <h2>Family</h2>
+        <h2>{t('family.title')}</h2>
         <div className="card">
           <div className="family-header-row">
             <label className="family-avatar-container">
@@ -186,10 +188,10 @@ export default function FamilySection() {
                   />
                   <div className="edit-actions">
                     <button onClick={handleSaveFamilyName} disabled={savingFamily}>
-                      {savingFamily ? 'Saving...' : 'Save'}
+                      {savingFamily ? t('profile.edit.saving') : t('common.save')}
                     </button>
                     <button onClick={() => setEditingFamily(false)} className="cancel">
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                   </div>
                 </div>
@@ -211,10 +213,10 @@ export default function FamilySection() {
           </div>
           {family?.invite_code && (
             <div className="invite-code-row">
-              <span className="invite-label">Invite Code:</span>
+              <span className="invite-label">{t('family.inviteCode')}:</span>
               <span className="invite-code">{family.invite_code}</span>
               <button className="copy-btn" onClick={handleCopyCode}>
-                {copied ? 'Copied!' : 'Copy'}
+                {copied ? t('family.codeCopied') : t('family.copyCode')}
               </button>
             </div>
           )}
@@ -222,7 +224,7 @@ export default function FamilySection() {
           {/* Family Members List */}
           {familyMembers.length > 0 && (
             <div className="family-members">
-              <h3>Members ({familyMembers.length})</h3>
+              <h3>{t('family.members')} ({familyMembers.length})</h3>
               <div className="members-list">
                 {familyMembers.map(member => (
                   <div key={member.id} className="member-row">
@@ -259,7 +261,7 @@ export default function FamilySection() {
               className="transfer-btn"
               onClick={() => setShowTransferModal(true)}
             >
-              Transfer Ownership
+              {t('family.admin.transfer')}
             </button>
           )}
 
@@ -269,7 +271,7 @@ export default function FamilySection() {
               className="leave-btn"
               onClick={() => setShowLeaveConfirm(true)}
             >
-              Leave Family
+              {t('family.leave.button')}
             </button>
           )}
         </div>
@@ -279,8 +281,8 @@ export default function FamilySection() {
       {showTransferModal && (
         <div className="modal-overlay" onClick={() => setShowTransferModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>Transfer Ownership</h3>
-            <p>Select a new admin for the family:</p>
+            <h3>{t('family.admin.transfer')}</h3>
+            <p>{t('family.admin.selectNewAdmin') || 'Select a new admin for the family:'}</p>
             <div className="modal-members">
               {familyMembers.filter(m => m.id !== profile?.id).map(member => (
                 <button
@@ -298,7 +300,7 @@ export default function FamilySection() {
               ))}
             </div>
             <button className="modal-cancel" onClick={() => setShowTransferModal(false)}>
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </div>
@@ -308,14 +310,14 @@ export default function FamilySection() {
       {showRemoveConfirm && (
         <div className="modal-overlay" onClick={() => setShowRemoveConfirm(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>Remove Member?</h3>
-            <p>Are you sure you want to remove <strong>{showRemoveConfirm.name}</strong> from the family?</p>
+            <h3>{t('family.removeMember.title') || 'Remove Member?'}</h3>
+            <p>{t('family.removeMember.confirm', { name: showRemoveConfirm.name }) || `Are you sure you want to remove ${showRemoveConfirm.name} from the family?`}</p>
             <div className="modal-actions">
               <button className="modal-danger" onClick={() => handleRemoveMember(showRemoveConfirm.id)}>
-                Remove
+                {t('family.removeMember.button') || 'Remove'}
               </button>
               <button className="modal-cancel" onClick={() => setShowRemoveConfirm(null)}>
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </div>
@@ -326,14 +328,14 @@ export default function FamilySection() {
       {showLeaveConfirm && (
         <div className="modal-overlay" onClick={() => setShowLeaveConfirm(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>Leave Family?</h3>
-            <p>Are you sure you want to leave <strong>{family?.name}</strong>? You'll need an invite code to rejoin.</p>
+            <h3>{t('family.leave.confirmTitle') || 'Leave Family?'}</h3>
+            <p>{t('family.leave.confirm')}</p>
             <div className="modal-actions">
               <button className="modal-danger" onClick={handleLeaveFamily}>
-                Leave
+                {t('family.leave.button')}
               </button>
               <button className="modal-cancel" onClick={() => setShowLeaveConfirm(false)}>
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </div>

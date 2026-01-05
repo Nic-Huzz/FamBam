@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { getCurrentWeekNumber, getWeekDateRange } from '../lib/dateUtils'
 import { useAuth } from '../context/AuthContext'
@@ -7,6 +8,7 @@ import BottomNav from '../components/BottomNav'
 import './History.css'
 
 export default function History() {
+  const { t, i18n } = useTranslation()
   const { profile } = useAuth()
   const navigate = useNavigate()
   const [weeklyData, setWeeklyData] = useState([])
@@ -80,15 +82,15 @@ export default function History() {
   return (
     <div className="page history-page">
       <header className="page-header">
-        <h1>Challenge History</h1>
-        <p className="header-subtitle">Your progress over time</p>
+        <h1>{t('history.title')}</h1>
+        <p className="header-subtitle">{t('history.subtitle')}</p>
       </header>
 
       {/* Navigation Tabs */}
       <div className="challenges-nav">
-        <Link to="/challenges" className="nav-tab">This Week</Link>
-        <Link to="/history" className="nav-tab active">History</Link>
-        <Link to="/recap" className="nav-tab">Recap</Link>
+        <Link to="/challenges" className="nav-tab">{t('history.nav.thisWeek')}</Link>
+        <Link to="/history" className="nav-tab active">{t('history.nav.history')}</Link>
+        <Link to="/recap" className="nav-tab">{t('history.nav.recap')}</Link>
       </div>
 
       <main className="page-content">
@@ -99,13 +101,13 @@ export default function History() {
         ) : weeklyData.length === 0 ? (
           <div className="empty-state">
             <span className="empty-icon">🎯</span>
-            <h2>No history yet</h2>
-            <p>Complete your first challenge to start building your streak!</p>
+            <h2>{t('history.empty.title')}</h2>
+            <p>{t('history.empty.subtitle')}</p>
             <button
               className="btn-primary"
               onClick={() => navigate('/challenges')}
             >
-              Start a Challenge
+              {t('history.empty.cta')}
             </button>
           </div>
         ) : (
@@ -114,21 +116,21 @@ export default function History() {
             <div className="history-stats">
               <div className="stat-item">
                 <span className="stat-value">{totalWeeksActive}</span>
-                <span className="stat-label">Weeks Active</span>
+                <span className="stat-label">{t('history.stats.weeksActive')}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-value">{totalCompletions}</span>
-                <span className="stat-label">Challenges Done</span>
+                <span className="stat-label">{t('history.stats.challengesDone')}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-value">{totalPointsEarned}</span>
-                <span className="stat-label">Total Points</span>
+                <span className="stat-label">{t('history.stats.totalPoints')}</span>
               </div>
             </div>
 
             {/* Week Selector */}
             <div className="week-selector">
-              <h2>Select Week</h2>
+              <h2>{t('history.selectWeek')}</h2>
               <div className="week-pills">
                 {weeklyData.map(week => (
                   <button
@@ -137,7 +139,7 @@ export default function History() {
                     onClick={() => setSelectedWeek(week.weekNumber)}
                   >
                     <span className="week-num">
-                      {week.weekNumber === currentWeek ? 'This Week' : week.dateRange}
+                      {week.weekNumber === currentWeek ? t('history.thisWeek') : week.dateRange}
                     </span>
                     <span className="week-points">+{week.totalPoints} pts</span>
                   </button>
@@ -150,22 +152,22 @@ export default function History() {
               <div className="week-details">
                 <div className="week-header">
                   <h2>
-                    {selectedWeek === currentWeek ? 'This Week' : selectedWeekData.dateRange}
+                    {selectedWeek === currentWeek ? t('history.thisWeek') : selectedWeekData.dateRange}
                   </h2>
                 </div>
 
                 <div className="week-summary card">
                   <div className="summary-row">
-                    <span>Challenges Completed</span>
+                    <span>{t('history.challengesCompleted')}</span>
                     <strong>{selectedWeekData.completions.length}</strong>
                   </div>
                   <div className="summary-row">
-                    <span>Points Earned</span>
+                    <span>{t('history.pointsEarned')}</span>
                     <strong className="points">+{selectedWeekData.totalPoints}</strong>
                   </div>
                 </div>
 
-                <h3>Completed Challenges</h3>
+                <h3>{t('history.completedChallenges')}</h3>
                 <div className="completions-list">
                   {selectedWeekData.completions.map(completion => (
                     <div key={completion.id} className="completion-item card">
@@ -173,7 +175,7 @@ export default function History() {
                       <div className="completion-info">
                         <span className="completion-title">{completion.challenge?.title}</span>
                         <span className="completion-date">
-                          {new Date(completion.completed_at).toLocaleDateString('en-US', {
+                          {new Date(completion.completed_at).toLocaleDateString(i18n.language, {
                             weekday: 'short',
                             month: 'short',
                             day: 'numeric',

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import './Auth.css'
 
 export default function ResetPassword() {
+  const { t } = useTranslation()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
@@ -51,17 +53,17 @@ export default function ResetPassword() {
     setError('')
 
     if (!password || !confirmPassword) {
-      setError('Please fill in all fields')
+      setError(t('auth.login.errorEmpty'))
       return
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError(t('auth.resetPassword.errorLength'))
       return
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('auth.resetPassword.errorMismatch'))
       return
     }
 
@@ -82,7 +84,7 @@ export default function ResetPassword() {
       }, 3000)
     } catch (err) {
       console.error('Reset password error:', err)
-      setError(err.message || 'Failed to reset password')
+      setError(err.message || t('errors.generic'))
     } finally {
       setLoading(false)
     }
@@ -94,7 +96,7 @@ export default function ResetPassword() {
         <div className="auth-container">
           <div className="auth-header">
             <Link to="/" className="auth-logo">FamBam</Link>
-            <h1>Verifying...</h1>
+            <h1>{t('common.loading')}</h1>
           </div>
           <div className="loading-spinner-container">
             <div className="spinner"></div>
@@ -110,16 +112,15 @@ export default function ResetPassword() {
         <div className="auth-container">
           <div className="auth-header">
             <Link to="/" className="auth-logo">FamBam</Link>
-            <h1>Invalid or expired link</h1>
-            <p>This password reset link is invalid or has expired.</p>
+            <h1>{t('errors.unauthorized')}</h1>
           </div>
 
           <Link to="/forgot-password" className="btn-primary auth-submit">
-            Request a new link
+            {t('auth.forgotPassword.submitButton')}
           </Link>
 
           <p className="auth-footer">
-            <Link to="/login">Back to Sign In</Link>
+            <Link to="/login">{t('auth.forgotPassword.backToLogin')}</Link>
           </p>
         </div>
       </div>
@@ -132,16 +133,12 @@ export default function ResetPassword() {
         <div className="auth-container">
           <div className="auth-header">
             <Link to="/" className="auth-logo">FamBam</Link>
-            <h1>Password reset!</h1>
-            <p>Your password has been successfully updated.</p>
-          </div>
-
-          <div className="auth-success-message">
-            <p>Redirecting you to sign in...</p>
+            <h1>{t('auth.resetPassword.success')}</h1>
+            <p>{t('auth.resetPassword.redirecting')}</p>
           </div>
 
           <Link to="/login" className="btn-primary auth-submit">
-            Sign In Now
+            {t('auth.login.submitButton')}
           </Link>
         </div>
       </div>
@@ -153,21 +150,21 @@ export default function ResetPassword() {
       <div className="auth-container">
         <div className="auth-header">
           <Link to="/" className="auth-logo">FamBam</Link>
-          <h1>Set new password</h1>
-          <p>Enter your new password below</p>
+          <h1>{t('auth.resetPassword.title')}</h1>
+          <p>{t('auth.resetPassword.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="auth-error">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="password">New Password</label>
+            <label htmlFor="password">{t('auth.resetPassword.newPassword')}</label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 6 characters"
+              placeholder={t('auth.signup.passwordPlaceholder')}
               required
               autoFocus
               minLength={6}
@@ -175,25 +172,25 @@ export default function ResetPassword() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label htmlFor="confirmPassword">{t('auth.resetPassword.confirmPassword')}</label>
             <input
               type="password"
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm your password"
+              placeholder={t('auth.resetPassword.confirmPassword')}
               required
               minLength={6}
             />
           </div>
 
           <button type="submit" className="btn-primary auth-submit" disabled={loading}>
-            {loading ? 'Updating...' : 'Update Password'}
+            {loading ? t('auth.resetPassword.submitting') : t('auth.resetPassword.submitButton')}
           </button>
         </form>
 
         <p className="auth-footer">
-          <Link to="/login">Back to Sign In</Link>
+          <Link to="/login">{t('auth.forgotPassword.backToLogin')}</Link>
         </p>
       </div>
     </div>

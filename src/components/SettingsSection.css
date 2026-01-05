@@ -2,6 +2,23 @@
 /* Note: Most styles are in Profile.css and inherited */
 /* This file is for any SettingsSection-specific overrides */
 
+/* Language Selector */
+.language-select {
+  padding: 8px 12px;
+  border-radius: var(--radius-button);
+  border: 1px solid #ddd;
+  background: white;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
 /* Debug Panel */
 .debug-toggle-btn {
   width: 100%;

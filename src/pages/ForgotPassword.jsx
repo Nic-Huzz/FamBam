@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import './Auth.css'
 
 export default function ForgotPassword() {
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -14,7 +16,7 @@ export default function ForgotPassword() {
     setError('')
 
     if (!email) {
-      setError('Please enter your email address')
+      setError(t('auth.signup.errorEmail'))
       return
     }
 
@@ -30,7 +32,7 @@ export default function ForgotPassword() {
       setSuccess(true)
     } catch (err) {
       console.error('Reset password error:', err)
-      setError(err.message || 'Failed to send reset email')
+      setError(err.message || t('errors.generic'))
     } finally {
       setLoading(false)
     }
@@ -42,24 +44,19 @@ export default function ForgotPassword() {
         <div className="auth-container">
           <div className="auth-header">
             <Link to="/" className="auth-logo">FamBam</Link>
-            <h1>Check your email</h1>
-            <p>We've sent a password reset link to <strong>{email}</strong></p>
-          </div>
-
-          <div className="auth-success-message">
-            <p>Click the link in the email to reset your password. The link will expire in 1 hour.</p>
-            <p>Didn't receive the email? Check your spam folder or try again.</p>
+            <h1>{t('auth.forgotPassword.success')}</h1>
+            <p><strong>{email}</strong></p>
           </div>
 
           <button
             className="btn-secondary auth-submit"
             onClick={() => setSuccess(false)}
           >
-            Try another email
+            {t('auth.login.email')}
           </button>
 
           <p className="auth-footer">
-            <Link to="/login">Back to Sign In</Link>
+            <Link to="/login">{t('auth.forgotPassword.backToLogin')}</Link>
           </p>
         </div>
       </div>
@@ -71,33 +68,33 @@ export default function ForgotPassword() {
       <div className="auth-container">
         <div className="auth-header">
           <Link to="/" className="auth-logo">FamBam</Link>
-          <h1>Forgot password?</h1>
-          <p>Enter your email and we'll send you a reset link</p>
+          <h1>{t('auth.forgotPassword.title')}</h1>
+          <p>{t('auth.forgotPassword.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="auth-error">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('auth.login.email')}</label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
+              placeholder={t('auth.login.emailPlaceholder')}
               required
               autoFocus
             />
           </div>
 
           <button type="submit" className="btn-primary auth-submit" disabled={loading}>
-            {loading ? 'Sending...' : 'Send Reset Link'}
+            {loading ? t('auth.forgotPassword.submitting') : t('auth.forgotPassword.submitButton')}
           </button>
         </form>
 
         <p className="auth-footer">
-          Remember your password? <Link to="/login">Sign in</Link>
+          <Link to="/login">{t('auth.forgotPassword.backToLogin')}</Link>
         </p>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase, calculateStreakFromHistory } from '../lib/supabase'
 import { getCurrentWeekNumber } from '../lib/dateUtils'
 import { isConnectionChallenge, getConnectionType, getConnectionIcon, getConnectionActionWord } from '../lib/connectionUtils'
@@ -13,6 +14,7 @@ import Confetti from '../components/Confetti'
 import './Challenges.css'
 
 export default function Challenges() {
+  const { t } = useTranslation()
   const { profile, family, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [challenges, setChallenges] = useState([])
@@ -317,10 +319,10 @@ export default function Challenges() {
   }
 
   const categories = {
-    connect: { title: 'Connect', icon: '💬', challenges: [] },
-    share: { title: 'Share Updates', icon: '📸', challenges: [] },
-    celebrate: { title: 'Celebrate', icon: '🎉', challenges: [] },
-    reflect: { title: 'Reflect & Discover', icon: '💭', challenges: [] },
+    connect: { title: t('challenges.categories.connect'), icon: '💬', challenges: [] },
+    share: { title: t('challenges.categories.share'), icon: '📸', challenges: [] },
+    celebrate: { title: t('challenges.categories.celebrate'), icon: '🎉', challenges: [] },
+    reflect: { title: t('challenges.categories.reflect'), icon: '💭', challenges: [] },
   }
 
   challenges.forEach(challenge => {
@@ -335,7 +337,7 @@ export default function Challenges() {
       {showConfetti && <Confetti />}
 
       <header className="page-header">
-        <h1>Challenges</h1>
+        <h1>{t('challenges.title')}</h1>
         <div className="progress-info">
           <div className="progress-bar">
             <div
@@ -344,16 +346,16 @@ export default function Challenges() {
             />
           </div>
           <span className="progress-text">
-            {totalCompletions} of {maxPossibleCompletions} complete
+            {t('challenges.progress.of', { completed: totalCompletions, total: maxPossibleCompletions })}
           </span>
         </div>
       </header>
 
       {/* Navigation Tabs */}
       <div className="challenges-nav">
-        <Link to="/challenges" className="nav-tab active">This Week</Link>
-        <Link to="/history" className="nav-tab">History</Link>
-        <Link to="/recap" className="nav-tab">Recap</Link>
+        <Link to="/challenges" className="nav-tab active">{t('challenges.thisWeek')}</Link>
+        <Link to="/history" className="nav-tab">{t('challenges.nav.history')}</Link>
+        <Link to="/recap" className="nav-tab">{t('challenges.nav.recap')}</Link>
       </div>
 
       <main className="page-content">
@@ -364,8 +366,8 @@ export default function Challenges() {
         ) : challenges.length === 0 ? (
           <div className="empty-state">
             <span className="empty-icon">🎯</span>
-            <h2>No challenges yet</h2>
-            <p>Check back soon for new challenges!</p>
+            <h2>{t('challenges.empty.title')}</h2>
+            <p>{t('challenges.empty.subtitle')}</p>
           </div>
         ) : (
           categoryOrder.map(categoryKey => {
@@ -404,7 +406,7 @@ export default function Challenges() {
             <span className="selector-emoji">
               {getConnectionIcon(pendingChallenge.title)}
             </span>
-            <h2>Who did you {getConnectionType(pendingChallenge.title)}?</h2>
+            <h2>{t('challenges.selectMemberPrompt', { action: t(`challenges.connection.${getConnectionType(pendingChallenge.title)}`) })}</h2>
 
             {/* Smart Nudge Suggestion */}
             {suggestedMember && suggestedMember.needsReconnect && !selectedMemberId && (
@@ -413,14 +415,14 @@ export default function Challenges() {
                 <div className="nudge-content">
                   <span className="nudge-text">
                     {suggestedMember.daysSinceLastConnection === null
-                      ? `You haven't connected with ${suggestedMember.name} yet!`
-                      : `It's been ${suggestedMember.daysSinceLastConnection} days since you connected with ${suggestedMember.name}`}
+                      ? t('challenges.nudge.notConnected', { name: suggestedMember.name })
+                      : t('challenges.nudge.daysSince', { days: suggestedMember.daysSinceLastConnection, name: suggestedMember.name })}
                   </span>
                   <button
                     className="nudge-select-btn"
                     onClick={() => setSelectedMemberId(suggestedMember.id)}
                   >
-                    Select {suggestedMember.name}
+                    {t('challenges.nudge.select', { name: suggestedMember.name })}
                   </button>
                 </div>
               </div>
@@ -432,7 +434,7 @@ export default function Challenges() {
                 onChange={(e) => setSelectedMemberId(e.target.value)}
                 className="member-dropdown"
               >
-                <option value="">Select a family member...</option>
+                <option value="">{t('challenges.selectPlaceholder')}</option>
                 {familyMembers.map(member => (
                   <option key={member.id} value={member.id}>
                     {member.name}
@@ -440,13 +442,13 @@ export default function Challenges() {
                     {member.needsReconnect ? ' ⚠️' : ''}
                   </option>
                 ))}
-                <option value="other">Other (not in app)</option>
+                <option value="other">{t('challenges.otherOption')}</option>
               </select>
 
               {selectedMemberId === 'other' && (
                 <input
                   type="text"
-                  placeholder="Enter their name..."
+                  placeholder={t('challenges.enterName')}
                   value={otherMemberName}
                   onChange={(e) => setOtherMemberName(e.target.value)}
                   className="other-name-input"
@@ -462,11 +464,11 @@ export default function Challenges() {
                     return (
                       <>
                         <p className="bonus-info">
-                          {member.name} will also earn +{pendingChallenge.points_value} points!
+                          {t('challenges.memberStats.bonus', { name: member.name, points: pendingChallenge.points_value })}
                         </p>
                         {member.streak > 0 && (
                           <p className="streak-info">
-                            🔥 {member.streak} week streak with {member.name}!
+                            🔥 {t('challenges.memberStats.streak', { weeks: member.streak, name: member.name })}
                           </p>
                         )}
                       </>
@@ -482,7 +484,7 @@ export default function Challenges() {
                 onClick={handleMemberSelectorSubmit}
                 disabled={!selectedMemberId || (selectedMemberId === 'other' && !otherMemberName.trim())}
               >
-                Complete Challenge
+                {t('challenges.modal.completeChallenge')}
               </button>
               <button
                 className="btn-secondary"
@@ -491,7 +493,7 @@ export default function Challenges() {
                   setPendingChallenge(null)
                 }}
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </div>
@@ -505,17 +507,17 @@ export default function Challenges() {
         }}>
           <div className="completion-modal">
             <span className="completion-emoji">🎉</span>
-            <h2>Nice!</h2>
-            <p className="completion-points">+{completedChallenge.points_value} points</p>
+            <h2>{t('challenges.modal.nice')}</h2>
+            <p className="completion-points">{t('challenges.modal.pointsEarned', { points: completedChallenge.points_value })}</p>
             <p className="completion-message">
-              You completed "{completedChallenge.title}"
+              {t('challenges.modal.completedMessage', { title: completedChallenge.title })}
             </p>
             <div className="completion-actions">
               <button
                 className="btn-primary"
                 onClick={() => navigate('/leaderboard')}
               >
-                View Leaderboard
+                {t('challenges.modal.viewLeaderboard')}
               </button>
               <button
                 className="btn-secondary"
@@ -524,7 +526,7 @@ export default function Challenges() {
                   setShowConfetti(false)
                 }}
               >
-                Keep Going
+                {t('challenges.modal.keepGoing')}
               </button>
             </div>
           </div>

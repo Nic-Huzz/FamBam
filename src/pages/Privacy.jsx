@@ -1,16 +1,19 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import './Legal.css'
 
 export default function Privacy() {
+  const { t } = useTranslation()
+
   return (
     <div className="legal-page">
       <header className="legal-header">
-        <Link to="/" className="back-link">← Back</Link>
-        <h1>Privacy Policy</h1>
+        <Link to="/" className="back-link">← {t('common.back')}</Link>
+        <h1>{t('legal.privacy.title')}</h1>
       </header>
 
       <main className="legal-content">
-        <p className="last-updated">Last updated: December 2024</p>
+        <p className="last-updated">{t('legal.privacy.lastUpdated', { date: 'December 2024' })}</p>
 
         <section>
           <h2>1. Information We Collect</h2>
