@@ -1,34 +1,16 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import './Onboarding.css'
 
-const STEPS = [
-  {
-    icon: '👨‍👩‍👧‍👦',
-    title: 'Welcome to FamBam!',
-    description: 'The app that helps your family stay connected, no matter the distance.',
-  },
-  {
-    icon: '🎯',
-    title: 'Complete Challenges',
-    description: 'Earn points by calling family members, sharing updates, and celebrating wins together.',
-  },
-  {
-    icon: '📸',
-    title: 'Share Moments',
-    description: 'Post photos, videos, and voice notes to keep everyone in the loop.',
-  },
-  {
-    icon: '🏆',
-    title: 'Climb the Leaderboard',
-    description: 'See who\'s the most connected family member each week!',
-  },
-]
+const STEP_KEYS = ['welcome', 'challenges', 'share', 'leaderboard']
+const STEP_ICONS = ['👨‍👩‍👧‍👦', '🎯', '📸', '🏆']
 
 export default function Onboarding({ onComplete }) {
+  const { t } = useTranslation()
   const [currentStep, setCurrentStep] = useState(0)
 
   const handleNext = () => {
-    if (currentStep < STEPS.length - 1) {
+    if (currentStep < STEP_KEYS.length - 1) {
       setCurrentStep(currentStep + 1)
     } else {
       onComplete()
@@ -39,24 +21,24 @@ export default function Onboarding({ onComplete }) {
     onComplete()
   }
 
-  const step = STEPS[currentStep]
-  const isLastStep = currentStep === STEPS.length - 1
+  const stepKey = STEP_KEYS[currentStep]
+  const isLastStep = currentStep === STEP_KEYS.length - 1
 
   return (
     <div className="onboarding">
       <button className="skip-btn" onClick={handleSkip}>
-        Skip
+        {t('onboarding.skip')}
       </button>
 
       <div className="onboarding-content">
-        <span className="onboarding-icon">{step.icon}</span>
-        <h1>{step.title}</h1>
-        <p>{step.description}</p>
+        <span className="onboarding-icon">{STEP_ICONS[currentStep]}</span>
+        <h1>{t(`onboarding.steps.${stepKey}.title`)}</h1>
+        <p>{t(`onboarding.steps.${stepKey}.description`)}</p>
       </div>
 
       <div className="onboarding-footer">
         <div className="step-dots">
-          {STEPS.map((_, index) => (
+          {STEP_KEYS.map((_, index) => (
             <span
               key={index}
               className={`dot ${index === currentStep ? 'active' : ''}`}
@@ -65,7 +47,7 @@ export default function Onboarding({ onComplete }) {
         </div>
 
         <button className="btn-primary onboarding-btn" onClick={handleNext}>
-          {isLastStep ? 'Get Started' : 'Next'}
+          {isLastStep ? t('onboarding.getStarted') : t('onboarding.next')}
         </button>
       </div>
     </div>

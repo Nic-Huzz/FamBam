@@ -256,3 +256,35 @@
   justify-content: center;
   padding: 40px 0;
 }
+
+/* Language selector bar */
+.auth-language-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+.auth-language-bar .lang-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-button);
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-language-bar .lang-btn:hover {
+  border-color: var(--coral);
+  color: var(--coral);
+}
+
+.auth-language-bar .lang-btn.active {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: white;
+}

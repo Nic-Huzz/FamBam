@@ -78,7 +78,7 @@
   background: white;
 }
 
-.onboarding-btn {
+.onboarding-btn.btn-primary {
   width: 100%;
   padding: 16px;
   font-size: 18px;
@@ -86,6 +86,7 @@
   color: var(--coral);
 }
 
-.onboarding-btn:hover {
+.onboarding-btn.btn-primary:hover {
   background: rgba(255, 255, 255, 0.9);
+  color: var(--coral);
 }

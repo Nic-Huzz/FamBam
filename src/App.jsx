@@ -1,6 +1,7 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
+import Onboarding from './components/Onboarding'
 
 // Loading spinner component
 function PageLoader() {
@@ -32,13 +33,34 @@ const Privacy = lazy(() => import('./pages/Privacy'))
 // Protected route wrapper
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [checkingOnboarding, setCheckingOnboarding] = useState(true)
 
-  if (loading) {
+  useEffect(() => {
+    if (user) {
+      const hasSeenOnboarding = localStorage.getItem(`onboarding_${user.id}`)
+      setShowOnboarding(!hasSeenOnboarding)
+      setCheckingOnboarding(false)
+    }
+  }, [user])
+
+  if (loading || checkingOnboarding) {
     return <PageLoader />
   }
 
   if (!user) {
     return <Navigate to="/login" replace />
+  }
+
+  if (showOnboarding) {
+    return (
+      <Onboarding
+        onComplete={() => {
+          localStorage.setItem(`onboarding_${user.id}`, 'true')
+          setShowOnboarding(false)
+        }}
+      />
+    )
   }
 
   return children

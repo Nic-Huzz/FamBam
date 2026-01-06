@@ -117,6 +117,29 @@
       }
     }
   },
+  "onboarding": {
+    "skip": "Uberspringen",
+    "next": "Weiter",
+    "getStarted": "Loslegen",
+    "steps": {
+      "welcome": {
+        "title": "Willkommen bei FamBam!",
+        "description": "Die App, die deiner Familie hilft, verbunden zu bleiben, egal wie weit entfernt."
+      },
+      "challenges": {
+        "title": "Aufgaben erledigen",
+        "description": "Verdiene Punkte durch Anrufe bei Familienmitgliedern, Updates teilen und gemeinsam feiern."
+      },
+      "share": {
+        "title": "Momente teilen",
+        "description": "Teile Fotos, Videos und Sprachnachrichten, um alle auf dem Laufenden zu halten."
+      },
+      "leaderboard": {
+        "title": "Steig in der Bestenliste auf",
+        "description": "Sieh wer das verbundenste Familienmitglied jede Woche ist!"
+      }
+    }
+  },
   "feed": {
     "title": "Familien-Feed",
     "empty": {

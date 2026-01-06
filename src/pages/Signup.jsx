@@ -5,7 +5,7 @@ import { supabase, generateInviteCode } from '../lib/supabase'
 import './Auth.css'
 
 export default function Signup() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -220,6 +220,27 @@ export default function Signup() {
         <p className="auth-footer">
           {t('auth.signup.haveAccount')} <Link to="/login">{t('auth.signup.signIn')}</Link>
         </p>
+
+        <div className="auth-language-bar">
+          <button
+            className={`lang-btn ${i18n.language === 'en' ? 'active' : ''}`}
+            onClick={() => i18n.changeLanguage('en')}
+          >
+            English
+          </button>
+          <button
+            className={`lang-btn ${i18n.language === 'es' ? 'active' : ''}`}
+            onClick={() => i18n.changeLanguage('es')}
+          >
+            Espanol
+          </button>
+          <button
+            className={`lang-btn ${i18n.language === 'de' ? 'active' : ''}`}
+            onClick={() => i18n.changeLanguage('de')}
+          >
+            Deutsch
+          </button>
+        </div>
       </div>
     </div>
   )

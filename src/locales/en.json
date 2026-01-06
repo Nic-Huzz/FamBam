@@ -117,6 +117,29 @@
       }
     }
   },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "getStarted": "Get Started",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to FamBam!",
+        "description": "The app that helps your family stay connected, no matter the distance."
+      },
+      "challenges": {
+        "title": "Complete Challenges",
+        "description": "Earn points by calling family members, sharing updates, and celebrating wins together."
+      },
+      "share": {
+        "title": "Share Moments",
+        "description": "Post photos, videos, and voice notes to keep everyone in the loop."
+      },
+      "leaderboard": {
+        "title": "Climb the Leaderboard",
+        "description": "See who's the most connected family member each week!"
+      }
+    }
+  },
   "feed": {
     "title": "Family Feed",
     "empty": {
