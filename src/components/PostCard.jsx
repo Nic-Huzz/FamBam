@@ -4,6 +4,7 @@ import { supabase, autoCompleteChallenge } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { getCommentSuggestions, isAIEnabled } from '../lib/ai'
 import LazyImage from './LazyImage'
+import LazyVideo from './LazyVideo'
 import PhotoCarousel from './PhotoCarousel'
 import './PostCard.css'
 
@@ -287,7 +288,7 @@ export default function PostCard({ post, onUpdate, onReactionUpdate, hideShare =
               <LazyImage src={post.content_url} alt="Post" className="post-image" />
             )}
             {post.content_url && post.content_type === 'video' && (
-              <video src={post.content_url} controls className="post-video" />
+              <LazyVideo src={post.content_url} className="post-video" />
             )}
           </>
         )}

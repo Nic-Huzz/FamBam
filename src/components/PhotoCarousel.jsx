@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import LazyImage from './LazyImage'
+import LazyVideo from './LazyVideo'
 import './PhotoCarousel.css'
 
 export default function PhotoCarousel({ media }) {
@@ -14,7 +15,7 @@ export default function PhotoCarousel({ media }) {
   if (media.length === 1) {
     const item = media[0]
     return item.media_type === 'video' ? (
-      <video src={item.media_url} controls className="post-video" />
+      <LazyVideo src={item.media_url} className="post-video" />
     ) : (
       <LazyImage src={item.media_url} alt="Post" className="post-image" />
     )
@@ -73,7 +74,7 @@ export default function PhotoCarousel({ media }) {
           {media.map((item, index) => (
             <div key={item.id || index} className="carousel-slide">
               {item.media_type === 'video' ? (
-                <video src={item.media_url} controls className="carousel-video" />
+                <LazyVideo src={item.media_url} className="carousel-video" />
               ) : (
                 <LazyImage src={item.media_url} alt={`Photo ${index + 1}`} className="carousel-image" />
               )}
