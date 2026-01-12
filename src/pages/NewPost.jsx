@@ -7,6 +7,7 @@ import { checkStorytellerBadge } from '../lib/badges'
 import AudioRecorder from '../components/AudioRecorder'
 import { AiPostPrompts, AiCaptionSuggestions } from '../components/AiSuggestions'
 import { compressImage } from '../lib/imageCompression'
+import { compressVideo, shouldCompress } from '../lib/videoCompression'
 import './NewPost.css'
 
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024 // 50MB
@@ -42,6 +43,8 @@ export default function NewPost() {
   const [error, setError] = useState('')
   const [challengeCompleted, setChallengeCompleted] = useState(null)
   const [showCaptions, setShowCaptions] = useState(true)
+  const [compressing, setCompressing] = useState(false)
+  const [compressionProgress, setCompressionProgress] = useState(0)
 
   const handleMediaChange = async (e) => {
     const files = Array.from(e.target.files || [])
@@ -69,7 +72,17 @@ export default function NewPost() {
         try {
           processedFile = await compressImage(file)
         } catch (err) {
-          console.error('Compression failed, using original:', err)
+          console.error('Image compression failed, using original:', err)
+        }
+      } else if (isVideo && shouldCompress(file)) {
+        try {
+          setCompressing(true)
+          setCompressionProgress(0)
+          processedFile = await compressVideo(file, setCompressionProgress)
+        } catch (err) {
+          console.error('Video compression failed, using original:', err)
+        } finally {
+          setCompressing(false)
         }
       }
 
@@ -245,6 +258,14 @@ export default function NewPost() {
 
       <main className="new-post-content">
         {error && <div className="auth-error">{error}</div>}
+        {compressing && (
+          <div className="compression-progress">
+            <div className="compression-text">Compressing video... {compressionProgress}%</div>
+            <div className="compression-bar">
+              <div className="compression-fill" style={{ width: `${compressionProgress}%` }} />
+            </div>
+          </div>
+        )}
 
         <div className="post-author-preview">
           <img
