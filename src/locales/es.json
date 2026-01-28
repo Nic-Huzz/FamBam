@@ -471,5 +471,15 @@
     "network": "Error de red. Por favor verifica tu conexion.",
     "notFound": "No encontrado",
     "unauthorized": "Por favor inicia sesion para continuar"
+  },
+  "video": {
+    "errors": {
+      "network": "Error de red - verifica tu conexion",
+      "notFound": "Video no encontrado",
+      "format": "Formato de video no soportado",
+      "decode": "No se puede reproducir este video",
+      "unknown": "Video no disponible",
+      "compressionFailed": "Error al procesar el video. Prueba con otro formato."
+    }
   }
 }

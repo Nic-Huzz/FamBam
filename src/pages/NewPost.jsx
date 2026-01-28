@@ -80,7 +80,10 @@ export default function NewPost() {
           setCompressionProgress(0)
           processedFile = await compressVideo(file, setCompressionProgress)
         } catch (err) {
-          console.error('Video compression failed, using original:', err)
+          console.error('Video compression failed:', err)
+          setError(t('video.errors.compressionFailed'))
+          setCompressing(false)
+          continue
         } finally {
           setCompressing(false)
         }

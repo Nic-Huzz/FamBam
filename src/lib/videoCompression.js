@@ -97,12 +97,11 @@ export async function compressVideo(videoFile, onProgress) {
 }
 
 /**
- * Check if a file needs compression (videos over 5MB)
+ * Check if a file needs compression
+ * All videos are compressed to ensure consistent MP4/H.264 format for universal playback
  */
 export function shouldCompress(file) {
-  const isVideo = file.type.startsWith('video/')
-  const sizeInMB = file.size / (1024 * 1024)
-  return isVideo && sizeInMB > 5
+  return file.type.startsWith('video/')
 }
 
 /**

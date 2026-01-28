@@ -473,5 +473,15 @@
     "network": "Network error. Please check your connection.",
     "notFound": "Not found",
     "unauthorized": "Please sign in to continue"
+  },
+  "video": {
+    "errors": {
+      "network": "Network error - check your connection",
+      "notFound": "Video not found",
+      "format": "Video format not supported",
+      "decode": "Unable to play this video",
+      "unknown": "Video unavailable",
+      "compressionFailed": "Video processing failed. Try a different video format."
+    }
   }
 }
