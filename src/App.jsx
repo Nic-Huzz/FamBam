@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import { useAuth } from './context/AuthContext'
 import Onboarding from './components/Onboarding'
 
@@ -83,83 +84,86 @@ function PublicRoute({ children }) {
 
 export default function App() {
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={
-          <PublicRoute>
-            <Landing />
-          </PublicRoute>
-        } />
-        <Route path="/login" element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        } />
-        <Route path="/signup" element={
-          <PublicRoute>
-            <Signup />
-          </PublicRoute>
-        } />
-        <Route path="/forgot-password" element={
-          <PublicRoute>
-            <ForgotPassword />
-          </PublicRoute>
-        } />
-        <Route path="/reset-password" element={<ResetPassword />} />
+    <>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={
+            <PublicRoute>
+              <Landing />
+            </PublicRoute>
+          } />
+          <Route path="/login" element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          } />
+          <Route path="/signup" element={
+            <PublicRoute>
+              <Signup />
+            </PublicRoute>
+          } />
+          <Route path="/forgot-password" element={
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
+          } />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Protected routes */}
-        <Route path="/feed" element={
-          <ProtectedRoute>
-            <Feed />
-          </ProtectedRoute>
-        } />
-        <Route path="/post/new" element={
-          <ProtectedRoute>
-            <NewPost />
-          </ProtectedRoute>
-        } />
-        <Route path="/post/:id" element={
-          <ProtectedRoute>
-            <PostDetail />
-          </ProtectedRoute>
-        } />
-        <Route path="/challenges" element={
-          <ProtectedRoute>
-            <Challenges />
-          </ProtectedRoute>
-        } />
-        <Route path="/history" element={
-          <ProtectedRoute>
-            <History />
-          </ProtectedRoute>
-        } />
-        <Route path="/recap" element={
-          <ProtectedRoute>
-            <WeeklyRecap />
-          </ProtectedRoute>
-        } />
-        <Route path="/leaderboard" element={
-          <ProtectedRoute>
-            <Leaderboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        } />
+          {/* Protected routes */}
+          <Route path="/feed" element={
+            <ProtectedRoute>
+              <Feed />
+            </ProtectedRoute>
+          } />
+          <Route path="/post/new" element={
+            <ProtectedRoute>
+              <NewPost />
+            </ProtectedRoute>
+          } />
+          <Route path="/post/:id" element={
+            <ProtectedRoute>
+              <PostDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/challenges" element={
+            <ProtectedRoute>
+              <Challenges />
+            </ProtectedRoute>
+          } />
+          <Route path="/history" element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          } />
+          <Route path="/recap" element={
+            <ProtectedRoute>
+              <WeeklyRecap />
+            </ProtectedRoute>
+          } />
+          <Route path="/leaderboard" element={
+            <ProtectedRoute>
+              <Leaderboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
 
-        {/* Debug route */}
-        <Route path="/debug" element={<Debug />} />
+          {/* Debug route */}
+          <Route path="/debug" element={<Debug />} />
 
-        {/* Legal pages (public) */}
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
+          {/* Legal pages (public) */}
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
 
-        {/* Catch all - redirect to home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+          {/* Catch all - redirect to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+      <Analytics />
+    </>
   )
 }
